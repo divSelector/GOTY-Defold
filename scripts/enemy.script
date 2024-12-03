@@ -1,0 +1,114 @@
+local collision = require "modules.collision"
+
+go.property("velocity", vmath.vector3())
+
+local gravity = 1000
+
+function init(self)
+
+    self.idle_timer = 0
+    self.slide_timer = 0
+    self.slide_cooldown_timer = 0
+
+    self.sprite_flipped = false
+    self.current_anim = "stand-idle"
+
+    self.momentum = 0
+
+    self.correction = vmath.vector3()
+    self.ground_contact = false
+
+    self.is_crouching = false
+    self.can_jump = true
+
+    self.jump_distance = 0
+    self.coyote_time = 0
+    self.coyote_allowed = false
+
+    self.jump_streak = 0
+    self.jump_streak_increment = 0
+    self.last_jump_momentum = 0
+
+    self.can_attack = true
+    self.attack_hold_time = 0
+
+end
+
+local function apply_gravity(self, dt)
+    if not self.ground_contact then
+        self.velocity.y = self.velocity.y + (-gravity * dt)
+    end
+end
+
+local function calculate_move(self, dt)
+
+    apply_gravity(self, dt)
+
+    -- if slide(self, dt) then
+    --     return
+    -- end
+
+    -- jump(self, dt)
+
+    -- run(self, dt)
+
+    -- on_exit_crouch(self)
+end
+
+
+function update(self, dt)
+
+    local pos = go.get_position()
+
+    calculate_move(self, dt)
+
+    -- animate(self, dt)
+
+    go.set_position(pos + self.velocity * dt)
+
+    self.wall_contact_left = false
+    self.wall_contact_right = false
+    self.ground_contact = false
+    self.correction = vmath.vector3()
+end
+
+
+local function into_ground_and_walls(self, normal)
+
+    local slope_threshold = 0.1 -- Tolerate slight slopes
+
+    -- Running against walls
+    if math.abs(normal.x) > 0.5 and math.abs(normal.y) < slope_threshold then
+        self.velocity.x = 0
+        if normal.x > 0 then
+            self.wall_contact_left = true
+        elseif normal.x < 0 then
+            self.wall_contact_right = true
+        end
+    end
+    
+    -- on the ground
+    if normal.y > 0 then
+        self.ground_contact = true
+        self.velocity.y = 0
+    end
+
+    -- hit the ceiling
+    if normal.y < 0 then
+        self.velocity.y = 0
+        self.is_jumping = false
+    end
+end
+
+local collision_handlers = {
+    [hash("ground")] = into_ground_and_walls,
+}
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("contact_point_response") then
+        local handler = collision_handlers[message.other_group]
+        if handler then
+            collision.handle(self, message.normal, message.distance, handler)
+        end
+    end
+end

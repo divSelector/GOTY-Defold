@@ -1,0 +1,39 @@
+name: "main"
+instances {
+  id: "player"
+  prototype: "/player/player.go"
+  position {
+    x: -436.32504
+    y: 22.165129
+  }
+}
+instances {
+  id: "test_level"
+  prototype: "/main/test_level.go"
+  position {
+    y: 20.176697
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "camera"
+  data: "components {\n"
+  "  id: \"controller\"\n"
+  "  component: \"/scripts/camera.script\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"camera\"\n"
+  "  type: \"camera\"\n"
+  "  data: \"aspect_ratio: 1.0\\n"
+  "fov: 1.0\\n"
+  "near_z: 0.1\\n"
+  "far_z: 1000.0\\n"
+  "auto_aspect_ratio: 1\\n"
+  "\"\n"
+  "}\n"
+  ""
+  position {
+    y: 145.54909
+    z: 230.39447
+  }
+}

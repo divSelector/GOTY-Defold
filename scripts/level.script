@@ -1,0 +1,62 @@
+
+local function set_player_spawn_position(self)
+    local data = self.player_spawn_positions[self.spawn_point]
+    local position = vmath.vector3()
+    position.x = data.x
+    position.y = data.y
+
+    go.set_position(position, "/player#player")
+end
+
+local function get_spawn_positions(self, layer_name)
+    local positions = {}
+
+    for _, layer in ipairs(self.data.layers) do
+        if layer.name == layer_name then
+            for _, object in ipairs(layer.objects) do
+                table.insert(positions, {
+                    id = object.id,
+                    x = object.x,
+                    y = object.y
+                })
+            end
+            break
+        end
+    end
+
+    table.sort(positions, function(a, b)
+        return a.id < b.id
+    end)
+
+    return positions
+end
+
+local function spawn_enemies(self)
+    for _, spawn_position in ipairs(self.enemy_spawn_positions) do
+        local enemy = factory.create("#enemy_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
+        table.insert(self.enemies, enemy)
+    end
+end
+
+function init(self)
+    self.spawn_point = 1
+    local resource = sys.load_resource("/resource/tilemaps/test.tmj")
+    if resource then
+        self.data = json.decode(resource)
+
+        self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
+        set_player_spawn_position(self)
+
+        self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
+        self.enemies = {}
+        spawn_enemies(self)
+    end
+end
+
+function update(self)
+    local player_position = go.get_position("/player#player")
+
+    if player_position.y < 0 then
+        set_player_spawn_position(self)
+    end
+end

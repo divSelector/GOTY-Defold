@@ -1,0 +1,142 @@
+animations {
+  id: "crouch-attack"
+  images {
+    image: "/assets/sprites/hat03/crouch_attack_1.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/crouch_attack_2.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/crouch_attack_3.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/crouch_attack_4.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "crouch-damaged"
+  images {
+    image: "/assets/sprites/hat03/crouch_damaged.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "crouch-idle"
+  images {
+    image: "/assets/sprites/hat03/crouch_idle.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "crouch-slide"
+  images {
+    image: "/assets/sprites/hat03/crouch_slide.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "jump-air"
+  images {
+    image: "/assets/sprites/hat03/jump_air.png"
+  }
+  playback: PLAYBACK_NONE
+}
+animations {
+  id: "jump-attack"
+  images {
+    image: "/assets/sprites/hat03/jump_attack_1.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/jump_attack_2.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/jump_attack_3.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/jump_attack_4.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "jump-damaged"
+  images {
+    image: "/assets/sprites/hat03/jump_damaged.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "jump-ground"
+  images {
+    image: "/assets/sprites/hat03/jump_ground.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "run"
+  images {
+    image: "/assets/sprites/hat03/run_1.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_2.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_3.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_4.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_5.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_6.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_7.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/run_8.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "stand-attack"
+  images {
+    image: "/assets/sprites/hat03/stand_attack_1.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/stand_attack_2.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/stand_attack_3.png"
+  }
+  images {
+    image: "/assets/sprites/hat03/stand_attack_4.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+}
+animations {
+  id: "stand-damaged"
+  images {
+    image: "/assets/sprites/hat03/stand_damaged.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+}
+animations {
+  id: "stand-idle"
+  images {
+    image: "/assets/sprites/hat03/stand_idle.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+}
+extrude_borders: 2

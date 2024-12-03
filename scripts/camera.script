@@ -1,0 +1,107 @@
+local input = require "modules.input"
+
+local x_follow_threshold = 6
+
+local look_down_duration_threshold = 1.0
+local look_down_move_speed = 2
+
+function init(self)
+    self.follow_player_x = true
+    self.follow_player_y = false
+
+    self.original_y = go.get_position().y
+    self.url = msg.url('/camera#camera')
+
+    self.look_down_timer = 0
+end
+
+local function is_position_on_camera(self, position)
+    local projection = camera.get_projection(self.url)
+    local view = camera.get_view(self.url)
+
+    local view_projection = projection * view
+
+    local ndc_position = view_projection * vmath.vector4(position.x, position.y, position.z or 0, 1)
+
+    -- Normalize to NDC space
+    ndc_position.x = ndc_position.x / ndc_position.w
+    ndc_position.y = ndc_position.y / ndc_position.w
+    ndc_position.z = ndc_position.z / ndc_position.w
+
+    -- Check relative position to camera bounds
+    local result = {
+        on_screen = ndc_position.x >= -1 and ndc_position.x <= 1 and
+                    ndc_position.y >= -1 and ndc_position.y <= 1 and
+                    ndc_position.z >= 0 and ndc_position.z <= 1,
+        above = ndc_position.y > 1,
+        below = ndc_position.y < -1,
+        left = ndc_position.x < -1,
+        right = ndc_position.x > 1,
+    }
+
+    return result
+end
+
+
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+function update(self, dt)
+    local camera_position = go.get_position()
+    local player_position = go.get_position("/player")
+
+    -- Check if the player is not above the screen
+    local camera_status = is_position_on_camera(self, player_position)
+
+    if camera_status.below or (not camera_status.on_screen and not camera_status.above) then
+        -- Move the camera to center on the player without lerp
+        camera_position.x = player_position.x
+        if self.follow_player_y then
+            camera_position.y = player_position.y
+        end
+    else
+        -- Apply smooth following when the player is now below camera
+        local x_diff = math.abs(camera_position.x - player_position.x)
+        if self.follow_player_x and x_diff > x_follow_threshold then
+            camera_position.x = lerp(camera_position.x, player_position.x, dt * 10)
+        end
+        if self.follow_player_y then
+            camera_position.y = lerp(camera_position.y, player_position.y, dt * 10)
+        end
+    end
+
+    if input.key_state.crouch then
+        self.look_down_timer = self.look_down_timer + dt
+        if self.look_down_timer >= look_down_duration_threshold and camera_status.on_screen then
+            camera_position.y = camera_position.y - look_down_move_speed
+        end
+    else
+        self.look_down_timer = 0 -- Reset timer if crouch is released
+    end
+
+    -- Ensure the camera doesn't drop below the original Y
+    if player_position.y < self.original_y then
+        camera_position.y = self.original_y
+    end
+
+    -- Prevent player scrolling from going too low
+    if camera_position.y < self.original_y then
+        camera_position.y = self.original_y
+    end
+
+    go.set_position(camera_position)
+end
+
+
+function on_message(self, message_id, message, sender)
+
+    if message_id == hash("follow_player_x") then
+        self.follow_player_x = message.toggle
+    end
+
+    if message_id == hash("follow_player_y") then
+        self.follow_player_y = message.toggle
+    end
+end
+

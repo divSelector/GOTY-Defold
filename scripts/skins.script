@@ -1,0 +1,114 @@
+-- Base options
+go.property("player_bluepants", resource.atlas("/resource/atlases/player-bluepants.atlas"))
+go.property("player_greenpants", resource.atlas("/resource/atlases/player-greenpants.atlas"))
+go.property("player_redpants", resource.atlas("/resource/atlases/player-redpants.atlas"))
+go.property("player_greypants", resource.atlas("/resource/atlases/player-greypants.atlas"))
+
+-- Body options (armor and robe)
+go.property("armor01", resource.atlas("/resource/atlases/armor01.atlas"))
+go.property("armor02", resource.atlas("/resource/atlases/armor02.atlas"))
+go.property("armor03", resource.atlas("/resource/atlases/armor03.atlas"))
+go.property("armor04", resource.atlas("/resource/atlases/armor04.atlas"))
+go.property("armor05", resource.atlas("/resource/atlases/armor05.atlas"))
+go.property("armor06", resource.atlas("/resource/atlases/armor06.atlas"))
+go.property("armor07", resource.atlas("/resource/atlases/armor07.atlas"))
+go.property("armor08", resource.atlas("/resource/atlases/armor08.atlas"))
+go.property("robe01", resource.atlas("/resource/atlases/robe01.atlas"))
+go.property("robe02", resource.atlas("/resource/atlases/robe02.atlas"))
+go.property("robe03", resource.atlas("/resource/atlases/robe03.atlas"))
+go.property("robe04", resource.atlas("/resource/atlases/robe04.atlas"))
+go.property("robe05", resource.atlas("/resource/atlases/robe05.atlas"))
+go.property("robe06", resource.atlas("/resource/atlases/robe06.atlas"))
+go.property("robe07", resource.atlas("/resource/atlases/robe07.atlas"))
+go.property("robe08", resource.atlas("/resource/atlases/robe08.atlas"))
+
+-- Head options (helm and hat)
+go.property("helm01", resource.atlas("/resource/atlases/helm01.atlas"))
+go.property("helm02", resource.atlas("/resource/atlases/helm02.atlas"))
+go.property("helm03", resource.atlas("/resource/atlases/helm03.atlas"))
+go.property("helm04", resource.atlas("/resource/atlases/helm04.atlas"))
+go.property("helm05", resource.atlas("/resource/atlases/helm05.atlas"))
+go.property("helm06", resource.atlas("/resource/atlases/helm06.atlas"))
+go.property("helm07", resource.atlas("/resource/atlases/helm07.atlas"))
+go.property("helm08", resource.atlas("/resource/atlases/helm08.atlas"))
+go.property("hat01", resource.atlas("/resource/atlases/hat01.atlas"))
+go.property("hat02", resource.atlas("/resource/atlases/hat02.atlas"))
+go.property("hat03", resource.atlas("/resource/atlases/hat03.atlas"))
+go.property("hat04", resource.atlas("/resource/atlases/hat04.atlas"))
+go.property("hat05", resource.atlas("/resource/atlases/hat05.atlas"))
+go.property("hat06", resource.atlas("/resource/atlases/hat06.atlas"))
+go.property("hat07", resource.atlas("/resource/atlases/hat07.atlas"))
+go.property("hat08", resource.atlas("/resource/atlases/hat08.atlas"))
+
+-- Accessory options (shield and book)
+go.property("shield01", resource.atlas("/resource/atlases/shield01.atlas"))
+go.property("shield02", resource.atlas("/resource/atlases/shield02.atlas"))
+go.property("shield03", resource.atlas("/resource/atlases/shield03.atlas"))
+go.property("shield04", resource.atlas("/resource/atlases/shield04.atlas"))
+go.property("shield05", resource.atlas("/resource/atlases/shield05.atlas"))
+go.property("shield06", resource.atlas("/resource/atlases/shield06.atlas"))
+go.property("shield07", resource.atlas("/resource/atlases/shield07.atlas"))
+go.property("shield08", resource.atlas("/resource/atlases/shield08.atlas"))
+go.property("book01", resource.atlas("/resource/atlases/book01.atlas"))
+go.property("book02", resource.atlas("/resource/atlases/book02.atlas"))
+go.property("book03", resource.atlas("/resource/atlases/book03.atlas"))
+go.property("book04", resource.atlas("/resource/atlases/book04.atlas"))
+go.property("book05", resource.atlas("/resource/atlases/book05.atlas"))
+go.property("book06", resource.atlas("/resource/atlases/book06.atlas"))
+go.property("book07", resource.atlas("/resource/atlases/book07.atlas"))
+go.property("book08", resource.atlas("/resource/atlases/book08.atlas"))
+
+-- Blank Atlas
+go.property("default", resource.atlas("/resource/atlases/default.atlas"))
+
+local bases = {
+    "player_bluepants",
+    "player_greenpants",
+    "player_redpants",
+    "player_greypants"
+}
+local bodies = {
+    "armor01", "armor02", "armor03", "armor04", "armor05", "armor06", "armor07", "armor08",
+    "robe01", "robe02", "robe03", "robe04", "robe05", "robe06", "robe07", "robe08"
+}
+local heads = {
+    "helm01", "helm02", "helm03", "helm04", "helm05", "helm06", "helm07", "helm08",
+    "hat01", "hat02", "hat03", "hat04", "hat05", "hat06", "hat07", "hat08"
+}
+local accessories = {
+    "shield01", "shield02", "shield03", "shield04", "shield05", "shield06", "shield07", "shield08", 
+    "book01", "book02", "book03", "book04", "book05", "book06", "book07", "book08"
+}
+
+local function set_skin(self, base, body, head, accessory)
+    local base = base or self.player_redpants
+    local body = body or self.default
+    local head = head or self.default
+    local accessory = accessory or self.default
+    go.set("#base", "image", base)
+    go.set("#body", "image", body)
+    go.set("#head", "image", head)
+    go.set("#accessory", "image", accessory)
+end
+
+function init(self)
+    set_skin(self)
+end
+
+local function get_random_skin(part_list)
+    math.randomseed(socket.gettime()*10000)
+    local random_index = math.random(1, #part_list)
+    local property_key = part_list[random_index]
+    return go.get("#", property_key)
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("randomize_skin") then
+        local base = get_random_skin(bases)
+        local body = get_random_skin(bodies)
+        local head = get_random_skin(heads)
+        local accessory = get_random_skin(accessories)
+
+        set_skin(self, base, body, head, accessory)
+    end
+end

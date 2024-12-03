@@ -1,0 +1,25 @@
+go.property("velocity", vmath.vector3())
+
+function init(self)
+    self.velocity = self.velocity or vmath.vector3()
+	self.lifetime = 2
+end
+
+function update(self, dt)
+    local position = go.get_position()
+    position = position + self.velocity * dt
+    go.set_position(position)
+
+    self.lifetime = self.lifetime - dt
+    if self.lifetime <= 0 then
+        go.delete()
+    end
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("trigger_response") then
+		if message.enter then
+			go.delete()
+		end
+    end
+end
