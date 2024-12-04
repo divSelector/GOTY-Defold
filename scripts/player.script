@@ -153,58 +153,6 @@ local function slide(self, dt)
     return interrupt_movement
 end
 
--- local function jump(self, dt)
-
---     -- Handle coyote time
---     self.coyote_duration = coyote_duration_min + ((self.momentum / max_momentum) * (coyote_duration_max - coyote_duration_min))
-
---     if self.ground_contact then
---         self.coyote_time = 0
---         self.coyote_allowed = true
---     else
---         if self.coyote_allowed then
---             self.coyote_time = math.min(self.coyote_time + dt, self.coyote_duration)
---             if self.coyote_time >= self.coyote_duration then
---                 self.coyote_allowed = false
---             end
---         end
---     end
-
---     -- Start the jump
---     if input.key_state.action and self.can_jump and (self.coyote_allowed and self.coyote_time < self.coyote_duration) then
---         self.current_jump_height = jump_height_min + ((self.momentum / max_momentum) * (jump_height_max - jump_height_min))
---         self.ground_contact = false
---         self.can_jump = false -- Prevent double jumps
---         self.is_jumping = true
---         self.jump_start_y = go.get_position().y -- Store the starting vertical position
---         self.coyote_allowed = false
---     end
-
---     -- Continue the jump while holding the button and within the max jump height
---     if input.key_state.action and self.is_jumping then
---         local current_y = go.get_position().y
---         local jump_distance = current_y - self.jump_start_y
-
---         if jump_distance < self.current_jump_height then
---             local jump_increment = jump_increment_min + ((self.momentum / max_momentum) * (jump_increment_max - jump_increment_min))
---             self.velocity.y = jump_increment
---         else
---             -- Stop jumping if max height is reached
---             self.is_jumping = false
---         end
---     end
-
---     -- Interrupt the jump if the button is released
---     if not input.key_state.action then
---         self.is_jumping = false
---     end
-
---     if self.ground_contact and not input.key_state.action and not self.is_crouching then
---         self.can_jump = true
---         self.is_jumping = false
---     end
--- end
-
 local function jump(self, dt)
     -- Handle coyote time
     self.coyote_duration = coyote_duration_min + ((self.momentum / max_momentum) * (coyote_duration_max - coyote_duration_min))

@@ -17,6 +17,7 @@ embedded_components {
   "group: \"ground,spring,question_block\"\n"
   "mask: \"player\"\n"
   "mask: \"projectile\"\n"
+  "mask: \"enemy\"\n"
   ""
 }
 embedded_components {

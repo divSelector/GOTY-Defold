@@ -6,32 +6,31 @@ local gravity = 1000
 
 function init(self)
 
-    self.idle_timer = 0
-    self.slide_timer = 0
-    self.slide_cooldown_timer = 0
-
     self.sprite_flipped = false
     self.current_anim = "stand-idle"
-
-    self.momentum = 0
 
     self.correction = vmath.vector3()
     self.ground_contact = false
 
-    self.is_crouching = false
-    self.can_jump = true
+    self.projectiles = {}
+end
 
-    self.jump_distance = 0
-    self.coyote_time = 0
-    self.coyote_allowed = false
+local function set_facing_direction(self)
+    local enemy_position = self.position
+    local player_position = self.player_position
 
-    self.jump_streak = 0
-    self.jump_streak_increment = 0
-    self.last_jump_momentum = 0
+    local x_diff = player_position.x - enemy_position.x
 
-    self.can_attack = true
-    self.attack_hold_time = 0
+    if x_diff < 0 then
+        self.sprite_flipped = true
+    elseif x_diff > 0 then
+        self.sprite_flipped = false
+    end
 
+    sprite.set_hflip("#base", self.sprite_flipped)
+    sprite.set_hflip("#body", self.sprite_flipped)
+    sprite.set_hflip("#head", self.sprite_flipped)
+    sprite.set_hflip("#accessory", self.sprite_flipped)
 end
 
 local function apply_gravity(self, dt)
@@ -44,27 +43,49 @@ local function calculate_move(self, dt)
 
     apply_gravity(self, dt)
 
-    -- if slide(self, dt) then
-    --     return
-    -- end
 
-    -- jump(self, dt)
-
-    -- run(self, dt)
-
-    -- on_exit_crouch(self)
 end
 
+local function attack(self, dt)
+    local enemy_position = self.position
+    local player_position = self.player_position
+
+    if math.abs(enemy_position.y - player_position.y) <= 20 then
+
+        print("Enemy and player are within 100 units on the Y-axis!")
+        local direction = self.sprite_flipped and -1 or 1
+        local offset_x = 10 * direction
+        local offset_y = 5
+        local spawn_position = vmath.vector3(
+            enemy_position.x + offset_x,
+            enemy_position.y + offset_y,
+            enemy_position.z
+        )
+        local speed = 1000
+        local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
+        local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
+        local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
+        table.insert(self.projectiles, projectile)
+
+    end
+end
 
 function update(self, dt)
 
-    local pos = go.get_position()
+    local position = go.get_position()
+    self.position = position
+    self.player_position = go.get_position("/player#player")
 
     calculate_move(self, dt)
 
-    -- animate(self, dt)
+    attack(self, dt)
 
-    go.set_position(pos + self.velocity * dt)
+    -- animate(self, dt)
+    set_facing_direction(self)
+
+
+
+    go.set_position(position + self.velocity * dt)
 
     self.wall_contact_left = false
     self.wall_contact_right = false
