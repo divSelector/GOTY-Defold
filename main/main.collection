@@ -10,9 +10,6 @@ instances {
 instances {
   id: "test_level"
   prototype: "/main/test_level.go"
-  position {
-    y: 20.176697
-  }
 }
 scale_along_z: 0
 embedded_instances {

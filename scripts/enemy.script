@@ -125,11 +125,11 @@ local collision_handlers = {
     [hash("ground")] = into_ground_and_walls,
 }
 
-function on_message(self, message_id, message, sender)
-    if message_id == hash("contact_point_response") then
-        local handler = collision_handlers[message.other_group]
-        if handler then
-            collision.handle(self, message.normal, message.distance, handler)
-        end
-    end
-end
+-- function on_message(self, message_id, message, sender)
+--     if message_id == hash("contact_point_response") then
+--         local handler = collision_handlers[message.other_group]
+--         if handler then
+--             collision.handle(self, message.normal, message.distance, handler)
+--         end
+--     end
+-- end

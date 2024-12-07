@@ -1,6 +1,9 @@
 components {
-  id: "test"
+  id: "tilemap"
   component: "/assets/tilemaps/test.tilemap"
+  position {
+    y: 15.0
+  }
 }
 components {
   id: "level"

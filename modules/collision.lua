@@ -1,17 +1,82 @@
 local M = {}
 
-function M.handle(self, normal, distance, callback)
-    distance = distance * vmath.length(normal)
-    if distance > 0 then
-        local proj = vmath.project(self.correction, normal * distance)
-        if proj < 1 then
-            local comp = (distance - proj * distance) * normal
-            go.set_position(go.get_position() + comp)
-            self.correction = self.correction + comp
+local collision_bits = {
+    PLAYER = 1,    -- (2^0)
+    GROUND = 2,    -- (2^1)
+}
+
+local tile_width = 16
+local tile_height = 16
+
+local tile_insert_x_offet = 0
+local tile_insert_y_offet = 0
+local tile_insert_x_offet = 8
+local tile_insert_y_offet = 29
+
+local tile_draw_x_offset = 0
+local tile_draw_y_offset = 0
+local tile_draw_x_offset = -8
+local tile_draw_y_offset = -9
+
+
+function M.init()
+    M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
+
+    M.player_aabb_id = nil
+
+    M.ground_data = {}
+end
+
+function M.add_tilemap(tilemap_url, layer)
+    local x, y, w, h = tilemap.get_bounds(tilemap_url)
+
+    for row = y, y + h - 1 do
+        for col = x, x + w - 1 do
+            local tile_index = tilemap.get_tile(tilemap_url, layer, col, row)
+            if tile_index == 17 then -- ground tile hard coded?
+                local tile_x = (col - 1) * tile_width + tile_insert_x_offet
+                local tile_y = (row - 1) * tile_height + tile_insert_y_offet
+
+                local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height, collision_bits.GROUND)
+
+                -- Store tile data
+                M.ground_data[aabb_id] = { type = "GROUND", x = tile_x, y = tile_y, width = tile_width, height = tile_height }
+            end
         end
     end
+end
 
-    callback(self, normal)
+
+function M.add_player(player_url, player_width, player_height)
+    M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, player_width, player_height, collision_bits.PLAYER)
+end
+
+local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
+    offset_x = offset_x or 0
+    offset_y = offset_y or 0
+    for _, data in pairs(aabb_data) do
+        local x, y = data.x + offset_x, data.y + offset_y
+        local width, height = data.width, data.height
+
+        msg.post("@render:", "draw_line", { start_point = vmath.vector3(x, y, 0), end_point = vmath.vector3(x + width, y, 0), color = color })
+        msg.post("@render:", "draw_line", { start_point = vmath.vector3(x, y, 0), end_point = vmath.vector3(x, y + height, 0), color = color })
+        msg.post("@render:", "draw_line", { start_point = vmath.vector3(x + width, y, 0), end_point = vmath.vector3(x + width, y + height, 0), color = color })
+        msg.post("@render:", "draw_line", { start_point = vmath.vector3(x, y + height, 0), end_point = vmath.vector3(x + width, y + height, 0), color = color })
+    end
+end
+
+
+function M.debug_draw(player_pos)
+    local red = vmath.vector4(1, 0, 0, 1)
+    local green = vmath.vector4(0, 1, 0, 1)
+    
+    debug_draw_aabb(M.ground_data, red, tile_draw_x_offset, tile_draw_y_offset) -- these modifiers are what got the boxes placed correctly on y, I don't understand it tbh
+    debug_draw_aabb({ { x = player_pos.x - 46 / 2, y = player_pos.y - 54 / 2, width = 46, height = 54 } }, green)
+end
+
+function M.query_player()
+    local result, count = daabbcc.query_id_sort(M.group, M.player_aabb_id, collision_bits.GROUND)
+    return result, count
 end
 
 return M

@@ -19,4 +19,11 @@ scale_mode = stretch
 [project]
 title = GOTY
 custom_resources = /resource
+dependencies#0 = https://github.com/selimanac/defold-daabbcc/archive/refs/tags/v.3.0.0.zip
+
+[daabbcc]
+max_group_count = 3
+max_gameobject_count = 128
+max_query_result_count = 32
+max_raycast_result_count = 32
 

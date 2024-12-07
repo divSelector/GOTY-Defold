@@ -1,3 +1,4 @@
+local collision = require "modules.collision"
 
 local function set_player_spawn_position(self)
     local data = self.player_spawn_positions[self.spawn_point]
@@ -51,6 +52,8 @@ function init(self)
         self.enemies = {}
         spawn_enemies(self)
     end
+
+    collision.add_tilemap("#tilemap", "ground")
 end
 
 function update(self)

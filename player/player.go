@@ -42,6 +42,7 @@ embedded_components {
   "    }\n"
   "    index: 0\n"
   "    count: 3\n"
+  "    id: \"box\"\n"
   "  }\n"
   "  data: 9.289027\n"
   "  data: 22.543476\n"
