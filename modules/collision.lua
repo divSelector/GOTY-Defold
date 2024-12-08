@@ -168,4 +168,82 @@ function M.query_player()
     return result, count
 end
 
+function M.check(entity, pos)
+    local query_result, result_count = M.query_player()
+
+    if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
+        print("No query result")
+        entity.wall_contact_left = false
+        entity.wall_contact_right = false
+    end
+
+    if query_result and result_count > 0 then
+        local first_collision = query_result[1]
+        local aabb_id = first_collision.id
+        local data = M.tile_data[aabb_id]
+
+        if data and data.type == "GROUND" then
+            local y_offset = 18
+            -- local x_offset = 15.01
+            local tile_top = data.y + data.height
+            local tile_bottom = data.y
+            local tile_left = data.x
+            local tile_right = data.x + data.width
+
+            -- local tile_left_offset = 15.01  -- correct numbers for width 46
+            -- local tile_right_offset = 31.01
+
+            local tile_top_offset = 14
+            local tile_bottom_offset = 32
+
+            local tile_right_offset = 1.01   -- correct numbers for width 18
+            local tile_left_offset = 17.01
+
+            -- Check for above and below collisions
+            local is_above_tile = pos.y >= tile_top
+            local is_below_tile = pos.y + (half_entity_height) < tile_bottom
+            local is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
+            local is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
+
+
+            -- Handle collision from above (landing)
+            if is_above_tile then
+                -- print("Hit from above")
+                -- pos.y = tile_top + y_offset
+                pos.y = tile_top + tile_top_offset
+                entity.ground_contact = true
+                msg.post("/camera#controller", "follow_player_y", { toggle = false })
+                entity.velocity.y = 0
+
+            -- Handle collision from below
+            elseif is_below_tile then
+                -- print("Hit from below")
+                pos.y = tile_bottom - tile_bottom_offset
+                entity.velocity.y = 0
+                entity.is_jumping = false
+
+            -- Handle left collision
+            elseif is_right_of_tile then
+                -- pos.x = tile_right + x_offset
+                pos.x = tile_right + tile_right_offset
+                entity.velocity.x = 0
+                entity.wall_contact_left = true
+
+            -- Handle right collision
+            elseif is_left_of_tile then
+                -- pos.x = tile_left - (x_offset * 2) - 1
+                pos.x = tile_left - tile_left_offset
+                entity.velocity.x = 0
+                entity.wall_contact_right = true
+            end
+        else
+            print("Unknown collision!")
+        end
+    end
+    
+    return pos
+end
+
+
+
 return M
