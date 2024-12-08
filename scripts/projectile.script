@@ -1,25 +1,25 @@
+local collision = require "modules.collision"
+
 go.property("velocity", vmath.vector3())
 
 function init(self)
     self.velocity = self.velocity or vmath.vector3()
-	self.lifetime = 2
+	self.lifetime = 0.2
+
+    self.aabb_id = collision.add_projectile(msg.url('.'))
 end
 
 function update(self, dt)
     local position = go.get_position()
+
+    collision.check_projectile(self)
+
     position = position + self.velocity * dt
     go.set_position(position)
 
     self.lifetime = self.lifetime - dt
     if self.lifetime <= 0 then
+        collision.destroy(self.aabb_id)
         go.delete()
-    end
-end
-
-function on_message(self, message_id, message, sender)
-    if message_id == hash("trigger_response") then
-		if message.enter then
-			go.delete()
-		end
     end
 end

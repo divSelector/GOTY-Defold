@@ -440,7 +440,7 @@ end
 
 function update(self, dt)
 
-    local pos = collision.check(self, go.get_position())
+    local pos = collision.check_entity(self, go.get_position())
     collision.debug_draw(pos)
     collision.update_wall_contact(self, pos)
 

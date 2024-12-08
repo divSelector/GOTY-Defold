@@ -3,8 +3,9 @@ local utils = require "modules.utils"
 local M = {}
 
 local collision_bits = {
-    PLAYER = 1,    -- (2^0)
-    GROUND = 2,    -- (2^1)
+    PLAYER     = 1,  -- (2^0)
+    GROUND     = 2,  -- (2^1)
+    PROJECTILE = 4,  -- (2^2)
 }
 
 local tile_width = 16
@@ -28,6 +29,9 @@ local entity_height = 46
 local half_entity_width = entity_width / 2
 local half_entity_height = entity_height / 2
 
+local projectile_width = 26
+local projectile_height = 14
+
 -- correction numbers for entity_width 18
 local tile_top_offset = 14
 local tile_bottom_offset = 32
@@ -50,6 +54,7 @@ function M.init()
     M.player_aabb_id = nil
 
     M.tile_data = {}
+    M.projectile_data = {}
 end
 
 function M.add_tilemap(tilemap_url, layer)
@@ -76,6 +81,11 @@ end
 
 function M.add_player(player_url)
     M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, entity_width, entity_height, collision_bits.PLAYER)
+end
+
+function M.add_projectile(projectile_url)
+    local projectile_aabb_id = daabbcc.insert_gameobject(M.group, projectile_url, projectile_width, projectile_height, collision_bits.PROJECTILE)
+    return projectile_aabb_id
 end
 
 local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
@@ -176,7 +186,19 @@ function M.query_player()
     return result, count
 end
 
-function M.check(entity, pos)
+function M.query_projectile(aabb_id)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, collision_bits.GROUND)
+    return result, count
+end
+
+function M.check_projectile(projectile)
+    query_result, result_count = M.query_projectile(projectile.aabb_id)
+    if query_result and result_count > 0 then
+        projectile.lifetime = 0
+    end
+end
+
+function M.check_entity(entity, pos)
     local query_result, result_count = M.query_player()
 
     if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
@@ -242,6 +264,10 @@ function M.check(entity, pos)
     end
     
     return pos
+end
+
+function M.destroy(aabb_id)
+    daabbcc.remove(M.group, aabb_id)
 end
 
 return M
