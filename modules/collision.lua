@@ -20,7 +20,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = false
+local debug = true
 
 local entity_width = 18
 local entity_height = 46
@@ -33,6 +33,10 @@ local tile_top_offset = 14
 local tile_bottom_offset = 32
 local tile_right_offset = 1.01
 local tile_left_offset = 17.01
+-- local tile_top_offset = 0
+-- local tile_bottom_offset = 0
+-- local tile_right_offset = 0
+-- local tile_left_offset = 0
 
 local TILES = {
     GROUND = 17,

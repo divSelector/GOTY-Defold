@@ -1,47 +1,39 @@
 from PIL import Image
+import os
 
-def split_spritesheet(file_path, output_prefix, frame_width, frame_height, rows, cols):
-    """
-    Splits a sprite sheet into individual frames.
+# Directories
+input_dir = './'  # Current directory
+output_dir = './cropped_frames/'
 
-    Args:
-        file_path (str): Path to the sprite sheet.
-        output_prefix (str): Prefix for the output images.
-        frame_width (int): Width of each frame.
-        frame_height (int): Height of each frame.
-        rows (int): Number of rows in the sprite sheet.
-        cols (int): Number of columns in the sprite sheet.
-    """
-    try:
-        sheet = Image.open(file_path)
-        frame_count = 0
+# Create the output directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
 
-        for row in range(rows):
-            for col in range(cols):
-                # Calculate frame box (left, upper, right, lower)
-                left = col * frame_width
-                upper = row * frame_height
-                right = left + frame_width
-                lower = upper + frame_height
+# Crop dimensions
+crop_top = 9
+crop_bottom = 9
+crop_left = 1
+crop_right = 5
 
-                frame = sheet.crop((left, upper, right, lower))
-                output_file = f"{output_prefix}_{frame_count + 1}.png"
-                frame.save(output_file)
-                print(f"Saved frame {frame_count + 1}: {output_file}")
-                frame_count += 1
+# Process each PNG file in the directory
+for file_name in os.listdir(input_dir):
+    if file_name.endswith('.png'):
+        file_path = os.path.join(input_dir, file_name)
 
-    except Exception as e:
-        print(f"Error: {e}")
+        # Open the image
+        with Image.open(file_path) as img:
+            # Calculate new bounding box
+            width, height = img.size
+            left = crop_left
+            top = crop_top
+            right = width - crop_right
+            bottom = height - crop_bottom
 
-if __name__ == "__main__":
-    # Configuration
-    sprite_sheet_path = "./fireball.png"  # Path to your sprite sheet
-    output_prefix = "fireball"           # Output file prefix
-    frame_width = 128                    # Width of each frame
-    frame_height = 128                   # Height of each frame
-    rows = 2                             # Number of rows
-    cols = 2                             # Number of columns
+            # Crop the image
+            cropped_img = img.crop((left, top, right, bottom))
 
-    # Run the splitter
-    split_spritesheet(sprite_sheet_path, output_prefix, frame_width, frame_height, rows, cols)
+            # Save the cropped image
+            output_path = os.path.join(output_dir, file_name)
+            cropped_img.save(output_path)
+
+print(f"Cropping complete. Cropped frames are saved in '{output_dir}'")
 
