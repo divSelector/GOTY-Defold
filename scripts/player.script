@@ -55,8 +55,6 @@ function init(self)
 
     self.momentum = 0
 
-    self.ground_contact = false
-
     self.is_crouching = false
     self.can_jump = true
 
@@ -136,7 +134,7 @@ local function slide(self, dt)
         self.slide_cooldown_timer = self.slide_cooldown_timer - dt
     end
 
-    if input.key_state.crouch and self.ground_contact then
+    if input.key_state.crouch and collision.ground_contact then
         self.can_jump = false
         if input.key_state.action and self.slide_cooldown_timer <= 0 then
             if self.slide_timer <= 0 and self.slide_cooldown_timer <= 0 then
@@ -162,7 +160,7 @@ local function jump(self, dt)
     -- Handle coyote time
     self.coyote_duration = coyote_duration_min + ((self.momentum / max_momentum) * (coyote_duration_max - coyote_duration_min))
 
-    if self.ground_contact then
+    if collision.ground_contact then
         self.coyote_time = 0
         self.coyote_allowed = true
     else
@@ -199,7 +197,7 @@ local function jump(self, dt)
             jump_height_min + self.jump_streak_increment + 
             ((self.momentum / max_momentum) * (jump_height_max + self.jump_streak_increment - jump_height_min))
 
-        self.ground_contact = false
+        collision.ground_contact = false
         self.can_jump = false -- Prevent double jumps
         self.is_jumping = true
         self.jump_start_y = go.get_position().y -- Store the starting vertical position
@@ -225,7 +223,7 @@ local function jump(self, dt)
         self.is_jumping = false
     end
 
-    if self.ground_contact and not input.key_state.action and not self.is_crouching then
+    if collision.ground_contact and not input.key_state.action and not self.is_crouching then
         self.can_jump = true
         self.is_jumping = false
     end
@@ -266,10 +264,10 @@ local function run(self, dt)
 
     local direction = (input.key_state.right and 1 or 0) - (input.key_state.left and 1 or 0)
 
-    if input.key_state.right and self.wall_contact_right then
+    if input.key_state.right and collision.wall_contact_right then
         direction = 0
     end
-    if input.key_state.left and self.wall_contact_left then
+    if input.key_state.left and collision.wall_contact_left then
         direction = 0
     end
 
@@ -277,7 +275,7 @@ local function run(self, dt)
         local moving_right = direction > 0
         if moving_right ~= (not self.sprite_flipped) then
             -- Reset momentum if direction changes
-            if self.ground_contact then
+            if collision.ground_contact then
                 decay_momentum(self, 2)
             else
                 decay_momentum(self, -(momentum_decay/2))
@@ -286,7 +284,7 @@ local function run(self, dt)
             -- If running in the same direction, increase momentum
             if input.key_state.run then
                 self.momentum = math.min(self.momentum + momentum_increment * dt, max_momentum)
-            elseif self.ground_contact then
+            elseif collision.ground_contact then
                 deaccelerate(self, dt)
             end
         end
@@ -295,7 +293,7 @@ local function run(self, dt)
 
         self.velocity.x = direction * speed
     else
-        if self.ground_contact then 
+        if collision.ground_contact then 
             deaccelerate(self, dt, 1.5) 
         end
     end
@@ -311,7 +309,7 @@ local function on_exit_crouch(self)
 end
 
 local function apply_gravity(self, dt)
-    if not self.ground_contact then
+    if not collision.ground_contact then
         local gravity = gravity_rise
         if self.velocity.y < 0 and input.key_state.action then
             gravity = gravity_fall_resisted
@@ -391,7 +389,7 @@ local function animate(self, dt)
         new_anim = "stand-idle"
     end
 
-    if self.ground_contact then
+    if collision.ground_contact then
         if input.key_state.crouch and input.key_state.attack then
             set_facing_direction(self)
             new_anim = "crouch-attack"
@@ -414,7 +412,7 @@ local function animate(self, dt)
     end
 
     -- Prevent moving animations against the wall
-    if self.ground_contact and (self.wall_contact_right or self.wall_contact_left) then
+    if collision.ground_contact and (collision.wall_contact_right or collision.wall_contact_left) then
         if input.key_state.crouch then
             if input.key_state.action then
                 new_anim = "crouch-slide"
@@ -437,80 +435,13 @@ local function animate(self, dt)
     end
 end
 
-function check_collisions(self, pos)
-    local query_result, result_count = collision.query_player()
-
-    if not query_result and (self.wall_contact_left or self.wall_contact_right) then
-        print("No query result")
-        self.wall_contact_left = false
-        self.wall_contact_right = false
-    end
-
-    if query_result and result_count > 0 then
-        local first_collision = query_result[1]
-        local aabb_id = first_collision.id
-        local data = collision.ground_data[aabb_id]
-
-        if data and data.type == "GROUND" then
-            local y_offset = 18
-            local x_offset = 15.01
-            local tile_top = data.y + data.height
-            local tile_bottom = data.y
-            local tile_left = data.x
-            local tile_right = data.x + data.width
-
-            -- Check for above and below collisions
-            local is_above_tile = pos.y >= tile_top
-            local is_below_tile = pos.y + (54 / 2) < tile_bottom
-            local is_right_of_tile = pos.x - (46 / 2) < tile_right and pos.x > tile_left
-            local is_left_of_tile = pos.x + (46 / 2) + 1000000 > tile_left and pos.x < tile_right
-
-
-            -- Handle collision from above (landing)
-            if is_above_tile then
-                -- print("Hit from above")
-                pos.y = tile_top + y_offset
-                self.ground_contact = true
-                msg.post("/camera#controller", "follow_player_y", { toggle = false })
-                self.velocity.y = 0
-
-            -- Handle collision from below
-            elseif is_below_tile then
-                -- print("Hit from below")
-                pos.y = tile_bottom - (y_offset * 2)
-                self.velocity.y = 0
-                self.is_jumping = false
-
-            -- Handle left collision
-            elseif is_right_of_tile then
-                -- print("Hit from the left")
-                pos.x = tile_right + x_offset
-                self.velocity.x = 0
-                self.wall_contact_left = true
-
-            -- Handle right collision
-            elseif is_left_of_tile then
-                -- print("Hit from the right")
-                pos.x = tile_left - (x_offset * 2) - 1
-                self.velocity.x = 0
-                self.wall_contact_right = true
-            end
-        else
-            print("Unknown collision!")
-        end
-    end
-    
-    return pos
-end
 
 function update(self, dt)
 
     local pos = go.get_position()
 
-    pos = check_collisions(self, pos)
+    pos = collision.correct_overlap(self, pos)
     collision.debug_draw(pos, self.sprite_flipped)
-    -- local raycast_results = collision.raycast_player(pos, self.sprite_flipped, 26)
-    -- pprint(raycast_results)
     collision.update_wall_contact(self, pos)
 
     attack(self, dt)
@@ -528,12 +459,7 @@ function update(self, dt)
         self.last_jump_momentum = 0
     end
 
-    if self.velocity.x ~= 0 and self.ground_contact then
-        self.wall_contact_left = false
-        self.wall_contact_right = false
-    end
-
-    self.ground_contact = false
+    collision.ground_contact = false
 end
 
 
