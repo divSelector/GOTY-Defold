@@ -20,7 +20,7 @@ local tile_draw_y_offset = -9
 
 local debug = true
 
-local entity_width = 46
+local entity_width = 18
 local entity_height = 54
 
 local half_entity_width = entity_width / 2
@@ -84,8 +84,8 @@ function M.raycast_player(player_pos, sprite_flipped, max_distance)
 
     local ray_offsets = {
         0,                       -- center
-        half_entity_height - 10,  -- top
-        -half_entity_height + 10  -- bottom
+        half_entity_height - 4,  -- top
+        -half_entity_height + 4  -- bottom
     }
 
     local results = {}
@@ -123,7 +123,7 @@ end
 
 function M.update_wall_contact(player, player_pos)
 
-    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, 26)
+    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, half_entity_width + 1)
 
     player.wall_contact_left = false
     player.wall_contact_right = false

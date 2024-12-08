@@ -40,7 +40,7 @@ local y_velocity_max = 900
 local jump_height_increment = 5
 local max_jump_streak = 3
 
-local entity_width = 46
+local entity_width = 18
 local entity_height = 54
 
 local half_entity_width = entity_width / 2
@@ -459,11 +459,17 @@ function check_collisions(self, pos)
 
         if data and data.type == "GROUND" then
             local y_offset = 18
-            local x_offset = 15.01
+            -- local x_offset = 15.01
             local tile_top = data.y + data.height
             local tile_bottom = data.y
             local tile_left = data.x
             local tile_right = data.x + data.width
+
+            -- local tile_left_offset = 15.01  -- correct numbers for width 46
+            -- local tile_right_offset = 31.01
+
+            local tile_left_offset = 1.01   -- correct numbers for width 18
+            local tile_right_offset = 17.01
 
             -- Check for above and below collisions
             local is_above_tile = pos.y >= tile_top
@@ -489,15 +495,15 @@ function check_collisions(self, pos)
 
             -- Handle left collision
             elseif is_right_of_tile then
-                -- print("Hit from the left")
-                pos.x = tile_right + x_offset
+                -- pos.x = tile_right + x_offset
+                pos.x = tile_right + tile_left_offset
                 self.velocity.x = 0
                 self.wall_contact_left = true
 
             -- Handle right collision
             elseif is_left_of_tile then
-                -- print("Hit from the right")
-                pos.x = tile_left - (x_offset * 2) - 1
+                -- pos.x = tile_left - (x_offset * 2) - 1
+                pos.x = tile_left - tile_right_offset
                 self.velocity.x = 0
                 self.wall_contact_right = true
             end
@@ -514,10 +520,10 @@ function update(self, dt)
     local pos = go.get_position()
 
     pos = check_collisions(self, pos)
-    collision.debug_draw(pos, self.sprite_flipped)
+    collision.debug_draw(pos)
     -- local raycast_results = collision.raycast_player(pos, self.sprite_flipped, 26)
     -- pprint(raycast_results)
-    -- collision.update_wall_contact(self, pos)
+    collision.update_wall_contact(self, pos)
 
     attack(self, dt)
 
