@@ -1,41 +1,5 @@
 tile_set: "/assets/tilesets/test.tilesource"
 layers {
-  id: "layer"
-  z: 0.0
-}
-layers {
-  id: "layer1"
-  z: 0.0
-}
-layers {
-  id: "layer2"
-  z: 0.0
-}
-layers {
-  id: "layer3"
-  z: 0.0
-}
-layers {
-  id: "layer4"
-  z: 0.0
-}
-layers {
-  id: "layer5"
-  z: 0.0
-}
-layers {
-  id: "layer6"
-  z: 0.0
-}
-layers {
-  id: "layer7"
-  z: 0.0
-}
-layers {
-  id: "layer8"
-  z: 0.0
-}
-layers {
   id: "ground"
   z: 1.0E-4
   cell {
@@ -1304,11 +1268,6 @@ layers {
     tile: 16
   }
   cell {
-    x: 42
-    y: 2
-    tile: 16
-  }
-  cell {
     x: 50
     y: 2
     tile: 16
@@ -1339,17 +1298,27 @@ layers {
     tile: 16
   }
   cell {
+    x: 85
+    y: 2
+    tile: 87
+  }
+  cell {
+    x: 119
+    y: 2
+    tile: 16
+  }
+  cell {
+    x: 120
+    y: 2
+    tile: 16
+  }
+  cell {
     x: 199
     y: 2
     tile: 16
   }
   cell {
     x: 0
-    y: 3
-    tile: 16
-  }
-  cell {
-    x: 42
     y: 3
     tile: 16
   }
@@ -1510,6 +1479,51 @@ layers {
   }
   cell {
     x: 83
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 93
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 94
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 95
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 96
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 97
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 98
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 99
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 100
+    y: 5
+    tile: 16
+  }
+  cell {
+    x: 101
     y: 5
     tile: 16
   }
@@ -2329,27 +2343,17 @@ layers {
     tile: 16
   }
   cell {
-    x: 84
-    y: 13
-    tile: 16
-  }
-  cell {
-    x: 85
-    y: 13
-    tile: 16
-  }
-  cell {
-    x: 86
-    y: 13
-    tile: 16
-  }
-  cell {
     x: 87
     y: 13
     tile: 16
   }
   cell {
     x: 88
+    y: 13
+    tile: 16
+  }
+  cell {
+    x: 89
     y: 13
     tile: 16
   }
@@ -2525,6 +2529,21 @@ layers {
   }
   cell {
     x: 0
+    y: 17
+    tile: 16
+  }
+  cell {
+    x: 71
+    y: 17
+    tile: 16
+  }
+  cell {
+    x: 72
+    y: 17
+    tile: 16
+  }
+  cell {
+    x: 73
     y: 17
     tile: 16
   }

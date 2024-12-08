@@ -1,3 +1,5 @@
+local utils = require "modules.utils"
+
 local M = {}
 
 local collision_bits = {
@@ -21,17 +23,22 @@ local tile_draw_y_offset = -9
 local debug = true
 
 local entity_width = 18
-local entity_height = 54
+local entity_height = 46
 
 local half_entity_width = entity_width / 2
 local half_entity_height = entity_height / 2
+
+local TILES = {
+    GROUND = 17,
+    SPRING = 88
+}
 
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
 
     M.player_aabb_id = nil
 
-    M.ground_data = {}
+    M.tile_data = {}
 end
 
 function M.add_tilemap(tilemap_url, layer)
@@ -40,14 +47,17 @@ function M.add_tilemap(tilemap_url, layer)
     for row = y, y + h - 1 do
         for col = x, x + w - 1 do
             local tile_index = tilemap.get_tile(tilemap_url, layer, col, row)
-            if tile_index == 17 then -- ground tile hard coded?
+            local tile_type = utils.get_key_by_value(TILES, tile_index)
+
+            if TILES[tile_type] then
+
                 local tile_x = (col - 1) * tile_width + tile_insert_x_offet
                 local tile_y = (row - 1) * tile_height + tile_insert_y_offet
 
                 local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height, collision_bits.GROUND)
 
                 -- Store tile data
-                M.ground_data[aabb_id] = { type = "GROUND", x = tile_x, y = tile_y, width = tile_width, height = tile_height }
+                M.tile_data[aabb_id] = { type = tile_type, x = tile_x, y = tile_y, width = tile_width, height = tile_height }
             end
         end
     end
@@ -107,7 +117,7 @@ function M.raycast_player(player_pos, sprite_flipped, max_distance)
 
             if ray_data.count then
                 for _, aabb_id in ipairs(ray_data.result) do
-                    local tile = M.ground_data[aabb_id]
+                    local tile = M.tile_data[aabb_id]
                     if tile then
                         debug_draw_aabb({ tile }, blue, tile_draw_x_offset, tile_draw_y_offset)
                     end
@@ -144,7 +154,7 @@ function M.debug_draw(player_pos)
     local red = vmath.vector4(1, 0, 0, 1)
     local green = vmath.vector4(0, 1, 0, 1)
     
-    debug_draw_aabb(M.ground_data, red, tile_draw_x_offset, tile_draw_y_offset)
+    debug_draw_aabb(M.tile_data, red, tile_draw_x_offset, tile_draw_y_offset)
     debug_draw_aabb({ { 
         x = player_pos.x - half_entity_width,
         y = player_pos.y - half_entity_height,

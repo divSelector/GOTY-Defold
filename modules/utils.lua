@@ -20,5 +20,13 @@ function M.clamp(value, max_value)
     return value
 end
 
+function M.get_key_by_value(tbl, value)
+    for key, val in pairs(tbl) do
+        if val == value then
+            return key
+        end
+    end
+    return nil
+end
 
 return M

@@ -41,7 +41,7 @@ local jump_height_increment = 5
 local max_jump_streak = 3
 
 local entity_width = 18
-local entity_height = 54
+local entity_height = 46
 
 local half_entity_width = entity_width / 2
 local half_entity_height = entity_height / 2
@@ -455,7 +455,7 @@ function check_collisions(self, pos)
     if query_result and result_count > 0 then
         local first_collision = query_result[1]
         local aabb_id = first_collision.id
-        local data = collision.ground_data[aabb_id]
+        local data = collision.tile_data[aabb_id]
 
         if data and data.type == "GROUND" then
             local y_offset = 18
@@ -468,8 +468,11 @@ function check_collisions(self, pos)
             -- local tile_left_offset = 15.01  -- correct numbers for width 46
             -- local tile_right_offset = 31.01
 
-            local tile_left_offset = 1.01   -- correct numbers for width 18
-            local tile_right_offset = 17.01
+            local tile_top_offset = 14
+            local tile_bottom_offset = 32
+
+            local tile_right_offset = 1.01   -- correct numbers for width 18
+            local tile_left_offset = 17.01
 
             -- Check for above and below collisions
             local is_above_tile = pos.y >= tile_top
@@ -481,7 +484,8 @@ function check_collisions(self, pos)
             -- Handle collision from above (landing)
             if is_above_tile then
                 -- print("Hit from above")
-                pos.y = tile_top + y_offset
+                -- pos.y = tile_top + y_offset
+                pos.y = tile_top + tile_top_offset
                 self.ground_contact = true
                 msg.post("/camera#controller", "follow_player_y", { toggle = false })
                 self.velocity.y = 0
@@ -489,21 +493,21 @@ function check_collisions(self, pos)
             -- Handle collision from below
             elseif is_below_tile then
                 -- print("Hit from below")
-                pos.y = tile_bottom - (y_offset * 2)
+                pos.y = tile_bottom - tile_bottom_offset
                 self.velocity.y = 0
                 self.is_jumping = false
 
             -- Handle left collision
             elseif is_right_of_tile then
                 -- pos.x = tile_right + x_offset
-                pos.x = tile_right + tile_left_offset
+                pos.x = tile_right + tile_right_offset
                 self.velocity.x = 0
                 self.wall_contact_left = true
 
             -- Handle right collision
             elseif is_left_of_tile then
                 -- pos.x = tile_left - (x_offset * 2) - 1
-                pos.x = tile_left - tile_right_offset
+                pos.x = tile_left - tile_left_offset
                 self.velocity.x = 0
                 self.wall_contact_right = true
             end
