@@ -40,6 +40,12 @@ local y_velocity_max = 900
 local jump_height_increment = 5
 local max_jump_streak = 3
 
+local entity_width = 46
+local entity_height = 54
+
+local half_entity_width = entity_width / 2
+local half_entity_height = entity_height / 2
+
 function init(self)
     input.get_focus()
 
@@ -72,7 +78,7 @@ function init(self)
     self.attack_hold_time = 0
 
     collision.init()
-    collision.add_player("/player", 46, 54)
+    collision.add_player("/player")
     
 
 end
@@ -461,9 +467,9 @@ function check_collisions(self, pos)
 
             -- Check for above and below collisions
             local is_above_tile = pos.y >= tile_top
-            local is_below_tile = pos.y + (54 / 2) < tile_bottom
-            local is_right_of_tile = pos.x - (46 / 2) < tile_right and pos.x > tile_left
-            local is_left_of_tile = pos.x + (46 / 2) + 1000000 > tile_left and pos.x < tile_right
+            local is_below_tile = pos.y + (half_entity_height) < tile_bottom
+            local is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
+            local is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
 
 
             -- Handle collision from above (landing)
@@ -511,7 +517,7 @@ function update(self, dt)
     collision.debug_draw(pos, self.sprite_flipped)
     -- local raycast_results = collision.raycast_player(pos, self.sprite_flipped, 26)
     -- pprint(raycast_results)
-    collision.update_wall_contact(self, pos)
+    -- collision.update_wall_contact(self, pos)
 
     attack(self, dt)
 

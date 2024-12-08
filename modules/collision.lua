@@ -20,6 +20,12 @@ local tile_draw_y_offset = -9
 
 local debug = true
 
+local entity_width = 46
+local entity_height = 54
+
+local half_entity_width = entity_width / 2
+local half_entity_height = entity_height / 2
+
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
 
@@ -48,8 +54,8 @@ function M.add_tilemap(tilemap_url, layer)
 end
 
 
-function M.add_player(player_url, player_width, player_height)
-    M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, player_width, player_height, collision_bits.PLAYER)
+function M.add_player(player_url)
+    M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, entity_width, entity_height, collision_bits.PLAYER)
 end
 
 local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
@@ -73,13 +79,13 @@ end
 
 
 function M.raycast_player(player_pos, sprite_flipped, max_distance)
-    local player_height = 54
+
     local direction = sprite_flipped and -1 or 1
 
     local ray_offsets = {
         0,                       -- center
-        player_height / 2 - 10,  -- top
-        -player_height / 2 + 10  -- bottom
+        half_entity_height - 10,  -- top
+        -half_entity_height + 10  -- bottom
     }
 
     local results = {}
@@ -134,12 +140,17 @@ function M.update_wall_contact(player, player_pos)
 end
 
 
-function M.debug_draw(player_pos, sprite_flipped)
+function M.debug_draw(player_pos)
     local red = vmath.vector4(1, 0, 0, 1)
     local green = vmath.vector4(0, 1, 0, 1)
     
-    debug_draw_aabb(M.ground_data, red, tile_draw_x_offset, tile_draw_y_offset) -- these modifiers are what got the boxes placed correctly on y, I don't understand it tbh
-    debug_draw_aabb({ { x = player_pos.x - 46 / 2, y = player_pos.y - 54 / 2, width = 46, height = 54 } }, green)
+    debug_draw_aabb(M.ground_data, red, tile_draw_x_offset, tile_draw_y_offset)
+    debug_draw_aabb({ { 
+        x = player_pos.x - half_entity_width,
+        y = player_pos.y - half_entity_height,
+        width = entity_width,
+        height = entity_height
+    } }, green)
 end
 
 function M.query_player()
