@@ -3,6 +3,7 @@ local collision = require "modules.collision"
 go.property("velocity", vmath.vector3())
 
 function init(self)
+    self.position = go.get_position()
     self.velocity = self.velocity or vmath.vector3()
 	self.lifetime = 0.2
 
@@ -10,12 +11,11 @@ function init(self)
 end
 
 function update(self, dt)
-    local position = go.get_position()
 
     collision.check_projectile(self)
 
-    position = position + self.velocity * dt
-    go.set_position(position)
+    self.position = self.position + self.velocity * dt
+    go.set_position(self.position)
 
     self.lifetime = self.lifetime - dt
     if self.lifetime <= 0 then

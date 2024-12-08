@@ -6,6 +6,7 @@ local collision_bits = {
     PLAYER     = 1,  -- (2^0)
     GROUND     = 2,  -- (2^1)
     PROJECTILE = 4,  -- (2^2)
+    ENEMY =      8,  -- (2^3)
 }
 
 local tile_width = 16
@@ -80,7 +81,13 @@ function M.add_tilemap(tilemap_url, layer)
 end
 
 function M.add_player(player_url)
-    M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, entity_width, entity_height, collision_bits.PLAYER)
+    local player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, entity_width, entity_height, collision_bits.PLAYER)
+    return player_aabb_id
+end
+
+function M.add_enemy(enemy_url)
+    local enemy_aabb_id = daabbcc.insert_gameobject(M.group, enemy_url, entity_width, entity_height, collision_bits.ENEMY)
+    return enemy_aabb_id
 end
 
 function M.add_projectile(projectile_url)
@@ -147,19 +154,19 @@ function M.raycast_player(player_pos, sprite_flipped, max_distance)
     return results
 end
 
-function M.update_wall_contact(player, player_pos)
+function M.update_wall_contact(entity, entity_pos)
 
-    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, half_entity_width + 1)
+    local raycast_results = M.raycast_player(entity_pos, entity.sprite_flipped, half_entity_width + 1)
 
-    player.wall_contact_left = false
-    player.wall_contact_right = false
+    entity.wall_contact_left = false
+    entity.wall_contact_right = false
 
     for _, result in ipairs(raycast_results) do
         if result.result then
-            if player.sprite_flipped then
-                player.wall_contact_left = true
+            if entity.sprite_flipped then
+                entity.wall_contact_left = true
             else
-                player.wall_contact_right = true
+                entity.wall_contact_right = true
             end
         end
     end
@@ -181,25 +188,21 @@ function M.debug_draw(player_pos)
     } }, green)
 end
 
-function M.query_player()
-    local result, count = daabbcc.query_id_sort(M.group, M.player_aabb_id, collision_bits.GROUND)
-    return result, count
-end
-
-function M.query_projectile(aabb_id)
-    local result, count = daabbcc.query_id_sort(M.group, aabb_id, collision_bits.GROUND)
+function M.query(aabb_id, mask)
+    local mask = mask or collision_bits.GROUND
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask)
     return result, count
 end
 
 function M.check_projectile(projectile)
-    query_result, result_count = M.query_projectile(projectile.aabb_id)
+    query_result, result_count = M.query(projectile.aabb_id)
     if query_result and result_count > 0 then
         projectile.lifetime = 0
     end
 end
 
-function M.check_entity(entity, pos)
-    local query_result, result_count = M.query_player()
+function M.check_entity(entity, pos, is_player)
+    local query_result, result_count = M.query(entity.aabb_id)
 
     if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
         entity.wall_contact_left = false
@@ -229,7 +232,9 @@ function M.check_entity(entity, pos)
             if is_above_tile then
                 pos.y = tile_top + tile_top_offset
                 entity.ground_contact = true
-                msg.post("/camera#controller", "follow_player_y", { toggle = false })
+                if is_player then
+                    msg.post("/camera#controller", "follow_player_y", { toggle = false })
+                end
                 entity.velocity.y = 0
 
             elseif is_below_tile then
@@ -250,6 +255,8 @@ function M.check_entity(entity, pos)
         else
             return -- no data
         end
+
+        -- if not is_player then return end
 
         if data.index == TILES.SPRING and is_above_tile then
             msg.post("/camera#controller", "follow_player_y", { toggle = true })
