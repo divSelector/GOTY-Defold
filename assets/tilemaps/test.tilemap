@@ -1618,6 +1618,11 @@ layers {
     tile: 16
   }
   cell {
+    x: 19
+    y: 6
+    tile: 32
+  }
+  cell {
     x: 79
     y: 6
     tile: 16

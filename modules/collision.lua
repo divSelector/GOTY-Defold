@@ -20,7 +20,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = true
+local debug = false
 
 local entity_width = 18
 local entity_height = 46
@@ -28,9 +28,16 @@ local entity_height = 46
 local half_entity_width = entity_width / 2
 local half_entity_height = entity_height / 2
 
+-- correction numbers for entity_width 18
+local tile_top_offset = 14
+local tile_bottom_offset = 32
+local tile_right_offset = 1.01
+local tile_left_offset = 17.01
+
 local TILES = {
     GROUND = 17,
-    SPRING = 88
+    SPRING = 88,
+    QUESTION = 33
 }
 
 function M.init()
@@ -57,12 +64,11 @@ function M.add_tilemap(tilemap_url, layer)
                 local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height, collision_bits.GROUND)
 
                 -- Store tile data
-                M.tile_data[aabb_id] = { type = tile_type, x = tile_x, y = tile_y, width = tile_width, height = tile_height }
+                M.tile_data[aabb_id] = { index = tile_index, x = tile_x, y = tile_y, width = tile_width, height = tile_height }
             end
         end
     end
 end
-
 
 function M.add_player(player_url)
     M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, entity_width, entity_height, collision_bits.PLAYER)
@@ -82,11 +88,9 @@ local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
     end
 end
 
-
 local function debug_draw_raycast(ray_start, ray_end, color)
     msg.post("@render:", "draw_line", { start_point = ray_start, end_point = ray_end, color = color })
 end
-
 
 function M.raycast_player(player_pos, sprite_flipped, max_distance)
 
@@ -129,8 +133,6 @@ function M.raycast_player(player_pos, sprite_flipped, max_distance)
     return results
 end
 
-
-
 function M.update_wall_contact(player, player_pos)
 
     local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, half_entity_width + 1)
@@ -149,8 +151,10 @@ function M.update_wall_contact(player, player_pos)
     end
 end
 
-
 function M.debug_draw(player_pos)
+
+    if not debug then return end
+
     local red = vmath.vector4(1, 0, 0, 1)
     local green = vmath.vector4(0, 1, 0, 1)
     
@@ -172,7 +176,6 @@ function M.check(entity, pos)
     local query_result, result_count = M.query_player()
 
     if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
-        print("No query result")
         entity.wall_contact_left = false
         entity.wall_contact_right = false
     end
@@ -182,60 +185,53 @@ function M.check(entity, pos)
         local aabb_id = first_collision.id
         local data = M.tile_data[aabb_id]
 
-        if data and data.type == "GROUND" then
-            local y_offset = 18
-            -- local x_offset = 15.01
-            local tile_top = data.y + data.height
-            local tile_bottom = data.y
-            local tile_left = data.x
-            local tile_right = data.x + data.width
+        local tile_top, tile_bottom, tile_left, tile_right
+        local is_above_tile, is_below_tile, is_right_of_tile, is_left_of_tile
 
-            -- local tile_left_offset = 15.01  -- correct numbers for width 46
-            -- local tile_right_offset = 31.01
+        if data then
+            tile_top = data.y + data.height
+            tile_bottom = data.y
+            tile_left = data.x
+            tile_right = data.x + data.width
 
-            local tile_top_offset = 14
-            local tile_bottom_offset = 32
-
-            local tile_right_offset = 1.01   -- correct numbers for width 18
-            local tile_left_offset = 17.01
-
-            -- Check for above and below collisions
-            local is_above_tile = pos.y >= tile_top
-            local is_below_tile = pos.y + (half_entity_height) < tile_bottom
-            local is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
-            local is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
+            is_above_tile = pos.y >= tile_top
+            is_below_tile = pos.y + (half_entity_height) < tile_bottom
+            is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
+            is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
 
 
-            -- Handle collision from above (landing)
             if is_above_tile then
-                -- print("Hit from above")
-                -- pos.y = tile_top + y_offset
                 pos.y = tile_top + tile_top_offset
                 entity.ground_contact = true
                 msg.post("/camera#controller", "follow_player_y", { toggle = false })
                 entity.velocity.y = 0
 
-            -- Handle collision from below
             elseif is_below_tile then
-                -- print("Hit from below")
                 pos.y = tile_bottom - tile_bottom_offset
                 entity.velocity.y = 0
                 entity.is_jumping = false
 
-            -- Handle left collision
             elseif is_right_of_tile then
-                -- pos.x = tile_right + x_offset
                 pos.x = tile_right + tile_right_offset
                 entity.velocity.x = 0
                 entity.wall_contact_left = true
 
-            -- Handle right collision
             elseif is_left_of_tile then
-                -- pos.x = tile_left - (x_offset * 2) - 1
                 pos.x = tile_left - tile_left_offset
                 entity.velocity.x = 0
                 entity.wall_contact_right = true
             end
+        else
+            return -- no data
+        end
+
+        if data.index == TILES.SPRING and is_above_tile then
+            msg.post("/camera#controller", "follow_player_y", { toggle = true })
+            entity.velocity.y = 750
+        
+        elseif data.index == TILES.QUESTION and is_below_tile then
+            msg.post("#skins", "randomize_skin")
+
         else
             print("Unknown collision!")
         end
@@ -243,7 +239,5 @@ function M.check(entity, pos)
     
     return pos
 end
-
-
 
 return M
