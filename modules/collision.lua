@@ -122,7 +122,7 @@ end
 
 function M.update_wall_contact(player, player_pos)
 
-    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, 26)
+    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, 10)
 
     M.wall_contact_left = false
     M.wall_contact_right = false
@@ -164,6 +164,16 @@ function M.correct_overlap(entity, pos, query_func)
 
     local query_result, result_count = query_func()
 
+    if not query_result and (M.wall_contact_left or M.wall_contact_right) then
+        print("No query result")
+
+            M.wall_contact_left = false
+
+
+            M.wall_contact_right = false
+
+    end
+
     if query_result and result_count > 0 then
         local first_collision = query_result[1]
         local aabb_id = first_collision.id
@@ -172,10 +182,13 @@ function M.correct_overlap(entity, pos, query_func)
         if data and data.type == "GROUND" then
             local y_offset = 18
             local x_offset = 15.01
+            
             local tile_top = data.y + data.height
             local tile_bottom = data.y
             local tile_left = data.x
             local tile_right = data.x + data.width
+
+            local tile_right_offset = 12.01
 
             local is_above_tile = pos.y >= tile_top
             local is_below_tile = pos.y + half_entity_height < tile_bottom
@@ -194,10 +207,12 @@ function M.correct_overlap(entity, pos, query_func)
                 entity.is_jumping = false
 
             elseif is_right_of_tile then
+                print("left")
                 pos.x = tile_right + x_offset
                 entity.velocity.x = 0
 
             elseif is_left_of_tile then
+                print("right")
                 pos.x = tile_left - (x_offset * 2) - 1
                 entity.velocity.x = 0
             end

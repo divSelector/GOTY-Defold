@@ -459,6 +459,11 @@ function update(self, dt)
         self.last_jump_momentum = 0
     end
 
+    if self.velocity.x ~= 0 and collision.ground_contact then
+        collision.wall_contact_left = false
+        collision.wall_contact_right = false
+    end
+
     collision.ground_contact = false
 end
 
