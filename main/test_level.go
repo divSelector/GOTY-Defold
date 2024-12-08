@@ -2,7 +2,7 @@ components {
   id: "tilemap"
   component: "/assets/tilemaps/test.tilemap"
   position {
-    y: 15.0
+    y: 20.0
   }
 }
 components {

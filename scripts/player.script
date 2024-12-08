@@ -73,6 +73,7 @@ function init(self)
 
     collision.init()
     collision.add_player("/player", 46, 54)
+    
 
 end
 
@@ -441,12 +442,8 @@ function check_collisions(self, pos)
 
     if not query_result and (self.wall_contact_left or self.wall_contact_right) then
         print("No query result")
-
-            self.wall_contact_left = false
-
-
-            self.wall_contact_right = false
-
+        self.wall_contact_left = false
+        self.wall_contact_right = false
     end
 
     if query_result and result_count > 0 then
@@ -511,13 +508,17 @@ function update(self, dt)
     local pos = go.get_position()
 
     pos = check_collisions(self, pos)
-    collision.debug_draw(pos)
+    collision.debug_draw(pos, self.sprite_flipped)
+    -- local raycast_results = collision.raycast_player(pos, self.sprite_flipped, 26)
+    -- pprint(raycast_results)
+    collision.update_wall_contact(self, pos)
 
     attack(self, dt)
 
     calculate_move(self, dt)
 
     animate(self, dt)
+
 
     go.set_position(pos + self.velocity * dt)
 
@@ -531,6 +532,7 @@ function update(self, dt)
         self.wall_contact_left = false
         self.wall_contact_right = false
     end
+
     self.ground_contact = false
 end
 

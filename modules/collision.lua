@@ -18,6 +18,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
+local debug = true
 
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
@@ -66,7 +67,74 @@ local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
 end
 
 
-function M.debug_draw(player_pos)
+local function debug_draw_raycast(ray_start, ray_end, color)
+    msg.post("@render:", "draw_line", { start_point = ray_start, end_point = ray_end, color = color })
+end
+
+
+function M.raycast_player(player_pos, sprite_flipped, max_distance)
+    local player_height = 54
+    local direction = sprite_flipped and -1 or 1
+
+    local ray_offsets = {
+        0,                       -- center
+        player_height / 2 - 10,  -- top
+        -player_height / 2 + 10  -- bottom
+    }
+
+    local results = {}
+
+    for _, offset in ipairs(ray_offsets) do
+        local ray_start = vmath.vector3(player_pos.x, player_pos.y + offset, 0)
+        local ray_end = vmath.vector3(player_pos.x + direction * max_distance, player_pos.y + offset, 0)
+
+        local result, count = daabbcc.raycast(M.group, ray_start.x, ray_start.y, ray_end.x, ray_end.y, collision_bits.GROUND)
+        
+        table.insert(results, {result = result, count = count, ray_start = ray_start, ray_end = ray_end})
+    end
+
+    if debug then
+        local blue = vmath.vector4(0, 0, 1, 1)
+
+        for _, ray_data in ipairs(results) do
+            debug_draw_raycast(ray_data.ray_start, ray_data.ray_end, blue)
+
+            if ray_data.count then
+                for _, aabb_id in ipairs(ray_data.result) do
+                    local tile = M.ground_data[aabb_id]
+                    if tile then
+                        debug_draw_aabb({ tile }, blue, tile_draw_x_offset, tile_draw_y_offset)
+                    end
+                end
+            end
+        end
+    end
+
+    return results
+end
+
+
+
+function M.update_wall_contact(player, player_pos)
+
+    local raycast_results = M.raycast_player(player_pos, player.sprite_flipped, 26)
+
+    player.wall_contact_left = false
+    player.wall_contact_right = false
+
+    for _, result in ipairs(raycast_results) do
+        if result.result then
+            if player.sprite_flipped then
+                player.wall_contact_left = true
+            else
+                player.wall_contact_right = true
+            end
+        end
+    end
+end
+
+
+function M.debug_draw(player_pos, sprite_flipped)
     local red = vmath.vector4(1, 0, 0, 1)
     local green = vmath.vector4(0, 1, 0, 1)
     
