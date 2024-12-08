@@ -70,7 +70,7 @@ function init(self)
     self.attack_hold_time = 0
 
     collision.init()
-    collision.add_player("/player", 46, 54)
+    collision.add_entity("/player")
     
 
 end

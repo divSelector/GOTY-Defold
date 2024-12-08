@@ -20,6 +20,12 @@ local tile_draw_y_offset = -9
 
 local debug = true
 
+local entity_width = 46
+local entity_height = 54
+
+local half_entity_width = entity_width / 2
+local half_entity_height = entity_height / 2
+
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
 
@@ -51,8 +57,9 @@ function M.add_tilemap(tilemap_url, layer)
     end
 end
 
-function M.add_player(player_url, player_width, player_height)
-    M.player_aabb_id = daabbcc.insert_gameobject(M.group, player_url, player_width, player_height, collision_bits.PLAYER)
+function M.add_entity(entity_url, mask)
+    local mask = mask or collision_bits.PLAYER
+    M.player_aabb_id = daabbcc.insert_gameobject(M.group, entity_url, entity_width, entity_height, mask)
 end
 
 local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
@@ -74,13 +81,12 @@ local function debug_draw_raycast(ray_start, ray_end, color)
 end
 
 function M.raycast_player(player_pos, sprite_flipped, max_distance)
-    local player_height = 54
     local direction = sprite_flipped and -1 or 1
 
     local ray_offsets = {
-        0,                       -- center
-        player_height / 2 - 10,  -- top
-        -player_height / 2 + 10  -- bottom
+        0,                        -- center
+        half_entity_height - 10,  -- top
+        -half_entity_height + 10  -- bottom
     }
 
     local results = {}
@@ -140,7 +146,12 @@ function M.debug_draw(player_pos, sprite_flipped)
     local green = vmath.vector4(0, 1, 0, 1)
     
     debug_draw_aabb(M.ground_data, red, tile_draw_x_offset, tile_draw_y_offset)
-    debug_draw_aabb({ { x = player_pos.x - 46 / 2, y = player_pos.y - 54 / 2, width = 46, height = 54 } }, green)
+    debug_draw_aabb({ { 
+        x = player_pos.x - half_entity_width,
+        y = player_pos.y - half_entity_height,
+        width = entity_width,
+        height = entity_height
+    } }, green)
 end
 
 function M.query_player()
@@ -148,9 +159,10 @@ function M.query_player()
     return result, count
 end
 
+function M.correct_overlap(entity, pos, query_func)
+    local query_func = query_func or M.query_player
 
-function M.correct_overlap(entity, pos)
-    local query_result, result_count = M.query_player()
+    local query_result, result_count = query_func()
 
     if query_result and result_count > 0 then
         local first_collision = query_result[1]
@@ -165,41 +177,29 @@ function M.correct_overlap(entity, pos)
             local tile_left = data.x
             local tile_right = data.x + data.width
 
-            -- Check for above and below collisions
             local is_above_tile = pos.y >= tile_top
-            local is_below_tile = pos.y + (54 / 2) < tile_bottom
-            local is_right_of_tile = pos.x - (46 / 2) < tile_right and pos.x > tile_left
-            local is_left_of_tile = pos.x + (46 / 2) + 1000000 > tile_left and pos.x < tile_right
+            local is_below_tile = pos.y + half_entity_height < tile_bottom
+            local is_right_of_tile = pos.x - half_entity_width < tile_right and pos.x > tile_left
+            local is_left_of_tile = pos.x + half_entity_width + 1000000 > tile_left and pos.x < tile_right
 
-
-            -- Handle collision from above (landing)
             if is_above_tile then
-                -- print("Hit from above")
                 pos.y = tile_top + y_offset
                 M.ground_contact = true
                 msg.post("/camera#controller", "follow_player_y", { toggle = false })
                 entity.velocity.y = 0
 
-            -- Handle collision from below
             elseif is_below_tile then
-                -- print("Hit from below")
                 pos.y = tile_bottom - (y_offset * 2)
                 entity.velocity.y = 0
                 entity.is_jumping = false
 
-            -- Handle left collision
             elseif is_right_of_tile then
-                -- print("Hit from the left")
                 pos.x = tile_right + x_offset
                 entity.velocity.x = 0
-                -- collision.wall_contact_left = true
 
-            -- Handle right collision
             elseif is_left_of_tile then
-                -- print("Hit from the right")
                 pos.x = tile_left - (x_offset * 2) - 1
                 entity.velocity.x = 0
-                -- collision.wall_contact_right = true
             end
         else
             print("Unknown collision!")
