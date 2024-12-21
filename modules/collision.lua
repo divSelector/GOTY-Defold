@@ -22,7 +22,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = true
+local debug = false
 
 local entity_width = 18
 local entity_height = 46

@@ -243,7 +243,9 @@ local function attack(self, dt)
 
     if input.key_state.attack and self.can_attack then
 
-        decay_momentum(self, 2)
+        if self.ground_contact then
+            decay_momentum(self, 2)
+        end
 
         local direction = self.sprite_flipped and -1 or 1
         local offset_x = 10 * direction
@@ -422,9 +424,13 @@ local function animate(self, dt)
         if input.key_state.crouch then
             if input.key_state.action then
                 new_anim = "crouch-slide"
+            elseif input.key_state.attack then
+                new_anim = "crouch-attack"
             else
                 new_anim = "crouch-idle"
             end
+        elseif input.key_state.attack then
+            new_anim = "stand-attack"
         else
             new_anim = "stand-idle"
         end
