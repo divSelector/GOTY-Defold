@@ -1291,4 +1291,10 @@ animations {
   start_tile: 1
   end_tile: 1
 }
+animations {
+  id: "platform"
+  start_tile: 3
+  end_tile: 3
+  playback: PLAYBACK_NONE
+}
 extrude_borders: 2

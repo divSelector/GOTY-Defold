@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="200" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="23">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="200" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="34">
  <editorsettings>
-  <export target="test.tilemap" format="defold"/>
+  <export target="../../resource/tilemaps/test.tmj" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="../tilesets/test.tsx"/>
  <layer id="1" name="ground" width="200" height="20">
@@ -28,6 +28,14 @@
 17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,0,0,0,0,0,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17
 </data>
  </layer>
+ <objectgroup color="#936e4d" id="7" name="moving_platform">
+  <properties>
+   <property name="behavior" type="int" value="1"/>
+  </properties>
+  <object id="27" x="670.667" y="238">
+   <point/>
+  </object>
+ </objectgroup>
  <objectgroup color="#fa0036" id="4" name="player_spawn" tintcolor="#000000">
   <object id="22" x="744" y="247.333">
    <point/>
@@ -35,6 +43,12 @@
  </objectgroup>
  <objectgroup color="#000dff" id="6" name="enemy_spawn">
   <object id="20" x="1318.67" y="161.333">
+   <point/>
+  </object>
+  <object id="32" x="466.667" y="262.667">
+   <point/>
+  </object>
+  <object id="33" x="1921.33" y="224">
    <point/>
   </object>
  </objectgroup>

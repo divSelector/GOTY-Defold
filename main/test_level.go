@@ -29,3 +29,9 @@ embedded_components {
   data: "prototype: \"/player/enemy.go\"\n"
   ""
 }
+embedded_components {
+  id: "platform_factory"
+  type: "factory"
+  data: "prototype: \"/main/platform.go\"\n"
+  ""
+}

@@ -2,7 +2,8 @@ local collision = require "modules.collision"
 
 go.property("velocity", vmath.vector3())
 
-local gravity = 1000
+local gravity = 1800
+local anim_playback_rate = 1.25
 
 function init(self)
 
@@ -10,13 +11,13 @@ function init(self)
     self.sprite_flipped = false
     self.current_anim = "stand-idle"
 
-    self.correction = vmath.vector3()
     self.ground_contact = false
 
     self.projectiles = {}
 
     self.aabb_id = collision.add_enemy(msg.url('.'))
 end
+
 
 local function set_facing_direction(self)
     local enemy_position = self.position
@@ -36,52 +37,175 @@ local function set_facing_direction(self)
     sprite.set_hflip("#accessory", self.sprite_flipped)
 end
 
+
 local function apply_gravity(self, dt)
-    if not self.ground_contact then
-        self.velocity.y = self.velocity.y + (-gravity * dt)
+    -- if not self.ground_contact then
+        -- Apply gravity, pulling the enemy down after the jump
+        self.velocity.y = self.velocity.y - (gravity * dt)
+    -- end
+end
+
+
+local function fire(self, enemy_position)
+    local direction = self.sprite_flipped and -1 or 1
+    local offset_x = 10 * direction
+    local offset_y = self.is_crouching and -8 or 5
+    local spawn_position = vmath.vector3(
+        enemy_position.x + offset_x,
+        enemy_position.y + offset_y,
+        enemy_position.z
+    )
+    local speed = 1000
+    local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
+    local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
+    local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
+    table.insert(self.projectiles, projectile)
+
+end
+
+
+local function crouch(self)
+    local enemy_position = self.position
+    local player_position = self.player_position
+
+    if enemy_position.y > player_position.y then
+        self.is_crouching = true
+    else
+        self.is_crouching = false
     end
 end
 
-local function calculate_move(self, dt)
 
-    apply_gravity(self, dt)
+local function jump(self, dt)
+    local enemy_position = self.position
+    local player_position = self.player_position
+
+    local jump_condition = player_position.y > enemy_position.y
+
+    -- Start the jump
+    if jump_condition and self.can_jump then
+        local target_y = player_position.y
+        local current_y = enemy_position.y
+        local time_to_apex = 0.5 -- Time to reach the apex
+
+        -- Calculate the initial velocity to reach the player's height
+        self.velocity.y = (target_y - current_y) / time_to_apex + (0.5 * gravity * time_to_apex)
+        self.ground_contact = false
+        self.can_jump = false
+        self.is_jumping = true
+    end
+
+    -- If jumping, update position and stop when reaching target height
+    if self.is_jumping then
+        local new_y = enemy_position.y + (self.velocity.y * dt)
+        if new_y >= player_position.y then
+            -- Transition from jumping to falling
+            self.is_jumping = false
+        end
+        enemy_position.y = new_y
+    end
+
+    -- If not jumping and not on the ground, gravity governs
+    if not self.is_jumping and not self.ground_contact then
+        self.velocity.y = self.velocity.y - (gravity * dt)
+        enemy_position.y = enemy_position.y + (self.velocity.y * dt)
+    end
+
+    -- Reset jump on ground contact
+    if self.ground_contact then
+        self.can_jump = true
+        self.velocity.y = 0
+    end
 
 end
+
+
+local attack_delay_time = 0.25
+
 
 local function attack(self, dt)
     local enemy_position = self.position
     local player_position = self.player_position
 
     if math.abs(enemy_position.y - player_position.y) <= 20 then
+        self.is_attacking = true
+    else
+        self.is_attacking = false
+    end
 
-        print("Enemy and player are within 100 units on the Y-axis!")
-        local direction = self.sprite_flipped and -1 or 1
-        local offset_x = 10 * direction
-        local offset_y = 5
-        local spawn_position = vmath.vector3(
-            enemy_position.x + offset_x,
-            enemy_position.y + offset_y,
-            enemy_position.z
-        )
-        local speed = 1000
-        local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
-        local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
-        local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
-        table.insert(self.projectiles, projectile)
-
+    if self.is_attacking then
+        if not self.is_charging_attack then
+            self.is_charging_attack = true
+            self.charge_timer = timer.delay(attack_delay_time, false, function()
+                if self.is_charging_attack then
+                    fire(self, enemy_position)
+                    self.is_charging_attack = false
+                    self.can_attack = false
+                    timer.delay(0.25, false, function()
+                        self.can_attack = true
+                    end)
+                end
+            end)
+        end
+    else
+        if self.is_charging_attack then
+            self.is_charging_attack = false
+            if self.charge_timer then
+                timer.cancel(self.charge_timer)
+                self.charge_timer = nil
+            end
+        end
     end
 end
+
+
+local function animate(self, dt)
+    local new_anim
+
+    local position
+    if self.is_crouching and self.ground_contact then
+        position = "crouch"
+    else
+        position = "stand"
+    end
+
+    if self.is_attacking and self.velocity.y ~= -0 then
+        new_anim = "jump-attack"
+    elseif self.is_attacking then
+        new_anim = position .. "-attack"
+    elseif self.velocity.y > 0 then
+        new_anim = "jump-air"
+    elseif self.velocity.y < 0 then
+        new_anim = "jump-ground"
+    else
+        new_anim = position .. "-idle"
+    end
+
+    if new_anim then
+        if self.current_anim ~= new_anim then
+            self.current_anim = new_anim
+            sprite.play_flipbook("#base", new_anim, nil, { playback_rate = anim_playback_rate })
+            sprite.play_flipbook("#body", new_anim, nil, { playback_rate = anim_playback_rate })
+            sprite.play_flipbook("#head", new_anim, nil, { playback_rate = anim_playback_rate })
+            sprite.play_flipbook("#accessory", new_anim, nil, { playback_rate = anim_playback_rate })
+        end
+    end
+end
+
 
 function update(self, dt)
 
     self.player_position = go.get_position("/player#player")
     self.position = collision.check_entity(self, self.position)
 
-    calculate_move(self, dt)
 
+    
+    apply_gravity(self, dt) -- Apply gravity and handle landing
+    jump(self, dt) -- Handle jumping logic
+    crouch(self)
     attack(self, dt)
 
-    -- animate(self, dt)
+    animate(self, dt)
     set_facing_direction(self)
 
 
@@ -91,5 +215,4 @@ function update(self, dt)
     self.wall_contact_left = false
     self.wall_contact_right = false
     self.ground_contact = false
-    self.correction = vmath.vector3()
 end

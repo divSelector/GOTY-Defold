@@ -40,6 +40,7 @@ local y_velocity_max = 900
 local jump_height_increment = 5
 local max_jump_streak = 3
 
+local attack_delay_time = 0.15
 
 function init(self)
     input.get_focus()
@@ -77,7 +78,6 @@ function init(self)
     collision.init()
 
     self.aabb_id = collision.add_player("/player")
-    
 
 end
 
@@ -235,36 +235,56 @@ local function jump(self, dt)
     end
 end
 
+local function fire(self)
+    -- Fire attack logic
+    local direction = self.sprite_flipped and -1 or 1
+    local offset_x = 10 * direction
+    local offset_y = input.key_state.crouch and -8 or 5
+    local player_position = go.get_position()
+    local spawn_position = vmath.vector3(
+        player_position.x + offset_x,
+        player_position.y + offset_y,
+        player_position.z
+    )
+    local speed = 500 + (self.momentum / max_momentum) * (1000 - 500)
+    local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
+    local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
+    local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
+end
+
 local function attack(self, dt)
 
     if input.key_state.crouch and input.key_state.action then
         return
     end
 
-    if input.key_state.attack and self.can_attack then
+    if input.key_state.attack then
 
         if self.ground_contact then
             decay_momentum(self, 2)
         end
 
-        local direction = self.sprite_flipped and -1 or 1
-        local offset_x = 10 * direction
-        local offset_y = input.key_state.crouch and -8 or 5
-        local player_position = go.get_position()
-        local spawn_position = vmath.vector3(
-            player_position.x + offset_x,
-            player_position.y + offset_y,
-            player_position.z
-        )
-        local speed = 500 + (self.momentum / max_momentum) * (1000 - 500)
-        local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
-        local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
-        local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
-
-        self.can_attack = false
-        timer.delay(0.25, false, function()
-            self.can_attack = true
-        end)
+        if not self.is_charging_attack then
+            self.is_charging_attack = true
+            self.charge_timer = timer.delay(attack_delay_time, false, function()
+                if self.is_charging_attack then
+                    fire(self)
+                    self.is_charging_attack = false
+                    self.can_attack = false
+                    timer.delay(0.25, false, function()
+                        self.can_attack = true
+                    end)
+                end
+            end)
+        end
+    else
+        if self.is_charging_attack then
+            self.is_charging_attack = false
+            if self.charge_timer then
+                timer.cancel(self.charge_timer)
+                self.charge_timer = nil
+            end
+        end
     end
 end
 
@@ -475,13 +495,6 @@ function update(self, dt)
 
     self.ground_contact = false
 end
-
-
--- function on_message(self, message_id, message, sender)
---     if message_id == hash("contact_point_response") then
-
---     end
--- end
 
 function on_input(self, action_id, action)
     input.capture(action_id, action)

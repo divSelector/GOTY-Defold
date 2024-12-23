@@ -39,6 +39,15 @@ local function spawn_enemies(self)
     end
 end
 
+local function spawn_platforms(self)
+    for _, spawn_position in ipairs(self.platform_spawn_positions) do
+        pprint(spawn_position)
+        local platform = factory.create("#platform_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
+        table.insert(self.platforms, platform)
+    end
+end
+
+
 function init(self)
     self.spawn_point = 1
     local resource = sys.load_resource("/resource/tilemaps/test.tmj")
@@ -51,6 +60,11 @@ function init(self)
         self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
         self.enemies = {}
         spawn_enemies(self)
+
+        self.platform_spawn_positions = get_spawn_positions(self, "moving_platform")
+        self.platforms = {}
+        spawn_platforms(self)
+
     end
 
     collision.add_tilemap("#tilemap", "ground")
