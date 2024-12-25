@@ -259,7 +259,7 @@ local function handle_tile_contact(data, orientation, entity)
     end
 end
 
-local function handle_overlap(orientation, is_player)
+local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
     if is_player and orientation.is_above_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = false })
     end
@@ -301,20 +301,12 @@ function M.handle(entity, entity_pos, is_player)
 
         if results then
             for _, result in ipairs(results) do
-                if type(result) == "table" then
-                    if result.result then  -- raycast
-                        for _, aabb_id in ipairs(result.result) do
-                            table.insert(normalized, aabb_id)
-                        end
-                    elseif result.id then -- overlap query
-                        table.insert(normalized, result.id)
+                if result.result then  -- raycast
+                    for _, aabb_id in ipairs(result.result) do
+                        table.insert(normalized, aabb_id)
                     end
-                elseif type(result) == "number" then
-                    print("Does this ever happen?")
-                    table.insert(normalized, result)
-                else
-                    -- Handle unexpected types
-                    print("Warning: Unexpected result type:", result)
+                elseif result.id then -- overlap
+                    table.insert(normalized, result.id)
                 end
             end
         end
@@ -322,7 +314,7 @@ function M.handle(entity, entity_pos, is_player)
         return normalized
     end
 
-    local function process(normalized_ids, callback, is_raycast)
+    local function _process(normalized_ids, callback, is_raycast)
         for _, aabb_id in ipairs(normalized_ids) do
             local tile = M.tile_data[aabb_id]
             local platform = M.platform_ids[aabb_id]
@@ -346,30 +338,33 @@ function M.handle(entity, entity_pos, is_player)
         end
     end
 
-    entity.ground_contact = false
-    entity.wall_contact_left = false
-    entity.wall_contact_right = false
+    local function process(results, callback, is_raycast)
+        local normalized_results = normalize(results)
+        _process(normalized_results, function(dimensions, orientation)
+            callback(entity, entity_pos, dimensions, orientation, is_player)
+        end, is_raycast)
+    end
 
-    local overlap_result = normalize(M.query(entity.aabb_id))
-    process(overlap_result, function(dimensions, orientation)
-        handle_overlap(orientation, is_player)
-    end, false)
+    local function reset()
+        entity.ground_contact = false
+        entity.wall_contact_left = false
+        entity.wall_contact_right = false
+    end
 
-    local downward_raycast_results = normalize(raycast_y(entity_pos, half_entity_height + 1, -1))
-    process(downward_raycast_results, function(dimensions, orientation)
-        handle_ground_contact(entity, entity_pos, dimensions)
-    end, true)
-    
-    local upward_raycast_results = normalize(raycast_y(entity_pos, half_entity_height + 1, 1))
-    process(upward_raycast_results, function(dimensions, orientation)
-        handle_ceiling_contact(entity, entity_pos, dimensions)
-    end, true)
+    reset()
 
+    local queries = {
+        overlap = M.query(entity.aabb_id),
+        ground = raycast_y(entity_pos, half_entity_height + 1, -1),
+        ceiling = raycast_y(entity_pos, half_entity_height + 1, 1),
+        wall = raycast_x(entity_pos, entity.sprite_flipped, half_entity_width + 1)
+    }
 
-    local forward_raycast_results = normalize(raycast_x(entity_pos, entity.sprite_flipped, half_entity_width + 1))
-    process(forward_raycast_results, function(dimensions, orientation)
-        handle_wall_contact(entity, entity_pos, dimensions)
-    end, true)
+    process(queries.overlap, handle_overlap, false)
+
+    process(queries.wall, handle_wall_contact, true)
+    process(queries.ground, handle_ground_contact, true)
+    process(queries.ceiling, handle_ceiling_contact, true)
 
 end
 
