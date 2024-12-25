@@ -477,7 +477,7 @@ function update(self, dt)
 
     collision.debug_draw_level(self.enemies, self.platforms)
     collision.debug_draw_player(pos)
-    collision.handle_ground_contact(self, pos, true)
+    collision.handle(self, pos, true)
 
     attack(self, dt)
 
