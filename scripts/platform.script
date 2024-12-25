@@ -1,0 +1,13 @@
+local collision = require "modules.collision"
+
+function init(self)
+	self.aabb_id = collision.add_platform(msg.url('.'))
+end
+
+function update(self, dt)
+    -- self.player_position = go.get_position("/player#player")
+    -- self.position = collision.check_entity(self, self.position)
+
+    -- go.set_position(self.position + self.velocity * dt)
+end
+

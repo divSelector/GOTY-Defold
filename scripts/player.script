@@ -79,6 +79,10 @@ function init(self)
 
     self.aabb_id = collision.add_player("/player")
 
+    -- received from level.script
+    self.platforms = {}
+    self.enemies = {}
+
 end
 
 local function decay_momentum(self, additional_decay)
@@ -469,9 +473,11 @@ end
 
 function update(self, dt)
 
-    local pos = collision.check_entity(self, go.get_position(), true)
-    collision.debug_draw(pos)
-    collision.update_wall_contact(self, pos)
+    local pos = go.get_position()
+
+    collision.debug_draw_level(self.enemies, self.platforms)
+    collision.debug_draw_player(pos)
+    collision.handle_ground_contact(self, pos, true)
 
     attack(self, dt)
 
@@ -494,6 +500,13 @@ function update(self, dt)
     end
 
     self.ground_contact = false
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("level_data") then
+        self.platforms = message.platforms
+        self.enemies = message.enemies
+    end
 end
 
 function on_input(self, action_id, action)

@@ -15,7 +15,7 @@ local tile_height = 16
 local tile_insert_x_offet = 0
 local tile_insert_y_offet = 0
 local tile_insert_x_offet = 8
-local tile_insert_y_offet = 29
+local tile_insert_y_offet = 9
 
 local tile_draw_x_offset = 0
 local tile_draw_y_offset = 0
@@ -35,13 +35,9 @@ local projectile_height = 14
 
 -- correction numbers for entity_width 18
 local tile_top_offset = 14
-local tile_bottom_offset = 32
+local tile_bottom_offset = -32
 local tile_right_offset = 1.01
-local tile_left_offset = 17.01
--- local tile_top_offset = 0
--- local tile_bottom_offset = 0
--- local tile_right_offset = 0
--- local tile_left_offset = 0
+local tile_left_offset = -17.01
 
 local TILES = {
     GROUND = 17,
@@ -55,7 +51,7 @@ function M.init()
     M.player_aabb_id = nil
 
     M.tile_data = {}
-    M.projectile_data = {}
+    M.platform_ids = {}
 end
 
 function M.add_tilemap(tilemap_url, layer)
@@ -91,9 +87,9 @@ function M.add_enemy(enemy_url)
 end
 
 function M.add_platform(platform_url)
-    local mask_bits = bit.bor(collision_bits.ENEMY, collision_bits.PLAYER, collision_bits.GROUND)
-    local enemy_aabb_id = daabbcc.insert_gameobject(M.group, platform_url, 16, 16, mask_bits)
-    return enemy_aabb_id
+    local platform_aabb_id = daabbcc.insert_gameobject(M.group, platform_url, 16, 16, collision_bits.GROUND)
+    M.platform_ids[platform_aabb_id] = platform_url
+    return platform_aabb_id
 end
 
 function M.add_projectile(projectile_url)
@@ -119,7 +115,7 @@ local function debug_draw_raycast(ray_start, ray_end, color)
     msg.post("@render:", "draw_line", { start_point = ray_start, end_point = ray_end, color = color })
 end
 
-function M.raycast_player_x(player_pos, sprite_flipped, max_distance)
+function M.raycast_x(player_pos, sprite_flipped, max_distance)
 
     local direction = sprite_flipped and -1 or 1
 
@@ -149,8 +145,17 @@ function M.raycast_player_x(player_pos, sprite_flipped, max_distance)
             if ray_data.count then
                 for _, aabb_id in ipairs(ray_data.result) do
                     local tile = M.tile_data[aabb_id]
+                    local platform = M.platform_ids[aabb_id]
                     if tile then
                         debug_draw_aabb({ tile }, blue, tile_draw_x_offset, tile_draw_y_offset)
+                    elseif platform then
+                        local platform_pos = go.get_position(platform)
+                        debug_draw_aabb({ { 
+                            x = platform_pos.x - 8 + tile_insert_x_offet,
+                            y = platform_pos.y - 8 + tile_insert_y_offet,
+                            width = tile_width,
+                            height = tile_height
+                        } }, blue, tile_draw_x_offset, tile_draw_y_offset)
                     end
                 end
             end
@@ -161,9 +166,7 @@ function M.raycast_player_x(player_pos, sprite_flipped, max_distance)
 end
 
 
-function M.raycast_player_y(player_pos, max_distance)
-
-    local direction = -1  -- down only for now
+function M.raycast_y(player_pos, max_distance, direction)
 
     local ray_offsets = {
         half_entity_width - 4,  -- left
@@ -190,8 +193,17 @@ function M.raycast_player_y(player_pos, max_distance)
             if ray_data.count then
                 for _, aabb_id in ipairs(ray_data.result) do
                     local tile = M.tile_data[aabb_id]
+                    local platform = M.platform_ids[aabb_id]
                     if tile then
                         debug_draw_aabb({ tile }, blue, tile_draw_x_offset, tile_draw_y_offset)
+                    elseif platform then
+                        local platform_pos = go.get_position(platform)
+                        debug_draw_aabb({ { 
+                            x = platform_pos.x - 8 + tile_insert_x_offet,
+                            y = platform_pos.y - 8 + tile_insert_y_offet,
+                            width = tile_width,
+                            height = tile_height
+                        } }, blue, tile_draw_x_offset, tile_draw_y_offset)
                     end
                 end
             end
@@ -204,66 +216,197 @@ end
 
 local function get_tile_dimensions(data)
     if data then
-        local tile_top = data.y + data.height
-        local tile_bottom = data.y
-        local tile_left = data.x
-        local tile_right = data.x + data.width
-
-        return tile_top, tile_bottom, tile_left, tile_right
+        return {
+            top = data.y + data.height,
+            bottom = data.y,
+            left = data.x,
+            right = data.x + data.width
+        }
     end
 end
 
-
-function M.update_wall_contact(entity, entity_pos)
-
-    local x_raycast_results = M.raycast_player_x(entity_pos, entity.sprite_flipped, half_entity_width + 1)
-
-    entity.wall_contact_left = false
-    entity.wall_contact_right = false
-
-    for _, result in ipairs(x_raycast_results) do
-        if result.result then
-            if entity.sprite_flipped then
-                entity.wall_contact_left = true
-            else
-                entity.wall_contact_right = true
-            end
-        end
+local function get_platform_dimensions(url)
+    if go.exists(url) then
+        local data = go.get_position(url)
+        return {
+            top = data.y + tile_height,
+            bottom = data.y,
+            left = data.x,
+            right = data.x + tile_width
+        }
     end
+end
 
-    -- for now we're not really doing anything with this part below here.
-    -- i can't reliably produce the bug I'm trying to fix so idk
-    -- consider taking this out if it's not going to do anything
-    -- edit: the only thing it's doing it lowering the velocity
-    if entity.velocity.y >= 0 then return end
+local function get_ground_orientation(data, pos)
+    return {
+        is_above_tile = pos.y >= data.top,
+        is_below_tile = pos.y + (half_entity_height) < data.bottom,
+        is_right_of_tile = pos.x - (half_entity_width) < data.right and pos.x > data.left,
+        is_left_of_tile = pos.x + (half_entity_width) + 1000000 > data.left and pos.x < data.right
+    }
+end
 
-    local y_raycast_results = M.raycast_player_y(entity_pos, half_entity_height + 20)
+local function handle_tile_contact(data, orientation, entity)
 
-    for _, result in ipairs(y_raycast_results) do
-        if result.count then
-            for _, aabb_id in ipairs(result.result) do
-                local tile = M.tile_data[aabb_id]
+    if data and data.index == TILES.SPRING and orientation.is_above_tile then
+        print("true")
+        msg.post("/camera#controller", "follow_player_y", { toggle = true })
+        entity.velocity.y = 750
+
+    elseif data and data.index == TILES.QUESTION and orientation.is_below_tile then
+        msg.post("#skins", "randomize_skin")
+
+    end
+     
+end
+
+function M.handle_ground_contact(entity, entity_pos, is_player)
+
+    local overlap_result = M.query(entity.aabb_id)
+
+    if overlap_result then
+        for _, overlap in ipairs(overlap_result) do
+            local aabb_id = overlap.id
+            local tile = M.tile_data[aabb_id]
+            local platform = M.platform_ids[aabb_id]
+    
+            if tile or platform then
+                local dimensions
+                
                 if tile then
-                    -- local tile_top, tile_bottom, tile_left, tile_right = get_tile_dimensions(tile)
-                    -- entity_pos.y = tile_top + tile_top_offset
-                    -- entity.ground_contact = true
-                    if entity.velocity.y > 500 then
-                        entity.velocity.y = math.floor(entity.velocity.y / 2)
+                    dimensions = get_tile_dimensions(tile)
+                else
+                    dimensions = get_platform_dimensions(platform)
+                end
+                
+                local orientation = get_ground_orientation(dimensions, entity_pos)
+                if orientation.is_above_tile then
+                    if is_player then
+                        print("false")
+                        msg.post("/camera#controller", "follow_player_y", { toggle = false })
                     end
                 end
             end
         end
     end
 
+    local downward_raycast_results = M.raycast_y(entity_pos, half_entity_height + 1, -1)
+
+    entity.ground_contact = false
+
+    for _, result in ipairs(downward_raycast_results) do
+        if result.result then
+            for _, aabb_id in ipairs(result.result) do
+                local tile = M.tile_data[aabb_id]
+                local platform = M.platform_ids[aabb_id]
+                
+                if tile or platform then
+                    local dimensions
+                    
+                    if tile then
+                        dimensions = get_tile_dimensions(tile)
+                    else
+                        dimensions = get_platform_dimensions(platform)
+                    end
+                    
+                    -- print("top")
+                    entity.velocity.y = 0
+                    entity_pos.y = dimensions.top + tile_top_offset
+                    entity.ground_contact = true
+                    
+                    local orientation = get_ground_orientation(dimensions, entity_pos)
+
+                    if tile then
+                        handle_tile_contact(tile, orientation, entity)
+                    end
+                end
+            end
+        end
+    end
+
+    local upward_raycast_results = M.raycast_y(entity_pos, half_entity_height + 1, 1)
+
+    for _, result in ipairs(upward_raycast_results) do
+        if result.result then
+            for _, aabb_id in ipairs(result.result) do
+                local tile = M.tile_data[aabb_id]
+                local platform = M.platform_ids[aabb_id]
+                
+                if tile or platform then
+                    local dimensions
+                    
+                    if tile then
+                        dimensions = get_tile_dimensions(tile)
+                    else
+                        dimensions = get_platform_dimensions(platform)
+                    end
+                    
+                    -- print("bottom")
+                    entity.velocity.y = 0
+                    entity.is_jumping = false
+                    entity_pos.y = dimensions.bottom + tile_bottom_offset
+
+                    local orientation = get_ground_orientation(dimensions, entity_pos)
+
+                    if tile then
+                        handle_tile_contact(tile, orientation, entity)
+                    end
+                end
+            end
+        end
+    end
+
+    local forward_raycast_results = M.raycast_x(entity_pos, entity.sprite_flipped, half_entity_width + 1)
+
+    entity.wall_contact_left = false
+    entity.wall_contact_right = false
+
+    for _, result in ipairs(forward_raycast_results) do
+        if result.result then
+            for _, aabb_id in ipairs(result.result) do
+                local tile = M.tile_data[aabb_id]
+                local platform = M.platform_ids[aabb_id]
+
+                if tile or platform then
+                    local dimensions
+                    
+                    if tile then
+                        dimensions = get_tile_dimensions(tile)
+                    else
+                        dimensions = get_platform_dimensions(platform)
+                    end
+                    
+                    entity.velocity.x = 0
+
+                    if entity.sprite_flipped then
+                        -- print("left")
+                        entity_pos.x = dimensions.right + tile_right_offset
+                        entity.wall_contact_left = true
+                    else
+                        -- print("right")
+                        entity_pos.x = dimensions.left + tile_left_offset
+                        entity.wall_contact_right = true
+                    end
+
+                    local orientation = get_ground_orientation(dimensions, entity_pos)
+
+                    if tile then
+                        handle_tile_contact(tile, orientation, entity)
+                    end
+                end
+            end
+        end
+    end
 end
 
-function M.debug_draw(player_pos)
+local red = vmath.vector4(1, 0, 0, 1)
+local green = vmath.vector4(0, 1, 0, 1)
+
+
+function M.debug_draw_player(player_pos)
 
     if not debug then return end
 
-    local red = vmath.vector4(1, 0, 0, 1)
-    local green = vmath.vector4(0, 1, 0, 1)
-    
     debug_draw_aabb(M.tile_data, red, tile_draw_x_offset, tile_draw_y_offset)
     debug_draw_aabb({ { 
         x = player_pos.x - half_entity_width,
@@ -271,11 +414,38 @@ function M.debug_draw(player_pos)
         width = entity_width,
         height = entity_height
     } }, green)
+
+end
+
+function M.debug_draw_level(enemies, platforms)
+
+    if not debug then return end
+    
+    for _, enemy in ipairs(enemies) do
+        local enemy_go = go.get_position(enemy)
+        debug_draw_aabb({ {
+            x = enemy_go.x - half_entity_width, 
+            y = enemy_go.y - half_entity_height, 
+            width = entity_width, 
+            height = entity_height
+        } }, green)
+    end
+
+    for _, platform in ipairs(platforms) do
+        local platform_go = go.get_position(platform)
+        debug_draw_aabb({ {
+            x = platform_go.x - 8, 
+            y = platform_go.y - 8, 
+            width = 16, 
+            height = 16
+        } }, red)
+    end
+    
 end
 
 function M.query(aabb_id, mask)
-    local mask = mask or collision_bits.GROUND
-    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask)
+    -- local mask = mask or bit.bor(collision_bits.GROUND, collision_bits.PLATFORM)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, collision_bits.GROUND)
     return result, count
 end
 
@@ -286,69 +456,66 @@ function M.check_projectile(projectile)
     end
 end
 
-
-
 function M.check_entity(entity, pos, is_player)
-    local query_result, result_count = M.query(entity.aabb_id)
 
-    if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
-        entity.wall_contact_left = false
-        entity.wall_contact_right = false
-    end
+    -- local query_result, result_count = M.query(entity.aabb_id)
 
-    if query_result and result_count > 0 then
-        for _, overlap in ipairs(query_result) do
-            local aabb_id = overlap.id
-            local data = M.tile_data[aabb_id]
+    -- if not query_result and (entity.wall_contact_left or entity.wall_contact_right) then
+    --     entity.wall_contact_left = false
+    --     entity.wall_contact_right = false
+    -- end
+
+    -- if query_result and result_count > 0 then
+    --     for _, overlap in ipairs(query_result) do
+    --         local aabb_id = overlap.id
+    --         local data = M.tile_data[aabb_id]
+
+    --         if not data then return pos end
     
-            if not data then return end
+    --         local tile_top, tile_bottom, tile_left, tile_right = get_tile_dimensions(data)
+
+    --         local is_above_tile = pos.y >= tile_top
+    --         local is_below_tile = pos.y + (half_entity_height) < tile_bottom
+    --         local is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
+    --         local is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
     
-            local tile_top, tile_bottom, tile_left, tile_right = get_tile_dimensions(data)
+    --         if is_above_tile then
+    --             pos.y = tile_top + tile_top_offset
+    --             entity.ground_contact = true
+    --             if is_player then
+    --                 msg.post("/camera#controller", "follow_player_y", { toggle = false })
+    --             end
+    --             entity.velocity.y = 0
     
-            local is_above_tile = pos.y >= tile_top
-            local is_below_tile = pos.y + (half_entity_height) < tile_bottom
-            local is_right_of_tile = pos.x - (half_entity_width) < tile_right and pos.x > tile_left
-            local is_left_of_tile = pos.x + (half_entity_width) + 1000000 > tile_left and pos.x < tile_right
+    --         elseif is_below_tile then
+    --             pos.y = tile_bottom - tile_bottom_offset
+    --             entity.velocity.y = 0
+    --             entity.is_jumping = false
     
-            if is_above_tile then
-                pos.y = tile_top + tile_top_offset
-                entity.ground_contact = true
-                if is_player then
-                    msg.post("/camera#controller", "follow_player_y", { toggle = false })
-                end
-                entity.velocity.y = 0
+    --         elseif is_right_of_tile then
+    --             pos.x = tile_right + tile_right_offset
+    --             entity.velocity.x = 0
+    --             entity.wall_contact_left = true
     
-            elseif is_below_tile then
-                pos.y = tile_bottom - tile_bottom_offset
-                entity.velocity.y = 0
-                entity.is_jumping = false
+    --         elseif is_left_of_tile then
+    --             pos.x = tile_left - tile_left_offset
+    --             entity.velocity.x = 0
+    --             entity.wall_contact_right = true
+    --         end
     
-            elseif is_right_of_tile then
-                pos.x = tile_right + tile_right_offset
-                entity.velocity.x = 0
-                entity.wall_contact_left = true
-    
-            elseif is_left_of_tile then
-                pos.x = tile_left - tile_left_offset
-                entity.velocity.x = 0
-                entity.wall_contact_right = true
-            end
-    
-            -- if not is_player then return end
-    
-            if data.index == TILES.SPRING and is_above_tile then
-                msg.post("/camera#controller", "follow_player_y", { toggle = true })
-                entity.velocity.y = 750
+    --         if data and data.index == TILES.SPRING and is_above_tile then
+    --             msg.post("/camera#controller", "follow_player_y", { toggle = true })
+    --             entity.velocity.y = 750
             
-            elseif data.index == TILES.QUESTION and is_below_tile then
-                msg.post("#skins", "randomize_skin")
+    --         elseif data and data.index == TILES.QUESTION and is_below_tile then
+    --             msg.post("#skins", "randomize_skin")
     
-            else
-                -- print("Unknown collision!")
-            end
-        end
+    --         else
+    --             print("Unknown collision!")
+    --         end
+    --     end
 
-    end
+    -- end
     
     return pos
 end

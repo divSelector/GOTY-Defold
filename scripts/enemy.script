@@ -196,9 +196,8 @@ end
 function update(self, dt)
 
     self.player_position = go.get_position("/player#player")
-    self.position = collision.check_entity(self, self.position)
 
-
+    collision.handle_ground_contact(self, self.position, false)
     
     apply_gravity(self, dt) -- Apply gravity and handle landing
     jump(self, dt) -- Handle jumping logic
