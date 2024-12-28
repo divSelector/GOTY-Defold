@@ -1,13 +1,33 @@
 local collision = require "modules.collision"
 
+go.property("index", 0)
+go.property("velocity", vmath.vector3())
+
 function init(self)
+    self.id = go.get_id()
 	self.aabb_id = collision.add_platform(msg.url('.'))
+    self.position = go.get_position()
+    self.platform_group = {}
 end
 
 function update(self, dt)
-    -- self.player_position = go.get_position("/player#player")
-    -- self.position = collision.check_entity(self, self.position)
-
-    -- go.set_position(self.position + self.velocity * dt)
+    collision.handle_platform(self, self.position, self.velocity)
+    self.position = go.get_position()
 end
 
+function on_message(self, message_id, message, sender)
+    if message_id == hash("level_data") then
+        self.platform_group = message.platforms
+
+    elseif message_id == hash("reverse_direction") then
+        local new_velocity = vmath.vector3(-self.velocity.x, -self.velocity.y, 0)
+        for _, platform in ipairs(self.platform_group) do
+            local platform_url = msg.url(platform)
+
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            platform_url.fragment = "platform"
+            
+            go.set(platform_url, "velocity", new_velocity)
+        end
+    end
+end

@@ -54,8 +54,10 @@ end
 
 local function spawn_platforms(self)
     for _, spawn_position in ipairs(self.platform_spawn_positions) do
-        pprint(spawn_position)
-        local platform = factory.create("#platform_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
+        local platform = factory.create("#platform_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
+            index = 3,
+            velocity = vmath.vector3(100,0,0)
+        })
         table.insert(self.platforms, platform)
     end
 end
@@ -87,13 +89,28 @@ function init(self)
     collision.add_tilemap("#tilemap", "ground")
 end
 
-function update(self)
+function update(self, dt)
     local player_position = go.get_position("/player#player")
 
     msg.post("/player#player", "level_data", {
         enemies = self.enemies,
         platforms = self.platforms
     })
+
+    for _, platform in ipairs(self.platforms) do
+        local platform_pos = go.get_position(platform)
+        local platform_url = msg.url(platform)
+        
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        platform_url.fragment = "platform"
+        
+        local platform_vel = go.get(platform_url, "velocity")
+        platform_pos = platform_pos + platform_vel * dt
+        go.set_position(platform_pos, platform)
+        msg.post(platform_url, "level_data", {
+            platforms = self.platforms
+        })
+    end
 
     if player_position.y < 0 then
         set_player_spawn_position(self)

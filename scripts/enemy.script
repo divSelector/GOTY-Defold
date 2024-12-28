@@ -73,6 +73,8 @@ local function crouch(self)
     else
         self.is_crouching = false
     end
+
+    self.is_prone = false -- not implemented
 end
 
 

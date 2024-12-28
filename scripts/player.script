@@ -121,6 +121,9 @@ end
 
 local function slide(self, dt)
 
+    self.is_prone = input.key_state.crouch and input.key_state.action and self.ground_contact
+    self.is_crouching = input.key_state.crouch and self.ground_contact and not self.is_prone
+
     -- Update slide timer
     if self.slide_timer > 0 then
         -- Decrease slide timer during active slide
@@ -157,7 +160,9 @@ local function slide(self, dt)
                 return interrupt_movement
             end
         else
-            self.velocity.x = 0 -- Stop movement when crouching without sliding
+            -- if not self.platform_velocity then
+                self.velocity.x = 0 -- Stop movement when crouching without sliding
+            -- end
         end
         interrupt_movement = true
         return interrupt_movement
@@ -333,7 +338,7 @@ end
 
 local function on_exit_crouch(self)
     local was_crouching = self.is_crouching
-    self.is_crouching = input.key_state.crouch
+    -- self.is_crouching = input.key_state.crouch
 
     if was_crouching and not self.is_crouching then
         decay_momentum(self)
@@ -343,7 +348,9 @@ end
 local function apply_gravity(self, dt)
     if not self.ground_contact then
         local gravity = gravity_rise
-        if self.velocity.y < 0 and input.key_state.action then
+        if self.velocity.y < 0 and input.key_state.action and self.is_prone then
+            gravity = 0
+        elseif self.velocity.y < 0 and input.key_state.action then
             gravity = gravity_fall_resisted
         elseif self.velocity.y < 0 then
             gravity = gravity_fall
@@ -460,6 +467,10 @@ local function animate(self, dt)
         end
     end
 
+    if self.is_prone then
+        new_anim = "crouch-slide"
+    end
+
     if new_anim then
         if self.current_anim ~= new_anim then
             self.current_anim = new_anim
@@ -483,10 +494,15 @@ function update(self, dt)
 
     calculate_move(self, dt)
 
+    local player_velocity = self.velocity or vmath.vector3(0, 0, 0)
+    self.platform_velocity = self.platform_velocity or vmath.vector3(0, 0, 0)
+    local combined_velocity = player_velocity + self.platform_velocity
+
     animate(self, dt)
 
+    print("is_crouuching: ", self.is_crouching)
 
-    go.set_position(pos + self.velocity * dt)
+    go.set_position(pos + combined_velocity * dt)
 
     if self.momentum < self.last_jump_momentum or self.momentum == 0 then
         self.jump_streak = 0
@@ -500,12 +516,17 @@ function update(self, dt)
     end
 
     self.ground_contact = false
+    self.platform_velocity = nil
 end
 
 function on_message(self, message_id, message, sender)
     if message_id == hash("level_data") then
         self.platforms = message.platforms
         self.enemies = message.enemies
+
+    elseif message_id == hash("match_platform_velocity") then
+        self.platform_velocity = message.velocity
+
     end
 end
 
