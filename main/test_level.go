@@ -1,6 +1,6 @@
 components {
   id: "tilemap"
-  component: "/assets/tilemaps/test.tilemap"
+  component: "/assets/tilemaps/one.tilemap"
 }
 components {
   id: "level"

@@ -136,6 +136,7 @@ local function slide(self, dt)
     end
 
     local interrupt_movement = false
+    if self.wall_contact_left or self.wall_contact_right then return interrupt_movement end
 
     if self.slide_timer > 0 then
         -- Maintain slide velocity during the slide
@@ -150,6 +151,7 @@ local function slide(self, dt)
     if input.key_state.crouch and self.ground_contact then
         self.can_jump = false
         if input.key_state.action and self.slide_cooldown_timer <= 0 then
+            -- if self.wall_contact_left or self.wall_contact_right then return interrupt_movement end
             if self.slide_timer <= 0 and self.slide_cooldown_timer <= 0 then
                 -- Start sliding
                 self.slide_timer =  slide_duration_min + ((self.momentum / max_momentum) * (slide_duration_max - slide_duration_min))
@@ -160,9 +162,7 @@ local function slide(self, dt)
                 return interrupt_movement
             end
         else
-            -- if not self.platform_velocity then
-                self.velocity.x = 0 -- Stop movement when crouching without sliding
-            -- end
+            self.velocity.x = 0 -- Stop movement when crouching without sliding
         end
         interrupt_movement = true
         return interrupt_movement
@@ -499,8 +499,6 @@ function update(self, dt)
     local combined_velocity = player_velocity + self.platform_velocity
 
     animate(self, dt)
-
-    print("is_crouuching: ", self.is_crouching)
 
     go.set_position(pos + combined_velocity * dt)
 

@@ -22,7 +22,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = true
+local debug = false
 
 local entity_width = 18
 local entity_height = 46
@@ -396,7 +396,7 @@ function M.handle(entity, entity_pos, is_player)
             0,                       -- center
             -8,                      -- below center
             half_entity_height - 4,  -- top
-            -half_entity_height + 8  -- bottom (moved up for clearing crouch slide over gaps)
+            -half_entity_height + 6  -- bottom (moved up for clearing crouch slide over gaps)
         }
         ray_ceiling_distance = half_entity_height + 1
 

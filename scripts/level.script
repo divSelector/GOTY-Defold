@@ -69,7 +69,7 @@ function init(self)
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}
     
-    local resource = sys.load_resource("/resource/tilemaps/test.tmj")
+    local resource = sys.load_resource("/resource/tilemaps/one.tmj")
     if resource then
         self.data = json.decode(resource)
 

@@ -10,6 +10,11 @@ function M.sign(x)
     end
 end
 
+function M.random_float(min, max)
+    return min + math.random() * (max - min)
+end
+
+
 function M.clamp(value, max_value)
     local min_value = -max_value
     if value > max_value then

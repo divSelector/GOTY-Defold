@@ -11,6 +11,18 @@ instances {
   id: "test_level"
   prototype: "/main/test_level.go"
 }
+instances {
+  id: "bg"
+  prototype: "/shaders/bg.go"
+  position {
+    x: 273.88028
+    y: 175.01427
+  }
+  scale3 {
+    x: 550.0
+    y: 350.0
+  }
+}
 scale_along_z: 0
 embedded_instances {
   id: "camera"

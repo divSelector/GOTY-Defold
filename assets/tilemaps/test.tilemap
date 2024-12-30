@@ -1,5 +1,13 @@
 tile_set: "/assets/tilesets/test.tilesource"
 layers {
+  id: "layer"
+  z: 0.0
+}
+layers {
+  id: "layer1"
+  z: 0.0
+}
+layers {
   id: "ground"
   z: 1.0E-4
   cell {

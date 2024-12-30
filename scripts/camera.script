@@ -1,9 +1,13 @@
 local input = require "modules.input"
+local utils = require "modules.utils"
 
 local x_follow_threshold = 6
 
 local look_down_duration_threshold = 1.0
 local look_down_move_speed = 2
+
+local time = 0
+local last_direction = 1
 
 function init(self)
     self.follow_player_x = true
@@ -11,6 +15,8 @@ function init(self)
 
     self.original_y = go.get_position().y
     self.url = msg.url('/camera#camera')
+
+    self.bg_go = msg.url("/bg#one")
 
     self.look_down_timer = 0
 end
@@ -46,6 +52,7 @@ end
 local function lerp(a, b, t)
     return a + (b - a) * t
 end
+
 
 function update(self, dt)
     local camera_position = go.get_position()
@@ -90,7 +97,50 @@ function update(self, dt)
         camera_position.y = self.original_y
     end
 
+    -- pprint(camera_position.x)
+    -- if camera_position.x <= 225 then
+    --     camera_position.x = 225
+    -- end
+
+    -- if camera_position.x >= 2976 then
+    --     camera_position.x = 2976
+    -- end
+
+
     go.set_position(camera_position)
+
+    local bg_pos = go.get_position(self.bg_go)
+    bg_pos.x = camera_position.x
+
+    go.set_position(bg_pos, self.bg_go)
+
+    local velocity = go.get("/player#player", "velocity")
+    
+    -- Smoothly adjust the direction
+    local target_direction = utils.sign(velocity.x)
+
+    local current_parallax = go.get("/bg#one", "waves").x
+    
+    local transition_speed = 0.01
+
+    local new_parallax
+    if target_direction == 1 then
+        new_parallax = current_parallax + transition_speed
+    elseif target_direction == -1 then
+        new_parallax = current_parallax - transition_speed
+    elseif target_direction == 0 then
+        new_parallax = current_parallax
+    end
+
+    local frequency = 4.0
+    local amplitude = 0.5
+
+    local speed = 0.7
+
+    -- Pass the direction and time to the shader
+    go.set("/bg#one", "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
+    go.set("/bg#one", "top_color", vmath.vector4(0.859,0.835,0.431, 0))
+    go.set("/bg#one", "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
 end
 
 
