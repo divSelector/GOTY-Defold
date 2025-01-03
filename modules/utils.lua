@@ -25,13 +25,34 @@ function M.clamp(value, max_value)
     return value
 end
 
+-- function M.get_key_by_value(tbl, value)
+--     for key, val in pairs(tbl) do
+--         if val == value then
+--             return key
+--         end
+--     end
+--     return nil
+-- end
 function M.get_key_by_value(tbl, value)
     for key, val in pairs(tbl) do
-        if val == value then
-            return key
+        if type(val) == "table" then
+            for _, v in ipairs(val) do
+                if v == value then
+                    return key
+                end
+            end
+        else
+            if val == value then
+                return key
+            end
         end
     end
     return nil
+end
+
+
+function M.is_table_empty(tbl)
+    return next(tbl) == nil
 end
 
 return M

@@ -1,0 +1,47 @@
+{
+    "activeFile": "one.tmx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "/mnt/hdd/Defold/projects/GOTY/tilesets/test.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "one.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 4000,
+                "y": 480
+            }
+        },
+        "test.tmx": {
+            "scale": 0.35417187499999997,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1599.5058896192704,
+                "y": 160.93880972338638
+            }
+        },
+        "test.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 3,
+            "scaleInEditor": 4
+        }
+    },
+    "last.externalTilesetPath": "/mnt/hdd/Defold/projects/GOTY/tiled",
+    "last.imagePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilesets",
+    "openFiles": [
+        "one.tmx",
+        "test.tsx",
+        "test.tmx"
+    ],
+    "project": "goty.tiled-project",
+    "property.type": "float",
+    "recentFiles": [
+        "test.tmx",
+        "test.tsx",
+        "one.tmx"
+    ]
+}

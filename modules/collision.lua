@@ -7,6 +7,21 @@ local collision_bits = {
     GROUND     = 2,  -- (2^1)
     PROJECTILE = 4,  -- (2^2)
     ENEMY =      8,  -- (2^3)
+    PASSABLE =   16 -- (2^4)
+}
+
+local TILES = {
+    GROUND = 17,
+    SPRING = 88,
+    QUESTION = 33,
+    BUSH = { 50, 66, 82, 84, 100, 116, 132, 131 }
+}
+
+local TILE_COLLISION_BITS = {
+    GROUND = collision_bits.GROUND,
+    SPRING = collision_bits.GROUND,
+    QUESTION = collision_bits.GROUND,
+    BUSH = collision_bits.PASSABLE
 }
 
 local tile_width = 16
@@ -39,11 +54,17 @@ local tile_bottom_offset = -32
 local tile_right_offset = 1.01
 local tile_left_offset = -17.01
 
-local TILES = {
-    GROUND = 17,
-    SPRING = 88,
-    QUESTION = 33
-}
+
+
+local function is_tile(tile, tiles_enum)
+    for _, value in ipairs(tiles_enum) do
+        if tile == value then
+            return true
+        end
+    end
+    return false
+end
+
 
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
@@ -67,7 +88,7 @@ function M.add_tilemap(tilemap_url, layer)
                 local tile_x = (col - 1) * tile_width + tile_insert_x_offet
                 local tile_y = (row - 1) * tile_height + tile_insert_y_offet
 
-                local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height, collision_bits.GROUND)
+                local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height, TILE_COLLISION_BITS[tile_type])
 
                 M.tile_data[aabb_id] = { index = tile_index, x = tile_x, y = tile_y, width = tile_width, height = tile_height }
             end
@@ -256,49 +277,72 @@ end
 
 local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
 
-    if is_player and orientation.is_above_tile then
-        msg.post("/camera#controller", "follow_player_y", { toggle = false })
+    if tile.index == TILES.SPRING and not orientation.is_below_tile then
+        msg.post("/camera#controller", "follow_player_y", { toggle = true })
+        entity.velocity.y = 600
+
+    elseif is_player and is_tile(tile.index, TILES.BUSH) then
+
+        entity.decay_momentum()
+
     end
+
 end
 
 
 local function handle_ground_contact(entity, entity_pos, tile, orientation, is_player)
-    entity.velocity.y = 0
-    entity_pos.y = tile.top + tile_top_offset
-    entity.ground_contact = true
 
-    if tile.index == 3 and tile.velocity and is_player then
-        msg.post("/player#player", "match_platform_velocity", {
-            velocity = tile.velocity
-        })
+    if orientation.is_above_tile then
+        entity.velocity.y = 0
+        entity_pos.y = tile.top + tile_top_offset
+        entity.ground_contact = true
+
+        if tile.index == 3 and tile.velocity and is_player then
+            msg.post("/player#player", "match_platform_velocity", {
+                velocity = tile.velocity
+            })
+        end
+
+        if is_player then
+            msg.post("/camera#controller", "follow_player_y", { toggle = false })
+        end
+
     end
 
-    if tile.index == TILES.SPRING and orientation.is_above_tile then
+    if tile.index == TILES.SPRING and not orientation.is_below_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
-        entity.velocity.y = 750
+        entity.velocity.y = 600
     end
 end
 
 
 local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
+
+    if not orientation.is_below_tile then return end
+
     entity.velocity.y = 0
     entity.is_jumping = false
+
     entity_pos.y = tile.bottom + tile_bottom_offset
 
-    if tile.index == TILES.QUESTION and orientation.is_below_tile then
+    if tile.index == TILES.QUESTION then
         msg.post("#skins", "randomize_skin")
     end
 end
 
 
-local function handle_forward_wall_contact(entity, entity_pos, tile)
+local function handle_forward_wall_contact(entity, entity_pos, tile, orientation)
+
     entity.velocity.x = 0
 
-    if entity.sprite_flipped then
+    local facing_right = entity.sprite_flipped
+
+    if facing_right and orientation.is_right_of_tile then
         -- print("left")
         entity_pos.x = tile.right + tile_right_offset
         entity.wall_contact_left = true
-    else
+
+    elseif not facing_right and orientation.is_left_of_tile then
         -- print("right")
         entity_pos.x = tile.left + tile_left_offset
         entity.wall_contact_right = true
@@ -359,9 +403,15 @@ function M.handle(entity, entity_pos, is_player)
 
     local function process(results, callback)
         local normalized_results = normalize(results)
+
+        if utils.is_table_empty(normalized_results) then
+            return true
+        end
+
         _process(normalized_results, entity_pos, function(dimensions, orientation)
             callback(entity, entity_pos, dimensions, orientation, is_player)
         end)
+
     end
 
     local function reset()
@@ -395,10 +445,10 @@ function M.handle(entity, entity_pos, is_player)
             8,                       -- above center
             0,                       -- center
             -8,                      -- below center
-            half_entity_height - 4,  -- top
+            half_entity_height - 10,  -- top
             -half_entity_height + 6  -- bottom (moved up for clearing crouch slide over gaps)
         }
-        ray_ceiling_distance = half_entity_height + 1
+        ray_ceiling_distance = half_entity_height - 2
 
     end
 
@@ -415,6 +465,7 @@ function M.handle(entity, entity_pos, is_player)
         process(high_velocity_ground_fix, function()
             entity.velocity.y = math.floor(entity.velocity.y / 2)
         end)
+
     elseif entity.velocity.y > 300 then
         local high_velocity_ceiling_fix = raycast_y(entity_pos, half_entity_height + 10, 1)
         process(high_velocity_ceiling_fix, function()
@@ -427,6 +478,28 @@ function M.handle(entity, entity_pos, is_player)
     process(queries.backward_wall, handle_backward_wall_contact)
     process(queries.ground, handle_ground_contact)
     process(queries.ceiling, handle_ceiling_contact)
+
+    if is_player and entity.is_prone then
+
+        local headroom_distance = 0
+        
+        local stand_up_headroom_query = raycast_y(entity_pos, ray_ceiling_distance, headroom_distance)
+        local no_collision = process(stand_up_headroom_query, function()
+
+            if entity.slide_timer > 0 then return end
+
+            entity.is_prone_without_headroom = true
+            if entity.is_prone_direction == nil then
+                entity.is_prone_direction = entity.sprite_flipped and 1 or -1
+            end
+            
+        end)
+        if no_collision then
+            entity.is_prone_without_headroom = false
+            entity.is_prone_direction = nil
+        end
+
+    end
 
 end
 
@@ -501,7 +574,8 @@ function M.debug_draw_level(enemies, platforms)
 end
 
 function M.query(aabb_id)
-    local result, count = daabbcc.query_id_sort(M.group, aabb_id, collision_bits.GROUND)
+    local mask_bits = bit.bor(collision_bits.GROUND, collision_bits.PASSABLE)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
     return result, count
 end
 

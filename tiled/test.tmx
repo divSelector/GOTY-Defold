@@ -3,7 +3,10 @@
  <editorsettings>
   <export target="test.tilemap" format="defold"/>
  </editorsettings>
- <tileset firstgid="1" source="../tilesets/test.tsx"/>
+ <properties>
+  <property name="tile_set" value="/assets/tilesets/test.tilesource"/>
+ </properties>
+ <tileset firstgid="1" source="test.tsx"/>
  <layer id="1" name="ground" width="200" height="20">
   <data encoding="csv">
 17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,

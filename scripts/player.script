@@ -14,7 +14,7 @@ local momentum_increment = 3
 local momentum_decay = 3
 local max_momentum = 5
 
-local anim_playback_min = 0.5
+local anim_playback_min = 0.8
 local anim_playback_max = 2.0
 
 local gravity_rise = 1000
@@ -41,6 +41,40 @@ local jump_height_increment = 5
 local max_jump_streak = 3
 
 local attack_delay_time = 0.15
+
+local function decay_momentum(self, additional_decay)
+
+    local additional_decay = additional_decay or 0
+
+    self.momentum = self.momentum - (momentum_decay + additional_decay)
+    if self.momentum < 0 then
+        self.momentum = 0
+    end
+end
+
+local function deaccelerate(self, dt, multiplier)
+
+    local multiplier = multiplier or 1
+
+    -- Gradually reduce speed based on momentum
+    if self.momentum > 0 then
+        local deceleration = momentum_decay * dt * multiplier
+
+        -- Apply deceleration in the direction of movement
+        self.velocity.x = self.velocity.x - utils.sign(self.velocity.x) * deceleration
+
+        -- Clamp velocity to zero to avoid overshooting
+        if math.abs(self.velocity.x) < deceleration then
+            self.velocity.x = 0
+        end
+
+        -- Reduce momentum proportionally to the deceleration
+        self.momentum = math.max(self.momentum - deceleration, 0)
+    else
+        -- When momentum is depleted, stop completely
+        self.velocity.x = 0
+    end
+end
 
 function init(self)
     input.get_focus()
@@ -83,46 +117,30 @@ function init(self)
     self.platforms = {}
     self.enemies = {}
 
-end
+    self.is_prone = false
+    self.is_prone_without_headroom = false
+    self.is_prone_direction = nil
 
-local function decay_momentum(self, additional_decay)
+    self.velocity_unparallaxed = vmath.vector3()
 
-    local additional_decay = additional_decay or 0
-
-    self.momentum = self.momentum - (momentum_decay + additional_decay)
-    if self.momentum < 0 then
-        self.momentum = 0
+    self.decay_momentum = function()
+        decay_momentum(self, -1)
+    
     end
 end
 
-local function deaccelerate(self, dt, multiplier)
 
-    local multiplier = multiplier or 1
 
-    -- Gradually reduce speed based on momentum
-    if self.momentum > 0 then
-        local deceleration = momentum_decay * dt * multiplier
 
-        -- Apply deceleration in the direction of movement
-        self.velocity.x = self.velocity.x - utils.sign(self.velocity.x) * deceleration
-
-        -- Clamp velocity to zero to avoid overshooting
-        if math.abs(self.velocity.x) < deceleration then
-            self.velocity.x = 0
-        end
-
-        -- Reduce momentum proportionally to the deceleration
-        self.momentum = math.max(self.momentum - deceleration, 0)
-    else
-        -- When momentum is depleted, stop completely
-        self.velocity.x = 0
-    end
-end
 
 local function slide(self, dt)
 
     self.is_prone = input.key_state.crouch and input.key_state.action and self.ground_contact
     self.is_crouching = input.key_state.crouch and self.ground_contact and not self.is_prone
+
+    if self.is_prone_without_headroom then
+        self.is_prone = true
+    end
 
     -- Update slide timer
     if self.slide_timer > 0 then
@@ -136,7 +154,6 @@ local function slide(self, dt)
     end
 
     local interrupt_movement = false
-    if self.wall_contact_left or self.wall_contact_right then return interrupt_movement end
 
     if self.slide_timer > 0 then
         -- Maintain slide velocity during the slide
@@ -151,7 +168,7 @@ local function slide(self, dt)
     if input.key_state.crouch and self.ground_contact then
         self.can_jump = false
         if input.key_state.action and self.slide_cooldown_timer <= 0 then
-            -- if self.wall_contact_left or self.wall_contact_right then return interrupt_movement end
+
             if self.slide_timer <= 0 and self.slide_cooldown_timer <= 0 then
                 -- Start sliding
                 self.slide_timer =  slide_duration_min + ((self.momentum / max_momentum) * (slide_duration_max - slide_duration_min))
@@ -263,7 +280,7 @@ end
 
 local function attack(self, dt)
 
-    if input.key_state.crouch and input.key_state.action then
+    if (input.key_state.crouch and input.key_state.action) or self.is_prone then
         return
     end
 
@@ -360,22 +377,9 @@ local function apply_gravity(self, dt)
     end
 end
 
-local function calculate_move(self, dt)
-
-    apply_gravity(self, dt)
-
-    if slide(self, dt) then
-        return
-    end
-
-    jump(self, dt)
-
-    run(self, dt)
-
-    on_exit_crouch(self)
-end
 
 local function set_facing_direction(self)
+
     -- Track the most recently pressed direction
     if input.key_state.right and not input.key_state.left then
         self.last_pressed_key = "right"
@@ -395,6 +399,30 @@ local function set_facing_direction(self)
     sprite.set_hflip("#body", self.sprite_flipped)
     sprite.set_hflip("#head", self.sprite_flipped)
     sprite.set_hflip("#accessory", self.sprite_flipped)
+end
+
+
+
+local function calculate_move(self, dt)
+
+    if self.is_prone_without_headroom then
+
+        self.velocity_unparallaxed.x = self.is_prone_direction * 100
+
+        return
+    end
+
+    apply_gravity(self, dt)
+
+    if slide(self, dt) then
+        return
+    end
+
+    jump(self, dt)
+
+    run(self, dt)
+
+    on_exit_crouch(self)
 end
 
 local function animate(self, dt)
@@ -467,7 +495,7 @@ local function animate(self, dt)
         end
     end
 
-    if self.is_prone then
+    if self.is_prone or self.is_prone_without_headroom then
         new_anim = "crouch-slide"
     end
 
@@ -490,9 +518,10 @@ function update(self, dt)
     collision.debug_draw_player(pos)
     collision.handle(self, pos, true)
 
-    attack(self, dt)
 
+    attack(self, dt)
     calculate_move(self, dt)
+
 
     local player_velocity = self.velocity or vmath.vector3(0, 0, 0)
     self.platform_velocity = self.platform_velocity or vmath.vector3(0, 0, 0)
@@ -501,6 +530,10 @@ function update(self, dt)
     animate(self, dt)
 
     go.set_position(pos + combined_velocity * dt)
+    if self.velocity_unparallaxed ~= vmath.vector3(0,0,0) then
+        go.set_position(pos + self.velocity_unparallaxed * dt)
+        self.velocity_unparallaxed = vmath.vector3(0,0,0)
+    end
 
     if self.momentum < self.last_jump_momentum or self.momentum == 0 then
         self.jump_streak = 0

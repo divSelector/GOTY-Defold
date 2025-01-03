@@ -6,9 +6,6 @@ local x_follow_threshold = 6
 local look_down_duration_threshold = 1.0
 local look_down_move_speed = 2
 
-local time = 0
-local last_direction = 1
-
 function init(self)
     self.follow_player_x = true
     self.follow_player_y = false
@@ -97,15 +94,6 @@ function update(self, dt)
         camera_position.y = self.original_y
     end
 
-    -- pprint(camera_position.x)
-    -- if camera_position.x <= 225 then
-    --     camera_position.x = 225
-    -- end
-
-    -- if camera_position.x >= 2976 then
-    --     camera_position.x = 2976
-    -- end
-
 
     go.set_position(camera_position)
 
@@ -115,11 +103,10 @@ function update(self, dt)
     go.set_position(bg_pos, self.bg_go)
 
     local velocity = go.get("/player#player", "velocity")
-    
-    -- Smoothly adjust the direction
+
     local target_direction = utils.sign(velocity.x)
 
-    local current_parallax = go.get("/bg#one", "waves").x
+    local current_parallax = go.get(self.bg_go, "waves").x
     
     local transition_speed = 0.01
 
@@ -138,9 +125,9 @@ function update(self, dt)
     local speed = 0.7
 
     -- Pass the direction and time to the shader
-    go.set("/bg#one", "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
-    go.set("/bg#one", "top_color", vmath.vector4(0.859,0.835,0.431, 0))
-    go.set("/bg#one", "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
+    go.set(self.bg_go, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
+    go.set(self.bg_go, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
+    go.set(self.bg_go, "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
 end
 
 

@@ -87,6 +87,7 @@ function init(self)
     end
 
     collision.add_tilemap("#tilemap", "ground")
+    collision.add_tilemap("#tilemap", "top")
 end
 
 function update(self, dt)
