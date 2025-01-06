@@ -23,12 +23,24 @@ embedded_components {
 embedded_components {
   id: "enemy_factory"
   type: "factory"
-  data: "prototype: \"/player/enemy.go\"\n"
+  data: "prototype: \"/objects/enemy.go\"\n"
   ""
 }
 embedded_components {
   id: "platform_factory"
   type: "factory"
-  data: "prototype: \"/main/platform.go\"\n"
+  data: "prototype: \"/objects/platform.go\"\n"
+  ""
+}
+embedded_components {
+  id: "block_factory"
+  type: "factory"
+  data: "prototype: \"/objects/block.go\"\n"
+  ""
+}
+embedded_components {
+  id: "ball_factory"
+  type: "factory"
+  data: "prototype: \"/objects/ball.go\"\n"
   ""
 }

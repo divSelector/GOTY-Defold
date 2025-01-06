@@ -1,0 +1,75 @@
+animations {
+  id: "default"
+  images {
+    image: "/assets/sprites/fireball/fireball_1.png"
+  }
+  images {
+    image: "/assets/sprites/fireball/fireball_2.png"
+  }
+  images {
+    image: "/assets/sprites/fireball/fireball_3.png"
+  }
+  images {
+    image: "/assets/sprites/fireball/fireball_4.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 15
+  flip_horizontal: 1
+}
+animations {
+  id: "ball-1"
+  images {
+    image: "/assets/sprites/balls/balls1.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-2"
+  images {
+    image: "/assets/sprites/balls/balls2.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-3"
+  images {
+    image: "/assets/sprites/balls/balls3.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-4"
+  images {
+    image: "/assets/sprites/balls/balls4.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-5"
+  images {
+    image: "/assets/sprites/balls/balls5.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-6"
+  images {
+    image: "/assets/sprites/balls/balls6.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
+  id: "ball-7"
+  images {
+    image: "/assets/sprites/balls/balls7.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+extrude_borders: 2

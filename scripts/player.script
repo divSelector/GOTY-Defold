@@ -109,7 +109,7 @@ function init(self)
     self.can_attack = true
     self.attack_hold_time = 0
 
-    collision.init()
+    -- collision.init()
 
     self.aabb_id = collision.add_player("/player")
 

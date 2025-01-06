@@ -63,7 +63,20 @@ local function spawn_platforms(self)
 end
 
 
+local function spawn_balls(self)
+    for index, spawn_position in ipairs(self.ball_spawn_positions) do
+        local ball = factory.create("#ball_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
+            star = index
+        })
+        table.insert(self.balls, ball)
+    end
+end
+
+
 function init(self)
+
+    collision.init()
+    
     self.spawn_point = 1
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
@@ -83,6 +96,10 @@ function init(self)
         self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
         self.platforms = {}
         spawn_platforms(self)
+
+        self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
+        self.balls = {}
+        spawn_balls(self)
 
     end
 

@@ -1,18 +1,15 @@
 components {
-  id: "projectile"
-  component: "/scripts/projectile.script"
+  id: "block"
+  component: "/scripts/block.script"
 }
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "default_animation: \"default\"\n"
+  data: "default_animation: \"question\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "textures {\n"
   "  sampler: \"texture_sampler\"\n"
-  "  texture: \"/assets/atlases/fireball.atlas\"\n"
+  "  texture: \"/assets/tilesets/test.tilesource\"\n"
   "}\n"
   ""
-  position {
-    z: 2.0
-  }
 }

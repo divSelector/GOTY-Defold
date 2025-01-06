@@ -1,0 +1,45 @@
+local collision = require "modules.collision"
+
+local tile_width = 16
+local tile_height = 16
+
+go.property("star", 0)
+
+function init(self)
+    self.aabb_id = collision.add_ball(msg.url('.'))
+
+    sprite.play_flipbook("#sprite", "ball-" .. self.star)
+
+    local pos = go.get_position()
+
+    local _, _, w, h = tilemap.get_bounds("/level#tilemap")
+    
+    local tile_x = math.floor((pos.x - w * tile_width) / tile_width) + 2
+    local tile_y = math.floor((pos.y - h * tile_height) / tile_height) + 2
+
+    local is_x_odd = tile_x % 2 ~= 0
+    local is_y_odd = tile_y % 2 ~= 0
+
+    local duration_scale
+    if (is_x_odd and not is_y_odd) or (not is_x_odd and is_y_odd) then
+        duration_scale = 1
+    else
+        duration_scale = 2
+    end
+
+	go.animate(".", "scale", go.PLAYBACK_LOOP_PINGPONG, 0.9, go.EASING_OUTBOUNCE, duration_scale, 1)
+    
+    -- go.animate(".", "euler.z", go.PLAYBACK_LOOP_PINGPONG, 360, go.EASING_OUTBOUNCE, 10)
+
+    local delay_jump = math.random() * 2
+    timer.delay(delay_jump, false, function()
+        go.animate(".", "position.y", go.PLAYBACK_LOOP_PINGPONG, pos.y - 10, go.EASING_OUTBOUNCE, 2)
+    end)
+
+    self.position = pos
+
+end
+
+function update(self, dt)
+    collision.check_ball(self)
+end

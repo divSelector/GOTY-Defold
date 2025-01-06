@@ -1,0 +1,26 @@
+go.property("tile_x", 0)
+go.property("tile_y", 0)
+go.property("tile_index", 0)
+go.property("action_index", 0)
+
+local function destroy(self)
+	tilemap.set_tile("/level#tilemap", "ground", self.tile_x, self.tile_y, self.tile_index)
+	go.delete()
+end
+
+local function up_and_down(self)
+    local animation_height = 16
+    local animation_duration = 0.2
+
+    local target_position = go.get_position() + vmath.vector3(0, animation_height, 0)
+    go.animate(".", "position", go.PLAYBACK_ONCE_PINGPONG, target_position, go.EASING_OUTSINE, animation_duration, 0, destroy)
+end
+
+local actions = {
+	[0] = destroy,
+	[1] = up_and_down
+}
+
+function init(self)
+	actions[self.action_index](self)
+end

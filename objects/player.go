@@ -99,6 +99,6 @@ embedded_components {
 embedded_components {
   id: "projectile_factory"
   type: "factory"
-  data: "prototype: \"/player/projectile.go\"\n"
+  data: "prototype: \"/objects/projectile.go\"\n"
   ""
 }

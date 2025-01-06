@@ -1,15 +1,15 @@
 name: "main"
 instances {
   id: "player"
-  prototype: "/player/player.go"
+  prototype: "/objects/player.go"
   position {
     x: -436.32504
     y: 22.165129
   }
 }
 instances {
-  id: "test_level"
-  prototype: "/main/test_level.go"
+  id: "level"
+  prototype: "/objects/level.go"
 }
 instances {
   id: "bg"

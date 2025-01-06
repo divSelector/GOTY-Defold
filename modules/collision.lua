@@ -37,7 +37,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = false
+local debug = true
 
 local entity_width = 18
 local entity_height = 46
@@ -54,6 +54,10 @@ local tile_bottom_offset = -32
 local tile_right_offset = 1.01
 local tile_left_offset = -17.01
 
+local red = vmath.vector4(1, 0, 0, 1)
+local green = vmath.vector4(0, 1, 0, 1)
+
+-- NOTES DO NOT PROCESS ANY SIMPLE TOUCHING COLLISION LIKE PROJECTILES AND BALLS IN THE PART WHERE WE PROCESS AND DO TILE PLATFORM CORRECTION
 
 
 local function is_tile(tile, tiles_enum)
@@ -65,7 +69,6 @@ local function is_tile(tile, tiles_enum)
     return false
 end
 
-
 function M.init()
     M.group = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
 
@@ -73,10 +76,12 @@ function M.init()
 
     M.tile_data = {}
     M.platform_ids = {}
+    M.ball_ids = {}
 end
 
 function M.add_tilemap(tilemap_url, layer)
     local x, y, w, h = tilemap.get_bounds(tilemap_url)
+    M.map = {x=x, y=y, w=w, h=h}
 
     for row = y, y + h - 1 do
         for col = x, x + w - 1 do
@@ -115,6 +120,11 @@ end
 function M.add_projectile(projectile_url)
     local projectile_aabb_id = daabbcc.insert_gameobject(M.group, projectile_url, projectile_width, projectile_height, collision_bits.PROJECTILE)
     return projectile_aabb_id
+end
+
+function M.add_ball(ball_url)
+    local ball_aabb_id = daabbcc.insert_gameobject(M.group, ball_url, 11, 11, collision_bits.GROUND)
+    return ball_aabb_id
 end
 
 local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
@@ -186,7 +196,6 @@ local function raycast_x(player_pos, sprite_flipped, max_distance, ray_offsets)
     return results
 end
 
-
 local function raycast_y(player_pos, max_distance, direction)
 
     local x_offsets = {
@@ -236,15 +245,17 @@ local function raycast_y(player_pos, max_distance, direction)
     return results
 end
 
-
-local function get_tile_dimensions(data)
+local function get_tile_dimensions(data, aabb_id)
     if data then
         return {
             index = data.index,
             top = data.y + data.height,
             bottom = data.y,
             left = data.x,
-            right = data.x + data.width
+            right = data.x + data.width,
+            x = data.x,
+            y = data.y,
+            aabb_id = aabb_id
         }
     end
 end
@@ -260,7 +271,9 @@ local function get_platform_dimensions(url)
             top = data.y + tile_height,
             bottom = data.y,
             left = data.x,
-            right = data.x + tile_width
+            right = data.x + tile_width,
+            x = data.x,
+            y = data.y
         }
     end
 end
@@ -274,8 +287,9 @@ local function get_ground_orientation(data, pos)
     }
 end
 
-
 local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
+
+    if not tile or not orientation then return end
 
     if tile.index == TILES.SPRING and not orientation.is_below_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
@@ -289,8 +303,9 @@ local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
 
 end
 
-
 local function handle_ground_contact(entity, entity_pos, tile, orientation, is_player)
+
+    if not tile or not orientation then return end
 
     if orientation.is_above_tile then
         entity.velocity.y = 0
@@ -315,8 +330,9 @@ local function handle_ground_contact(entity, entity_pos, tile, orientation, is_p
     end
 end
 
-
 local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
+
+    if not tile or not orientation then return end
 
     if not orientation.is_below_tile then return end
 
@@ -326,12 +342,26 @@ local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
     entity_pos.y = tile.bottom + tile_bottom_offset
 
     if tile.index == TILES.QUESTION then
+
+        local tile_x = math.floor((tile.x - M.map.x * tile_width) / tile_width) + 2
+        local tile_y = math.floor((tile.y - M.map.y * tile_height) / tile_height) + 2
+        tilemap.set_tile("/level#tilemap", "ground", tile_x, tile_y, 0)
+        M.tile_data[tile.aabb_id].index = 33
+        factory.create("/level#block_factory", vmath.vector3(tile.x, tile.y, 0), nil, {
+            tile_x = tile_x,
+            tile_y = tile_y,
+            tile_index = 33,
+            action_index = 1
+        })
+
+
         msg.post("#skins", "randomize_skin")
     end
 end
 
-
 local function handle_forward_wall_contact(entity, entity_pos, tile, orientation)
+
+    if not tile or not orientation then return end
 
     entity.velocity.x = 0
 
@@ -349,7 +379,9 @@ local function handle_forward_wall_contact(entity, entity_pos, tile, orientation
     end
 end
 
-local function handle_backward_wall_contact(entity, entity_pos, tile)
+local function handle_backward_wall_contact(entity, entity_pos, tile, orientation)
+
+    if not tile or not orientation then return end
 
     if entity.sprite_flipped then
         entity_pos.x = tile.left + tile_left_offset
@@ -387,7 +419,7 @@ local function _process(normalized_ids, pos, callback)
         if tile or platform then
             local dimensions
             if tile then
-                dimensions = get_tile_dimensions(tile)
+                dimensions = get_tile_dimensions(tile, aabb_id)
             else
                 dimensions = get_platform_dimensions(platform)
             end
@@ -445,7 +477,7 @@ function M.handle(entity, entity_pos, is_player)
             8,                       -- above center
             0,                       -- center
             -8,                      -- below center
-            half_entity_height - 10,  -- top
+            half_entity_height - 10, -- top
             -half_entity_height + 6  -- bottom (moved up for clearing crouch slide over gaps)
         }
         ray_ceiling_distance = half_entity_height - 2
@@ -530,9 +562,6 @@ function M.handle_platform(platform, pos, vel)
     end)
 end
 
-local red = vmath.vector4(1, 0, 0, 1)
-local green = vmath.vector4(0, 1, 0, 1)
-
 function M.debug_draw_player(player_pos)
 
     if not debug then return end
@@ -577,6 +606,19 @@ function M.query(aabb_id)
     local mask_bits = bit.bor(collision_bits.GROUND, collision_bits.PASSABLE)
     local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
     return result, count
+end
+
+function M.query_ball(aabb_id)
+    local mask_bits = bit.bor(collision_bits.PLAYER)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
+    return result, count
+end
+
+function M.check_ball(ball)
+    query_result, result_count = M.query_ball(ball.aabb_id)
+    if query_result and result_count > 0 then
+        print("Ball")
+    end
 end
 
 function M.check_projectile(projectile)

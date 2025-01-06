@@ -165,7 +165,7 @@ convex_hulls {
 convex_hulls {
   index: 200
   count: 8
-  collision_group: "question_block"
+  collision_group: ""
 }
 convex_hulls {
   index: 208
@@ -1296,5 +1296,12 @@ animations {
   start_tile: 3
   end_tile: 3
   playback: PLAYBACK_NONE
+}
+animations {
+  id: "question"
+  start_tile: 33
+  end_tile: 33
+  playback: PLAYBACK_NONE
+  fps: 0
 }
 extrude_borders: 2
