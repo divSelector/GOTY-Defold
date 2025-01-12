@@ -20,6 +20,7 @@ scale_mode = stretch
 title = GOTY
 custom_resources = /resource
 dependencies#0 = https://github.com/selimanac/defold-daabbcc/archive/refs/tags/v.3.0.0.zip
+dependencies#1 = https://github.com/britzl/extension-imgui/archive/refs/tags/2.3.1.zip
 
 [daabbcc]
 max_group_count = 3

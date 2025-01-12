@@ -10,7 +10,7 @@
         },
         "one.tmx": {
             "scale": 1.5,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
                 "x": 4000,
                 "y": 480

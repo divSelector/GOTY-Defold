@@ -6,8 +6,13 @@ local tile_height = 16
 go.property("star", 0)
 
 function init(self)
-    self.aabb_id = collision.add_ball(msg.url('.'))
+    
+    self.is_following = false
 
+
+    self.id = go.get_id()
+    self.aabb_id = collision.add_ball(msg.url('.'))
+    
     sprite.play_flipbook("#sprite", "ball-" .. self.star)
 
     local pos = go.get_position()
@@ -40,6 +45,60 @@ function init(self)
 
 end
 
+
+
 function update(self, dt)
+    -- Check collisions
     collision.check_ball(self)
+
+    if self.is_following then
+
+        -- Get the player's position
+        local player_position = go.get_position("/player#player")
+
+        -- Calculate the offset for this ball based on its star number
+        local offset_distance = 60  -- Distance between balls
+        local offset_angle = (self.star - 1) * 45  -- Angle in degrees (spaced based on star number)
+        local radians = math.rad(offset_angle)  -- Convert degrees to radians
+
+        -- Offset position in a circular formation based on self.star
+        local offset = vmath.vector3(
+            math.cos(radians) * offset_distance,
+            math.sin(radians) * offset_distance,
+            0
+        )
+        local target_position = player_position + offset
+
+        -- Calculate the direction vector from self to the target position
+        local direction = target_position - self.position
+        local distance = vmath.length(direction)
+
+        -- Stop movement if close enough to the target position
+        local stop_threshold = 0.5  -- Adjust this value for precision
+        if distance > stop_threshold then
+            -- Normalize the direction vector
+            direction = vmath.normalize(direction)
+
+            -- Move towards the target position without overshooting
+            local speed = 80 -- Adjust this value as needed
+            local move_amount = math.min(speed * dt, distance)  -- Prevent overshooting
+            self.position = self.position + direction * move_amount
+
+            self.position.z = 0.1
+
+            -- Update the game object's position
+            go.set_position(self.position)
+        end
+    end
+end
+
+
+function on_message(self, message_id, message, sender)
+
+    if message_id == hash("follow_player") then
+        go.cancel_animations(".")
+        self.is_following = true
+
+    end
+
 end

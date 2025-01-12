@@ -37,7 +37,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = true
+local debug = false
 
 local entity_width = 18
 local entity_height = 46
@@ -617,7 +617,7 @@ end
 function M.check_ball(ball)
     query_result, result_count = M.query_ball(ball.aabb_id)
     if query_result and result_count > 0 then
-        print("Ball")
+        msg.post(ball.id, "follow_player")
     end
 end
 

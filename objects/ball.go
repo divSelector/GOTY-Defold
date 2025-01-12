@@ -12,7 +12,4 @@ embedded_components {
   "  texture: \"/assets/atlases/sprites.atlas\"\n"
   "}\n"
   ""
-  position {
-    z: 0.9
-  }
 }

@@ -13,67 +13,67 @@ function init(self)
     self.original_y = go.get_position().y
     self.url = msg.url('/camera#camera')
 
-    self.bg_go = msg.url("/bg#one")
+    self.bg_bottom = msg.url("/bg#one")
+    self.bg_top = msg.url("/bg#two")
 
     self.look_down_timer = 0
 end
 
-local function is_position_on_camera(self, position)
+local function is_box_on_camera(self, position, width, height)
     local projection = camera.get_projection(self.url)
     local view = camera.get_view(self.url)
 
     local view_projection = projection * view
 
-    local ndc_position = view_projection * vmath.vector4(position.x, position.y, position.z or 0, 1)
-
-    -- Normalize to NDC space
-    ndc_position.x = ndc_position.x / ndc_position.w
-    ndc_position.y = ndc_position.y / ndc_position.w
-    ndc_position.z = ndc_position.z / ndc_position.w
-
-    -- Check relative position to camera bounds
-    local result = {
-        on_screen = ndc_position.x >= -1 and ndc_position.x <= 1 and
-                    ndc_position.y >= -1 and ndc_position.y <= 1 and
-                    ndc_position.z >= 0 and ndc_position.z <= 1,
-        above = ndc_position.y > 1,
-        below = ndc_position.y < -1,
-        left = ndc_position.x < -1,
-        right = ndc_position.x > 1,
+    local half_width = width / 2
+    local half_height = height / 2
+    local corners = {
+        vmath.vector4(position.x - half_width, position.y - half_height, position.z or 0, 1),
+        vmath.vector4(position.x + half_width, position.y - half_height, position.z or 0, 1),
+        vmath.vector4(position.x - half_width, position.y + half_height, position.z or 0, 1),
+        vmath.vector4(position.x + half_width, position.y + half_height, position.z or 0, 1),
     }
+
+    local on_screen = false
+    local result = {above = false, below = false, left = false, right = false}
+
+    for _, corner in ipairs(corners) do
+        local ndc_position = view_projection * corner
+        ndc_position.x = ndc_position.x / ndc_position.w
+        ndc_position.y = ndc_position.y / ndc_position.w
+        ndc_position.z = ndc_position.z / ndc_position.w
+
+        local corner_on_screen = ndc_position.x >= -1 and ndc_position.x <= 1 and
+                                 ndc_position.y >= -1 and ndc_position.y <= 1 and
+                                 ndc_position.z >= 0 and ndc_position.z <= 1
+        on_screen = on_screen or corner_on_screen
+
+        result.above = result.above or ndc_position.y > 1
+        result.below = result.below or ndc_position.y < -1
+        result.left = result.left or ndc_position.x < -1
+        result.right = result.right or ndc_position.x > 1
+    end
+
+    result.on_screen = on_screen
 
     return result
 end
-
 
 local function lerp(a, b, t)
     return a + (b - a) * t
 end
 
-
-function update(self, dt)
-    local camera_position = go.get_position()
-    local player_position = go.get_position("/player")
-
-    -- Check if the player is not above the screen
-    local camera_status = is_position_on_camera(self, player_position)
-
-    if camera_status.below or (not camera_status.on_screen and not camera_status.above) then
-        -- Move the camera to center on the player without lerp
-        camera_position.x = player_position.x
-        if self.follow_player_y then
-            camera_position.y = player_position.y
-        end
-    else
-        -- Apply smooth following when the player is now below camera
-        local x_diff = math.abs(camera_position.x - player_position.x)
-        if self.follow_player_x and x_diff > x_follow_threshold then
-            camera_position.x = lerp(camera_position.x, player_position.x, dt * 10)
-        end
-        if self.follow_player_y then
-            camera_position.y = lerp(camera_position.y, player_position.y, dt * 10)
-        end
+local function follow_with_lerp(self, camera_position, player_position, dt)
+    local x_diff = math.abs(camera_position.x - player_position.x)
+    if self.follow_player_x and x_diff > x_follow_threshold then
+        camera_position.x = lerp(camera_position.x, player_position.x, dt * 10)
     end
+    if self.follow_player_y then
+        camera_position.y = lerp(camera_position.y, player_position.y, dt * 10)
+    end
+end
+
+local function handle_manual_look_down(self, camera_position, camera_status, dt)
 
     if input.key_state.crouch then
         self.look_down_timer = self.look_down_timer + dt
@@ -83,30 +83,20 @@ function update(self, dt)
     else
         self.look_down_timer = 0 -- Reset timer if crouch is released
     end
+end
 
-    -- Ensure the camera doesn't drop below the original Y
-    if player_position.y < self.original_y then
-        camera_position.y = self.original_y
-    end
+local function handle_background_parallax(self, camera_position)
 
-    -- Prevent player scrolling from going too low
-    if camera_position.y < self.original_y then
-        camera_position.y = self.original_y
-    end
-
-
-    go.set_position(camera_position)
-
-    local bg_pos = go.get_position(self.bg_go)
+    local bg_pos = go.get_position(self.bg_bottom)
     bg_pos.x = camera_position.x
 
-    go.set_position(bg_pos, self.bg_go)
+    go.set_position(bg_pos, self.bg_bottom)
 
     local velocity = go.get("/player#player", "velocity")
 
     local target_direction = utils.sign(velocity.x)
 
-    local current_parallax = go.get(self.bg_go, "waves").x
+    local current_parallax = go.get(self.bg_bottom, "waves").x
     
     local transition_speed = 0.01
 
@@ -124,10 +114,42 @@ function update(self, dt)
 
     local speed = 0.7
 
-    -- Pass the direction and time to the shader
-    go.set(self.bg_go, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
-    go.set(self.bg_go, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
-    go.set(self.bg_go, "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
+    go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
+    go.set(self.bg_bottom, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
+    go.set(self.bg_bottom, "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
+
+    go.set(self.bg_top, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
+    go.set(self.bg_top, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
+    go.set(self.bg_top, "bottom_color", vmath.vector4(0.859,0.835,0.431, 0))
+end
+
+function update(self, dt)
+    local camera_position = go.get_position()
+    local player_position = go.get_position("/player")
+
+    local camera_status = is_box_on_camera(self, player_position, 18, 56)
+
+
+    if (not camera_status.on_screen and not camera_status.above) then
+        -- Moving without lerp because if the character is fallen to death, the snapback to spawn point has to be fast.
+        -- If the player is at the top of the screen jumping above camera, we want to lerp that like on screen movement.
+        camera_position.x = player_position.x
+        camera_position.y = player_position.y
+    else
+        follow_with_lerp(self, camera_position, player_position, dt)
+    end
+
+    handle_manual_look_down(self, camera_position, camera_status, dt)
+
+    -- Prevent going too low
+    if player_position.y < self.original_y or camera_position.y < self.original_y then
+        camera_position.y = self.original_y
+    end
+
+    go.set_position(camera_position)
+
+    handle_background_parallax(self, camera_position)
+
 end
 
 

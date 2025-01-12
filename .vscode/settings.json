@@ -61,5 +61,8 @@
         "*.appmanifest": "yaml",
         "*.script_api": "yaml",
         "ext.manifest": "yaml"
-    }
+    },
+    "cSpell.words": [
+        "lerp"
+    ]
 }
