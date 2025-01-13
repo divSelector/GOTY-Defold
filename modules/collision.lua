@@ -617,7 +617,7 @@ end
 function M.check_ball(ball)
     query_result, result_count = M.query_ball(ball.aabb_id)
     if query_result and result_count > 0 then
-        msg.post(ball.id, "follow_player")
+        msg.post(ball.id, "collect")
     end
 end
 

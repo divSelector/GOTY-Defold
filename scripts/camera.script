@@ -139,7 +139,7 @@ function update(self, dt)
         follow_with_lerp(self, camera_position, player_position, dt)
     end
 
-    handle_manual_look_down(self, camera_position, camera_status, dt)
+    -- handle_manual_look_down(self, camera_position, camera_status, dt)
 
     -- Prevent going too low
     if player_position.y < self.original_y or camera_position.y < self.original_y then

@@ -1,11 +1,36 @@
 {
     "layers": [
         {
-            "color": "#ffaa00",
+            "color": "#ff89f9",
             "draworder": "topdown",
             "id": 3,
             "name": "moving_platform",
-            "objects": [],
+            "objects": [
+                {
+                    "height": 0,
+                    "id": 29,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1576,
+                    "y": 553.333333333333
+                },
+                {
+                    "height": 0,
+                    "id": 30,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1592,
+                    "y": 554.666666666667
+                }
+            ],
             "opacity": 1,
             "type": "objectgroup",
             "visible": true,
@@ -51,8 +76,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 154.5,
-                    "y": 902
+                    "x": 1767.16666666667,
+                    "y": 887.333333333333
                 },
                 {
                     "height": 0,
@@ -110,6 +135,31 @@
             "y": 0
         },
         {
+            "color": "#6131ff",
+            "draworder": "topdown",
+            "id": 6,
+            "name": "enemy_spawn",
+            "objects": [
+                {
+                    "height": 0,
+                    "id": 31,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 2040,
+                    "y": 538
+                }
+            ],
+            "opacity": 1,
+            "type": "objectgroup",
+            "visible": true,
+            "x": 0,
+            "y": 0
+        },
+        {
             "color": "#ff0000",
             "draworder": "topdown",
             "id": 2,
@@ -124,20 +174,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 95.3333333333334,
-                    "y": 795.999
-                },
-                {
-                    "height": 0,
-                    "id": 27,
-                    "name": "",
-                    "point": true,
-                    "rotation": 0,
-                    "type": "",
-                    "visible": true,
-                    "width": 0,
-                    "x": 695.333333333333,
-                    "y": 782
+                    "x": 1930.66666666667,
+                    "y": 889.332333333334
                 }
             ],
             "opacity": 1,
