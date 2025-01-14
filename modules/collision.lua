@@ -37,7 +37,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = false
+local debug = true
 
 local entity_width = 18
 local entity_height = 46
@@ -512,6 +512,8 @@ function M.handle(entity, entity_pos, is_player)
     process(queries.ceiling, handle_ceiling_contact)
 
     if is_player and entity.is_prone then
+
+        if entity.platform_velocity then return end
 
         local headroom_distance = 0
         

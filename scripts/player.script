@@ -512,8 +512,8 @@ function update(self, dt)
 
     local pos = go.get_position()
 
-    collision.debug_draw_level(self.enemies, self.platforms)
-    collision.debug_draw_player(pos)
+    -- collision.debug_draw_level(self.enemies, self.platforms)
+    -- collision.debug_draw_player(pos)
     collision.handle(self, pos, true)
 
 

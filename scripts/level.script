@@ -143,6 +143,19 @@ function init(self)
         self.platform_groups = {}
         spawn_platforms(self)
 
+        for _, platform in ipairs(self.platforms) do
+            local platform_url = msg.url(platform)
+            
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            platform_url.fragment = "platform"
+    
+            local platform_group_index = go.get(platform_url, "group_index")
+    
+            msg.post(platform_url, "level_data", {
+                platforms = self.platform_groups[platform_group_index]
+            })
+        end
+
         self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
         self.balls = {}
         spawn_balls(self)
@@ -151,30 +164,19 @@ function init(self)
 
     collision.add_tilemap("#tilemap", "ground")
     collision.add_tilemap("#tilemap", "top")
+
+    local player_position = go.get_position("/player#player")
+    collision.debug_draw_level(self.enemies, self.platforms)
+    collision.debug_draw_player(player_position)
 end
 
 function update(self, dt)
     local player_position = go.get_position("/player#player")
 
-    msg.post("/player#player", "level_data", {
-        enemies = self.enemies,
-        platforms = self.platforms
-    })
-
-    for _, platform in ipairs(self.platforms) do
-        local platform_url = msg.url(platform)
-        
-        ---@diagnostic disable-next-line: assign-type-mismatch
-        platform_url.fragment = "platform"
-
-        local platform_group_index = go.get(platform_url, "group_index")
-        
-        pprint(platform_group_index)
-
-        msg.post(platform_url, "level_data", {
-            platforms = self.platform_groups[platform_group_index]
-        })
-    end
+    -- msg.post("/player#player", "level_data", {
+    --     enemies = self.enemies,
+    --     platforms = self.platforms
+    -- })
 
     if player_position.y < 0 then
         set_player_spawn_position(self)

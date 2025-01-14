@@ -32,39 +32,27 @@
                 },
                 {
                     "height": 0,
-                    "id": 33,
+                    "id": 36,
                     "name": "",
                     "point": true,
                     "rotation": 0,
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 1896.66666666667,
-                    "y": 472
+                    "x": 2777.33333333333,
+                    "y": 856
                 },
                 {
                     "height": 0,
-                    "id": 34,
+                    "id": 37,
                     "name": "",
                     "point": true,
                     "rotation": 0,
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 1910,
-                    "y": 472
-                },
-                {
-                    "height": 0,
-                    "id": 35,
-                    "name": "",
-                    "point": true,
-                    "rotation": 0,
-                    "type": "",
-                    "visible": true,
-                    "width": 0,
-                    "x": 1930,
-                    "y": 475.333333333333
+                    "x": 2759.33333333333,
+                    "y": 856.666666666667
                 }
             ],
             "opacity": 1,
@@ -124,8 +112,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 168,
-                    "y": 900.5
+                    "x": 2664.28787878788,
+                    "y": 842.484848484849
                 },
                 {
                     "height": 0,
@@ -211,7 +199,7 @@
                     "visible": true,
                     "width": 0,
                     "x": 2007.33333333333,
-                    "y": 680.665666666667
+                    "y": 652.665666666667
                 }
             ],
             "opacity": 1,
