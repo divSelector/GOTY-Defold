@@ -142,12 +142,10 @@ local function slide(self, dt)
         self.is_prone = true
     end
 
-    -- Update slide timer
+    -- decrease slide timer and end slide
     if self.slide_timer > 0 then
-        -- Decrease slide timer during active slide
         self.slide_timer = self.slide_timer - dt
         if self.slide_timer <= 0 then
-            -- End slide
             self.velocity.x = 0
             decay_momentum(self)
         end

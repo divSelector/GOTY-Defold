@@ -52,15 +52,60 @@ local function spawn_enemies(self)
     end
 end
 
+
+function group_platforms_by_adjacency(spawn_positions)
+    local groups = {}
+    local visited = {}
+
+
+    local function is_adjacent(pos1, pos2)
+        return math.abs(pos1.x - pos2.x) <= tile_size and pos1.y == pos2.y
+    end
+
+    local function gather_group(index, group)
+        if visited[index] then return end
+        visited[index] = true
+        table.insert(group, spawn_positions[index])
+
+        for i, pos in ipairs(spawn_positions) do
+            if not visited[i] and is_adjacent(spawn_positions[index], pos) then
+                gather_group(i, group)
+            end
+        end
+    end
+
+    for i = 1, #spawn_positions do
+        if not visited[i] then
+            local group = {}
+            gather_group(i, group)
+            table.insert(groups, group)
+        end
+    end
+
+    return groups
+end
+
+
+
 local function spawn_platforms(self)
-    for _, spawn_position in ipairs(self.platform_spawn_positions) do
-        local platform = factory.create("#platform_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
-            index = 3,
-            velocity = vmath.vector3(100,0,0)
-        })
-        table.insert(self.platforms, platform)
+    local grouped_platform_positions = group_platforms_by_adjacency(self.platform_spawn_positions)
+
+    for group_index, group in ipairs(grouped_platform_positions) do
+        table.insert(self.platform_groups, {})
+        for _, spawn_position in ipairs(group) do
+            local platform = factory.create("#platform_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
+                tile_index = 3,
+                velocity = vmath.vector3(100, 0, 0),
+                group_index = group_index
+            })
+            
+            table.insert(self.platform_groups[group_index], platform)
+
+            table.insert(self.platforms, platform)
+        end
     end
 end
+
 
 
 local function spawn_balls(self)
@@ -95,6 +140,7 @@ function init(self)
 
         self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
         self.platforms = {}
+        self.platform_groups = {}
         spawn_platforms(self)
 
         self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
@@ -116,17 +162,17 @@ function update(self, dt)
     })
 
     for _, platform in ipairs(self.platforms) do
-        local platform_pos = go.get_position(platform)
         local platform_url = msg.url(platform)
         
         ---@diagnostic disable-next-line: assign-type-mismatch
         platform_url.fragment = "platform"
+
+        local platform_group_index = go.get(platform_url, "group_index")
         
-        local platform_vel = go.get(platform_url, "velocity")
-        platform_pos = platform_pos + platform_vel * dt
-        go.set_position(platform_pos, platform)
+        pprint(platform_group_index)
+
         msg.post(platform_url, "level_data", {
-            platforms = self.platforms
+            platforms = self.platform_groups[platform_group_index]
         })
     end
 

@@ -14,7 +14,7 @@ local TILES = {
     GROUND = 17,
     SPRING = 88,
     QUESTION = 33,
-    BUSH = { 50, 66, 82, 84, 100, 116, 132, 131 }
+    BUSH = { 50, 66, 82 }
 }
 
 local TILE_COLLISION_BITS = {
@@ -266,7 +266,7 @@ local function get_platform_dimensions(url)
         local script_url = url
         script_url.fragment = "platform"
         return {
-            index = go.get(script_url, "index"),
+            index = go.get(script_url, "tile_index"),
             velocity = go.get(script_url, "velocity"),
             top = data.y + tile_height,
             bottom = data.y,

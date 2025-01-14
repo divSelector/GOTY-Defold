@@ -114,13 +114,16 @@ local function handle_background_parallax(self, camera_position)
 
     local speed = 0.7
 
+    local bottom_color = vmath.vector4(0.533,0.671,0.459, 0)
+    local top_color = vmath.vector4(0.859,0.835,0.431, 0)
+
     go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
-    go.set(self.bg_bottom, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
-    go.set(self.bg_bottom, "bottom_color", vmath.vector4(0.533,0.671,0.459, 0))
+    go.set(self.bg_bottom, "top_color", top_color)
+    go.set(self.bg_bottom, "bottom_color", bottom_color)
 
     go.set(self.bg_top, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
-    go.set(self.bg_top, "top_color", vmath.vector4(0.859,0.835,0.431, 0))
-    go.set(self.bg_top, "bottom_color", vmath.vector4(0.859,0.835,0.431, 0))
+    go.set(self.bg_top, "top_color", bottom_color)
+    go.set(self.bg_top, "bottom_color", top_color)
 end
 
 function update(self, dt)

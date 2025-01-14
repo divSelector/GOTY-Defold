@@ -55,7 +55,7 @@ local function fire(self, enemy_position)
         enemy_position.y + offset_y,
         enemy_position.z
     )
-    local speed = 1000
+    local speed = 500
     local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
     local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
     local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
@@ -122,7 +122,7 @@ local function jump(self, dt)
 end
 
 
-local attack_delay_time = 0.25
+local attack_delay_time = 0.15
 
 
 local function attack(self, dt)
@@ -143,7 +143,7 @@ local function attack(self, dt)
                     fire(self, enemy_position)
                     self.is_charging_attack = false
                     self.can_attack = false
-                    timer.delay(0.25, false, function()
+                    timer.delay(0, false, function()
                         self.can_attack = true
                     end)
                 end

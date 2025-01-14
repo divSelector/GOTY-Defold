@@ -109,6 +109,7 @@ function on_message(self, message_id, message, sender)
         go.cancel_animations(".")
         self.is_collected = true
         timer.delay(1, false, function()
+            collision.destroy(self.aabb_id)
             go.delete()
         end)
     end

@@ -1,7 +1,9 @@
 local collision = require "modules.collision"
 
-go.property("index", 0)
+go.property("tile_index", 0)
+go.property("group_index", 0)
 go.property("velocity", vmath.vector3())
+
 
 function init(self)
     self.id = go.get_id()
@@ -12,12 +14,17 @@ end
 
 function update(self, dt)
     collision.handle_platform(self, self.position, self.velocity)
-    self.position = go.get_position()
+
+    self.position = self.position + self.velocity * dt
+    
+    go.set_position(self.position)
+
 end
 
 function on_message(self, message_id, message, sender)
     if message_id == hash("level_data") then
         self.platform_group = message.platforms
+        pprint(self.platform_group)
 
     elseif message_id == hash("reverse_direction") then
         local new_velocity = vmath.vector3(-self.velocity.x, -self.velocity.y, 0)
