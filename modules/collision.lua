@@ -364,6 +364,7 @@ local function handle_forward_wall_contact(entity, entity_pos, tile, orientation
     if not tile or not orientation then return end
 
     entity.velocity.x = 0
+    entity.knockback_velocity = nil
 
     local facing_right = entity.sprite_flipped
 
@@ -382,6 +383,8 @@ end
 local function handle_backward_wall_contact(entity, entity_pos, tile, orientation)
 
     if not tile or not orientation then return end
+
+    entity.knockback_velocity = nil
 
     if entity.sprite_flipped then
         entity_pos.x = tile.left + tile_left_offset
@@ -604,8 +607,8 @@ function M.debug_draw_level(enemies, platforms)
     
 end
 
-function M.query(aabb_id)
-    local mask_bits = bit.bor(collision_bits.GROUND, collision_bits.PASSABLE)
+function M.query(aabb_id, mask_bits)
+    local mask_bits = mask_bits or bit.bor(collision_bits.GROUND, collision_bits.PASSABLE)
     local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
     return result, count
 end
@@ -623,7 +626,25 @@ function M.check_ball(ball)
     end
 end
 
-function M.check_projectile(projectile)
+function M.check_projectile_entity(projectile, from_player, projectile_velocity)
+    local mask_bits
+    if from_player then
+        mask_bits = bit.bor(collision_bits.ENEMY)
+    else
+        mask_bits = bit.bor(collision_bits.PLAYER)
+    end
+    query_result, result_count = M.query(projectile.aabb_id, mask_bits)
+    if query_result and result_count > 0 then
+        projectile.lifetime = 0
+        if not from_player then
+            msg.post("/player#player", "damage", {
+                projectile_velocity = projectile_velocity
+            })
+        end
+    end
+end
+
+function M.check_projectile_ground(projectile)
     query_result, result_count = M.query(projectile.aabb_id)
     if query_result and result_count > 0 then
         projectile.lifetime = 0

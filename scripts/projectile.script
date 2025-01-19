@@ -1,6 +1,7 @@
 local collision = require "modules.collision"
 
 go.property("velocity", vmath.vector3())
+go.property("from_player", false)
 
 function init(self)
     self.position = go.get_position()
@@ -12,7 +13,8 @@ end
 
 function update(self, dt)
 
-    collision.check_projectile(self)
+    collision.check_projectile_ground(self)
+    collision.check_projectile_entity(self, self.from_player, self.velocity)
 
     self.position = self.position + self.velocity * dt
     go.set_position(self.position)

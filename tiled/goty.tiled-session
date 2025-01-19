@@ -1,5 +1,5 @@
 {
-    "activeFile": "one.tmx",
+    "activeFile": "test.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -9,19 +9,25 @@
             "scaleInDock": 1
         },
         "one.tmx": {
+            "expandedObjectLayers": [
+                3,
+                2,
+                6,
+                5
+            ],
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2807,
-                "y": 929.9999999999999
+                "x": 4000,
+                "y": 480
             }
         },
         "test.tmx": {
-            "scale": 0.35417187499999997,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1599.5058896192704,
-                "y": 160.93880972338638
+                "x": 579,
+                "y": 135.33333333333331
             }
         },
         "test.tsx": {
@@ -40,8 +46,8 @@
     "project": "goty.tiled-project",
     "property.type": "float",
     "recentFiles": [
-        "test.tmx",
+        "one.tmx",
         "test.tsx",
-        "one.tmx"
+        "test.tmx"
     ]
 }

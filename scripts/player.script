@@ -42,6 +42,9 @@ local max_jump_streak = 3
 
 local attack_delay_time = 0.15
 
+local knockback_delay_time = 0.5
+local knockback_velocity_multiplier = 2
+
 local function decay_momentum(self, additional_decay)
 
     local additional_decay = additional_decay or 0
@@ -273,7 +276,10 @@ local function fire(self)
     local speed = 500 + (self.momentum / max_momentum) * (1000 - 500)
     local projectile_velocity = vmath.vector3(speed * direction, 0, 0)
     local rotation = self.sprite_flipped and vmath.quat_rotation_z(math.pi) or nil
-    local projectile = factory.create("#projectile_factory", spawn_position, rotation, { velocity = projectile_velocity })
+    local projectile = factory.create("#projectile_factory", spawn_position, rotation, { 
+        velocity = projectile_velocity,
+        from_player = true
+    })
 end
 
 local function attack(self, dt)
@@ -399,7 +405,14 @@ local function set_facing_direction(self)
     sprite.set_hflip("#accessory", self.sprite_flipped)
 end
 
-
+local function knockback(self, dt)
+    local interrupt_movement = false
+    if self.knockback_velocity and not (self.wall_contact_left or self.wall_contact_right) then
+        self.velocity.x = (self.knockback_velocity.x * knockback_velocity_multiplier)
+        interrupt_movement = true
+    end
+    return interrupt_movement
+end
 
 local function calculate_move(self, dt)
 
@@ -411,6 +424,10 @@ local function calculate_move(self, dt)
     end
 
     apply_gravity(self, dt)
+
+    if knockback(self, dt) then
+        return
+    end
 
     if slide(self, dt) then
         return
@@ -493,6 +510,15 @@ local function animate(self, dt)
         end
     end
 
+    if self.knockback_velocity then
+        if self.ground_contact then
+            new_anim = "stand-damaged"
+        else
+            new_anim = "jump-damaged"
+        end
+        
+    end
+
     if self.is_prone or self.is_prone_without_headroom then
         new_anim = "crouch-slide"
     end
@@ -512,8 +538,6 @@ function update(self, dt)
 
     local pos = go.get_position()
 
-    -- collision.debug_draw_level(self.enemies, self.platforms)
-    -- collision.debug_draw_player(pos)
     collision.handle(self, pos, true)
 
 
@@ -555,6 +579,12 @@ function on_message(self, message_id, message, sender)
 
     elseif message_id == hash("match_platform_velocity") then
         self.platform_velocity = message.velocity
+
+    elseif message_id == hash("damage") then
+        self.knockback_velocity = message.projectile_velocity
+        timer.delay(knockback_delay_time, false, function()
+            self.knockback_velocity = nil
+        end)
 
     end
 end
