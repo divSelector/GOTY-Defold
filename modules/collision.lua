@@ -37,7 +37,7 @@ local tile_draw_y_offset = 0
 local tile_draw_x_offset = -8
 local tile_draw_y_offset = -9
 
-local debug = true
+local debug = false
 
 local entity_width = 18
 local entity_height = 46
@@ -629,18 +629,23 @@ end
 function M.check_projectile_entity(projectile, from_player, projectile_velocity)
     local mask_bits
     if from_player then
-        mask_bits = bit.bor(collision_bits.ENEMY)
+        mask_bits = collision_bits.ENEMY
     else
-        mask_bits = bit.bor(collision_bits.PLAYER)
+        mask_bits = collision_bits.PLAYER
     end
     query_result, result_count = M.query(projectile.aabb_id, mask_bits)
     if query_result and result_count > 0 then
         projectile.lifetime = 0
-        if not from_player then
-            msg.post("/player#player", "damage", {
-                projectile_velocity = projectile_velocity
-            })
+        local entity_id
+        if from_player then
+            entity_id = "/instance" .. query_result[1].id
+        else
+            entity_id = "/player#player"
         end
+        msg.post(entity_id, "damage", {
+            projectile_velocity = projectile_velocity
+        })
+
     end
 end
 

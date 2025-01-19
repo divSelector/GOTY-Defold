@@ -6,19 +6,18 @@ local tile_height = 16
 go.property("star", 0)
 
 function init(self)
-    
-    self.is_collected = false
 
+    self.is_collected = false
 
     self.id = go.get_id()
     self.aabb_id = collision.add_ball(msg.url('.'))
-    
+
     sprite.play_flipbook("#sprite", "ball-" .. self.star)
 
     local pos = go.get_position()
 
     local _, _, w, h = tilemap.get_bounds("/level#tilemap")
-    
+
     local tile_x = math.floor((pos.x - w * tile_width) / tile_width) + 2
     local tile_y = math.floor((pos.y - h * tile_height) / tile_height) + 2
 
@@ -33,8 +32,6 @@ function init(self)
     end
 
 	go.animate(".", "scale", go.PLAYBACK_LOOP_PINGPONG, 0.9, go.EASING_OUTBOUNCE, duration_scale, 1)
-    
-    -- go.animate(".", "euler.z", go.PLAYBACK_LOOP_PINGPONG, 360, go.EASING_OUTBOUNCE, 10)
 
     local delay_jump = math.random() * 2
     timer.delay(delay_jump, false, function()
@@ -45,13 +42,19 @@ function init(self)
 
 end
 
-
-
 function update(self, dt)
     -- Check collisions
     collision.check_ball(self)
 
     if self.is_collected then
+
+        if not self.destructing then
+            self.destructing = true
+            collision.destroy(self.aabb_id)
+            timer.delay(3, false, function()
+                go.delete()
+            end)
+        end
 
         self.position.y = self.position.y + 10
         self.position.z = 0.1
@@ -108,10 +111,6 @@ function on_message(self, message_id, message, sender)
     if message_id == hash("collect") then
         go.cancel_animations(".")
         self.is_collected = true
-        timer.delay(1, false, function()
-            go.delete()
-            collision.destroy(self.aabb_id)
-        end)
     end
 
 end

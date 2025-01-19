@@ -11,11 +11,15 @@ function init(self)
     self.sprite_flipped = false
     self.current_anim = "stand-idle"
 
+    self.original_x = self.position.x
+
     self.ground_contact = false
 
     self.projectiles = {}
 
     self.aabb_id = collision.add_enemy(msg.url('.'))
+
+    self.stunned = false
 end
 
 
@@ -85,7 +89,7 @@ local function jump(self, dt)
     local jump_condition = player_position.y > enemy_position.y
 
     -- Start the jump
-    if jump_condition and self.can_jump then
+    if jump_condition and self.can_jump and not self.stunned then
         local target_y = player_position.y
         local current_y = enemy_position.y
         local time_to_apex = 0.5 -- Time to reach the apex
@@ -183,6 +187,14 @@ local function animate(self, dt)
         new_anim = position .. "-idle"
     end
 
+    if self.stunned then
+        if self.ground_contact then
+            new_anim = "stand-damaged"
+        else
+            new_anim = "jump-damaged"
+        end
+    end
+
     if new_anim then
         if self.current_anim ~= new_anim then
             self.current_anim = new_anim
@@ -200,20 +212,36 @@ function update(self, dt)
     self.player_position = go.get_position("/player#player")
 
     collision.handle(self, self.position, false)
-    
-    apply_gravity(self, dt) -- Apply gravity and handle landing
-    jump(self, dt) -- Handle jumping logic
-    crouch(self)
-    attack(self, dt)
+
+    apply_gravity(self, dt)
+
+    jump(self, dt)
+
+    if not self.stunned then
+        crouch(self)
+        attack(self, dt)
+    end
 
     animate(self, dt)
-    set_facing_direction(self)
 
-
-
+    if not self.stunned then
+        set_facing_direction(self)
+    end
+    
+    self.position.x = self.original_x
     go.set_position(self.position + self.velocity * dt)
 
     self.wall_contact_left = false
     self.wall_contact_right = false
     self.ground_contact = false
+end
+
+function on_message(self, message_id, message, sender)
+
+    if message_id == hash("damage") then
+        self.stunned = true
+        timer.delay(2, false, function()
+            self.stunned = false
+        end)
+    end
 end

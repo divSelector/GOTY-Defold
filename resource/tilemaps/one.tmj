@@ -16,7 +16,7 @@
                     "visible": true,
                     "width": 0,
                     "x": 1576,
-                    "y": 553.333333333333
+                    "y": 553.333
                 },
                 {
                     "height": 0,
@@ -28,7 +28,7 @@
                     "visible": true,
                     "width": 0,
                     "x": 1592,
-                    "y": 554.666666666667
+                    "y": 554.667
                 },
                 {
                     "height": 0,
@@ -39,7 +39,7 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 2777.33333333333,
+                    "x": 2777.33,
                     "y": 856
                 },
                 {
@@ -51,8 +51,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 2759.33333333333,
-                    "y": 856.666666666667
+                    "x": 2759.33,
+                    "y": 856.667
                 }
             ],
             "opacity": 1,
@@ -100,8 +100,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 1767.16666666667,
-                    "y": 887.333333333333
+                    "x": 1767.17,
+                    "y": 887.333
                 },
                 {
                     "height": 0,
@@ -112,8 +112,8 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 2664.28787878788,
-                    "y": 842.484848484849
+                    "x": 2664.29,
+                    "y": 842.485
                 },
                 {
                     "height": 0,
@@ -173,8 +173,32 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 2040,
-                    "y": 538
+                    "x": 2045.33333333333,
+                    "y": 532
+                },
+                {
+                    "height": 0,
+                    "id": 38,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 3689.16666666667,
+                    "y": 748.833333333333
+                },
+                {
+                    "height": 0,
+                    "id": 39,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 2663.5,
+                    "y": 696
                 }
             ],
             "opacity": 1,
@@ -198,8 +222,44 @@
                     "type": "",
                     "visible": true,
                     "width": 0,
-                    "x": 2007.33333333333,
-                    "y": 652.665666666667
+                    "x": 81.9966666666669,
+                    "y": 839.999333333333
+                },
+                {
+                    "height": 0,
+                    "id": 40,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 762,
+                    "y": 822
+                },
+                {
+                    "height": 0,
+                    "id": 41,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 1940,
+                    "y": 820
+                },
+                {
+                    "height": 0,
+                    "id": 42,
+                    "name": "",
+                    "point": true,
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 3416,
+                    "y": 812
                 }
             ],
             "opacity": 1,

@@ -30,3 +30,9 @@ embedded_components {
   data: "prototype: \"/objects/ball.go\"\n"
   ""
 }
+embedded_components {
+  id: "checkpoint_factory"
+  type: "factory"
+  data: "prototype: \"/objects/checkpoint.go\"\n"
+  ""
+}

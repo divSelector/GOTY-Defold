@@ -53,7 +53,15 @@ local function spawn_enemies(self)
 end
 
 
-function group_platforms_by_adjacency(spawn_positions)
+local function spawn_checkpoints(self)
+    for _, spawn_position in ipairs(self.player_spawn_positions) do
+        local checkpoint = factory.create("#checkpoint_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
+        table.insert(self.checkpoints, checkpoint)
+    end
+end
+
+
+local function group_platforms_by_adjacency(spawn_positions)
     local groups = {}
     local visited = {}
 
@@ -132,6 +140,8 @@ function init(self)
         self.data = json.decode(resource)
 
         self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
+        self.checkpoints = {}
+        spawn_checkpoints(self)
         set_player_spawn_position(self)
 
         self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")

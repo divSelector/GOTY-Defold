@@ -43,7 +43,7 @@ local max_jump_streak = 3
 local attack_delay_time = 0.15
 
 local knockback_delay_time = 0.5
-local knockback_velocity_multiplier = 2
+local knockback_velocity_multiplier = 1.25
 
 local function decay_momentum(self, additional_decay)
 
@@ -516,7 +516,6 @@ local function animate(self, dt)
         else
             new_anim = "jump-damaged"
         end
-        
     end
 
     if self.is_prone or self.is_prone_without_headroom then
