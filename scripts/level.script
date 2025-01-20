@@ -132,7 +132,7 @@ function init(self)
 
     collision.init()
     
-    self.spawn_point = 1
+    self.spawn_point = 3
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}
@@ -142,36 +142,37 @@ function init(self)
         self.data = json.decode(resource)
 
 
-        -- self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
-        -- self.enemies = {}
-        -- spawn_enemies(self)
-
         self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
-        -- self.checkpoints = {}
-        -- spawn_checkpoints(self)
+        self.checkpoints = {}
+        spawn_checkpoints(self)
         set_player_spawn_position(self)
 
-        -- self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
-        -- self.platforms = {}
-        -- self.platform_groups = {}
-        -- spawn_platforms(self)
+        self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
+        self.enemies = {}
+        spawn_enemies(self)
 
-        -- for _, platform in ipairs(self.platforms) do
-        --     local platform_url = msg.url(platform)
+
+        self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
+        self.platforms = {}
+        self.platform_groups = {}
+        spawn_platforms(self)
+
+        for _, platform in ipairs(self.platforms) do
+            local platform_url = msg.url(platform)
             
-        --     ---@diagnostic disable-next-line: assign-type-mismatch
-        --     platform_url.fragment = "platform"
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            platform_url.fragment = "platform"
     
-        --     local platform_group_index = go.get(platform_url, "group_index")
+            local platform_group_index = go.get(platform_url, "group_index")
     
-        --     msg.post(platform_url, "level_data", {
-        --         platforms = self.platform_groups[platform_group_index]
-        --     })
-        -- end
+            msg.post(platform_url, "level_data", {
+                platforms = self.platform_groups[platform_group_index]
+            })
+        end
 
-        -- self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
-        -- self.balls = {}
-        -- spawn_balls(self)
+        self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
+        self.balls = {}
+        spawn_balls(self)
 
     end
 
@@ -185,11 +186,6 @@ end
 
 function update(self, dt)
     local player_position = go.get_position("/player#player")
-
-    -- msg.post("/player#player", "level_data", {
-    --     enemies = self.enemies,
-    --     platforms = self.platforms
-    -- })
 
     if player_position.y < 0 then
         set_player_spawn_position(self)

@@ -59,6 +59,7 @@ local green = vmath.vector4(0, 1, 0, 1)
 
 -- NOTES DO NOT PROCESS ANY SIMPLE TOUCHING COLLISION LIKE PROJECTILES AND BALLS IN THE PART WHERE WE PROCESS AND DO TILE PLATFORM CORRECTION
 
+local enemy_aabb_id_to_urls = {}
 
 local function is_tile(tile, tiles_enum)
     for _, value in ipairs(tiles_enum) do
@@ -108,6 +109,7 @@ end
 
 function M.add_enemy(enemy_url)
     local enemy_aabb_id = daabbcc.insert_gameobject(M.group, enemy_url, entity_width, entity_height, collision_bits.ENEMY)
+    enemy_aabb_id_to_urls[enemy_aabb_id] = enemy_url
     return enemy_aabb_id
 end
 
@@ -666,13 +668,13 @@ function M.check_projectile_entity(projectile, from_player, projectile_velocity)
     query_result, result_count = M.query(projectile.aabb_id, mask_bits)
     if query_result and result_count > 0 then
         projectile.lifetime = 0
-        local entity_id
+        local entity_url
         if from_player then
-            entity_id = "/instance" .. query_result[1].id
+            entity_url = enemy_aabb_id_to_urls[query_result[1].id]
         else
-            entity_id = "/player#player"
+            entity_url = "/player#player"
         end
-        msg.post(entity_id, "damage", {
+        msg.post(entity_url, "damage", {
             projectile_velocity = projectile_velocity
         })
 
