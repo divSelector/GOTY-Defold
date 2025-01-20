@@ -7,7 +7,7 @@ local collision_bits = {
     GROUND     = 2,  -- (2^1)
     PROJECTILE = 4,  -- (2^2)
     ENEMY =      8,  -- (2^3)
-    PASSABLE =   16 -- (2^4)
+    PASSABLE =   16  -- (2^4)
 }
 
 local TILES = {
@@ -125,6 +125,11 @@ end
 function M.add_ball(ball_url)
     local ball_aabb_id = daabbcc.insert_gameobject(M.group, ball_url, 11, 11, collision_bits.GROUND)
     return ball_aabb_id
+end
+
+function M.add_checkpoint(checkpoint_url)
+    local checkpoint_aabb_id = daabbcc.insert_gameobject(M.group, checkpoint_url, 11, 11, collision_bits.PASSABLE)
+    return checkpoint_aabb_id
 end
 
 local function debug_draw_aabb(aabb_data, color, offset_x, offset_y)
@@ -619,11 +624,36 @@ function M.query_ball(aabb_id)
     return result, count
 end
 
+function M.query_checkpoint_player(aabb_id)
+    local mask_bits = bit.bor(collision_bits.PLAYER)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
+    return result, count
+end
+
+function M.query_checkpoint_ground(aabb_id)
+    local mask_bits = bit.bor(collision_bits.GROUND)
+    local result, count = daabbcc.query_id_sort(M.group, aabb_id, mask_bits)
+    return result, count
+end
+
 function M.check_ball(ball)
     query_result, result_count = M.query_ball(ball.aabb_id)
     if query_result and result_count > 0 then
         msg.post(ball.id, "collect")
     end
+end
+
+function M.check_checkpoint(checkpoint)
+    query_result, result_count = M.query_checkpoint_player(checkpoint.aabb_id)
+    if query_result and result_count > 0 then
+        msg.post(checkpoint.id, "collect")
+    end
+
+    query_result, result_count = M.query_checkpoint_ground(checkpoint.aabb_id)
+    if query_result and result_count > 0 then
+        msg.post(checkpoint.id, "stop_fall")
+    end
+
 end
 
 function M.check_projectile_entity(projectile, from_player, projectile_velocity)

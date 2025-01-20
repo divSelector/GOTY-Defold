@@ -54,8 +54,10 @@ end
 
 
 local function spawn_checkpoints(self)
-    for _, spawn_position in ipairs(self.player_spawn_positions) do
-        local checkpoint = factory.create("#checkpoint_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
+    for spawn_index, spawn_position in ipairs(self.player_spawn_positions) do
+        local checkpoint = factory.create("#checkpoint_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
+            spawn_index = spawn_index
+        })
         table.insert(self.checkpoints, checkpoint)
     end
 end
@@ -139,36 +141,37 @@ function init(self)
     if resource then
         self.data = json.decode(resource)
 
+
+        -- self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
+        -- self.enemies = {}
+        -- spawn_enemies(self)
+
         self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
-        self.checkpoints = {}
-        spawn_checkpoints(self)
+        -- self.checkpoints = {}
+        -- spawn_checkpoints(self)
         set_player_spawn_position(self)
 
-        self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
-        self.enemies = {}
-        spawn_enemies(self)
+        -- self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
+        -- self.platforms = {}
+        -- self.platform_groups = {}
+        -- spawn_platforms(self)
 
-        self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
-        self.platforms = {}
-        self.platform_groups = {}
-        spawn_platforms(self)
-
-        for _, platform in ipairs(self.platforms) do
-            local platform_url = msg.url(platform)
+        -- for _, platform in ipairs(self.platforms) do
+        --     local platform_url = msg.url(platform)
             
-            ---@diagnostic disable-next-line: assign-type-mismatch
-            platform_url.fragment = "platform"
+        --     ---@diagnostic disable-next-line: assign-type-mismatch
+        --     platform_url.fragment = "platform"
     
-            local platform_group_index = go.get(platform_url, "group_index")
+        --     local platform_group_index = go.get(platform_url, "group_index")
     
-            msg.post(platform_url, "level_data", {
-                platforms = self.platform_groups[platform_group_index]
-            })
-        end
+        --     msg.post(platform_url, "level_data", {
+        --         platforms = self.platform_groups[platform_group_index]
+        --     })
+        -- end
 
-        self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
-        self.balls = {}
-        spawn_balls(self)
+        -- self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
+        -- self.balls = {}
+        -- spawn_balls(self)
 
     end
 
@@ -190,5 +193,11 @@ function update(self, dt)
 
     if player_position.y < 0 then
         set_player_spawn_position(self)
+    end
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("set_spawn_point") then
+        self.spawn_point = message.spawn_point
     end
 end

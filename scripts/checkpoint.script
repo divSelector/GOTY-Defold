@@ -1,0 +1,38 @@
+local collision = require "modules.collision"
+
+go.property("spawn_index", 0)
+
+function init(self)
+	self.aabb_id = collision.add_checkpoint(msg.url("."))
+	self.id = go.get_id()
+
+	self.position = go.get_position()
+	self.fall = true
+end
+
+function update(self, dt)
+	collision.check_checkpoint(self)
+
+	if self.fall then
+		local pos = self.position
+
+		pos.y = pos.y - 1
+	
+		go.set_position(pos)
+	
+		self.position = pos
+	end
+
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("collect") then
+		msg.post("/level#level", "set_spawn_point", {
+			spawn_point = self.spawn_index
+		})
+
+
+	elseif message_id == hash("stop_fall") then
+		self.fall = false
+	end
+end

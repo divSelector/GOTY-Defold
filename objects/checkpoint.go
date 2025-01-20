@@ -1,3 +1,7 @@
+components {
+  id: "script"
+  component: "/scripts/checkpoint.script"
+}
 embedded_components {
   id: "sprite"
   type: "sprite"
@@ -8,4 +12,7 @@ embedded_components {
   "  texture: \"/assets/tilesets/test.tilesource\"\n"
   "}\n"
   ""
+  position {
+    z: 0.4
+  }
 }
