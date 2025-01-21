@@ -10,16 +10,16 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                5,
                 2,
+                5,
                 3,
                 6
             ],
             "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 3427,
-                "y": 771.3333333333333
+                "x": 4000,
+                "y": 480
             }
         },
         "test.tmx": {

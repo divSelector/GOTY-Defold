@@ -1,4 +1,5 @@
 local collision = require "modules.collision"
+local utils = require "modules.utils"
 
 local tile_size = 16
 
@@ -51,6 +52,17 @@ local function spawn_enemies(self)
         table.insert(self.enemies, enemy)
     end
 end
+
+-- local function spawn_enemy(self, position)
+--     local enemy = factory.create("#enemy_factory", vmath.vector3(position.x, position.y, 0))
+--     table.insert(self.enemies, enemy)
+--     return enemy
+-- end
+
+-- local function despawn_enemy(self, enemy_url)
+--     self.enemies[enemy_url] = nil
+--     msg.post(enemy_url, "destroy")
+-- end
 
 
 local function spawn_checkpoints(self)
@@ -132,7 +144,7 @@ function init(self)
 
     collision.init()
     
-    self.spawn_point = 3
+    self.spawn_point = 2
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}
@@ -149,7 +161,9 @@ function init(self)
 
         self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
         self.enemies = {}
+        
         spawn_enemies(self)
+
 
 
         self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
@@ -190,6 +204,7 @@ function update(self, dt)
     if player_position.y < 0 then
         set_player_spawn_position(self)
     end
+
 end
 
 function on_message(self, message_id, message, sender)

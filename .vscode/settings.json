@@ -63,6 +63,7 @@
         "ext.manifest": "yaml"
     },
     "cSpell.words": [
+        "despawn",
         "knockback",
         "lerp"
     ]

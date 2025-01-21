@@ -1,4 +1,6 @@
 local collision = require "modules.collision"
+local utils = require "modules.utils"
+
 
 go.property("velocity", vmath.vector3())
 
@@ -25,6 +27,7 @@ end
 
 local function set_facing_direction(self)
     local enemy_position = self.position
+
     local player_position = self.player_position
 
     local x_diff = player_position.x - enemy_position.x
@@ -207,11 +210,19 @@ local function animate(self, dt)
 end
 
 
+
+
+
 function update(self, dt)
 
-    self.player_position = go.get_position("/player#player")
+    local is_visible = utils.is_box_on_screen(self, self.position, 58, 56).on_screen
+    if not is_visible then
+        return
+    end
 
     collision.handle(self, self.position, false)
+
+    self.player_position = go.get_position("/player#player")
 
     apply_gravity(self, dt)
 
@@ -234,6 +245,7 @@ function update(self, dt)
     self.wall_contact_left = false
     self.wall_contact_right = false
     self.ground_contact = false
+
 end
 
 function on_message(self, message_id, message, sender)
@@ -243,5 +255,10 @@ function on_message(self, message_id, message, sender)
         timer.delay(2, false, function()
             self.stunned = false
         end)
+
+    elseif message_id == hash("destroy") then
+        collision.destroy(self.aabb_id)
+        go.delete()
+        
     end
 end

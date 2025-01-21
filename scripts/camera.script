@@ -11,52 +11,11 @@ function init(self)
     self.follow_player_y = false
 
     self.original_y = go.get_position().y
-    self.url = msg.url('/camera#camera')
-
+    
     self.bg_bottom = msg.url("/bg#one")
     self.bg_top = msg.url("/bg#two")
 
     self.look_down_timer = 0
-end
-
-local function is_box_on_camera(self, position, width, height)
-    local projection = camera.get_projection(self.url)
-    local view = camera.get_view(self.url)
-
-    local view_projection = projection * view
-
-    local half_width = width / 2
-    local half_height = height / 2
-    local corners = {
-        vmath.vector4(position.x - half_width, position.y - half_height, position.z or 0, 1),
-        vmath.vector4(position.x + half_width, position.y - half_height, position.z or 0, 1),
-        vmath.vector4(position.x - half_width, position.y + half_height, position.z or 0, 1),
-        vmath.vector4(position.x + half_width, position.y + half_height, position.z or 0, 1),
-    }
-
-    local on_screen = false
-    local result = {above = false, below = false, left = false, right = false}
-
-    for _, corner in ipairs(corners) do
-        local ndc_position = view_projection * corner
-        ndc_position.x = ndc_position.x / ndc_position.w
-        ndc_position.y = ndc_position.y / ndc_position.w
-        ndc_position.z = ndc_position.z / ndc_position.w
-
-        local corner_on_screen = ndc_position.x >= -1 and ndc_position.x <= 1 and
-                                 ndc_position.y >= -1 and ndc_position.y <= 1 and
-                                 ndc_position.z >= 0 and ndc_position.z <= 1
-        on_screen = on_screen or corner_on_screen
-
-        result.above = result.above or ndc_position.y > 1
-        result.below = result.below or ndc_position.y < -1
-        result.left = result.left or ndc_position.x < -1
-        result.right = result.right or ndc_position.x > 1
-    end
-
-    result.on_screen = on_screen
-
-    return result
 end
 
 local function lerp(a, b, t)
@@ -130,7 +89,7 @@ function update(self, dt)
     local camera_position = go.get_position()
     local player_position = go.get_position("/player")
 
-    local camera_status = is_box_on_camera(self, player_position, 18, 56)
+    local camera_status = utils.is_box_on_screen(self, player_position, 18, 56)
 
 
     if (not camera_status.on_screen and not camera_status.above) then

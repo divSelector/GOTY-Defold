@@ -1,4 +1,5 @@
 local collision = require "modules.collision"
+local utils = require "modules.utils"
 
 go.property("spawn_index", 0)
 
@@ -11,6 +12,12 @@ function init(self)
 end
 
 function update(self, dt)
+
+    local is_visible = utils.is_box_on_screen(self, self.position, 16, 16).on_screen
+    if not is_visible then
+        return
+    end
+
 	collision.check_checkpoint(self)
 
 	if self.fall then

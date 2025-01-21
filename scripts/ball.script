@@ -1,4 +1,6 @@
 local collision = require "modules.collision"
+local utils = require "modules.utils"
+
 
 local tile_width = 16
 local tile_height = 16
@@ -43,7 +45,12 @@ function init(self)
 end
 
 function update(self, dt)
-    -- Check collisions
+    
+    local is_visible = utils.is_box_on_screen(self, self.position, 16, 16).on_screen
+    if not is_visible then
+        return
+    end
+
     collision.check_ball(self)
 
     if self.is_collected then

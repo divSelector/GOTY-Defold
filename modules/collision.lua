@@ -441,6 +441,16 @@ local function _process(normalized_ids, pos, callback)
     end
 end
 
+
+local query_handlers = {
+    overlap = handle_overlap,
+    forward_wall = handle_forward_wall_contact,
+    backward_wall = handle_backward_wall_contact,
+    ground = handle_ground_contact,
+    ceiling = handle_ceiling_contact
+}
+
+
 function M.handle(entity, entity_pos, is_player)
 
     local function process(results, callback)
@@ -494,13 +504,22 @@ function M.handle(entity, entity_pos, is_player)
 
     end
 
-    local queries = {
-        overlap = M.query(entity.aabb_id),
-        ground = raycast_y(entity_pos, half_entity_height + 1, -1),
-        ceiling = raycast_y(entity_pos, ray_ceiling_distance, 1),
-        forward_wall = raycast_x(entity_pos, entity.sprite_flipped, half_entity_width + 1, ray_x_offets),
-        backward_wall = raycast_x(entity_pos, not entity.sprite_flipped, half_entity_width + 1, ray_x_offets)
-    }
+    local queries = {}
+
+    if is_player then
+        queries = {
+            overlap = M.query(entity.aabb_id),
+            ground = raycast_y(entity_pos, half_entity_height + 1, -1),
+            ceiling = raycast_y(entity_pos, ray_ceiling_distance, 1),
+            forward_wall = raycast_x(entity_pos, entity.sprite_flipped, half_entity_width + 1, ray_x_offets),
+            backward_wall = raycast_x(entity_pos, not entity.sprite_flipped, half_entity_width + 1, ray_x_offets)
+        }
+    else
+        queries = {
+            ground = raycast_y(entity_pos, half_entity_height + 1, -1),
+            ceiling = raycast_y(entity_pos, ray_ceiling_distance, 1)
+        }
+    end
 
     if entity.velocity.y < -300 then
         local high_velocity_ground_fix = raycast_y(entity_pos, half_entity_height + 10, -1)
@@ -515,12 +534,14 @@ function M.handle(entity, entity_pos, is_player)
         end)
     end
 
-    process(queries.overlap, handle_overlap)
-    process(queries.forward_wall, handle_forward_wall_contact)
-    process(queries.backward_wall, handle_backward_wall_contact)
-    process(queries.ground, handle_ground_contact)
-    process(queries.ceiling, handle_ceiling_contact)
 
+    for query_name, handler in pairs(query_handlers) do
+        if queries[query_name] then
+            process(queries[query_name], handler)
+        end
+    end
+
+    
     if is_player and entity.is_prone then
 
         if entity.platform_velocity then return end
