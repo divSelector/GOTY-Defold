@@ -47,7 +47,7 @@ function M.is_table_empty(tbl)
     return next(tbl) == nil
 end
 
-local camera_url = msg.url('main:/camera#camera')
+local camera_url = msg.url('game:/camera#camera')
 
 function M.is_box_on_screen(self, position, width, height)
 
