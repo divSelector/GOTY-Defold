@@ -1,0 +1,34 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+    msg.post("#gameproxy", "load")
+end
+
+
+function update(self, dt)
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+
+function on_message(self, message_id, message, sender)
+
+	if message_id == hash("show_game") then
+		msg.post("#gameproxy", "load")
+		msg.post("#gameproxy", "unload")
+
+	elseif message_id == hash("show_menu") then
+		msg.post("#gameproxy", "load")
+		msg.post("#gameproxy", "unload")
+
+
+	elseif message_id == hash("proxy_loaded") then
+		print("proxy_loaded", sender)
+		msg.post(sender, "enable")
+
+	elseif message_id == hash("proxy_unloaded") then
+		print("proxy_unloaded", sender)
+
+	end
+
+end
