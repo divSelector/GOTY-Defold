@@ -215,14 +215,15 @@ end
 
 function update(self, dt)
 
-    local is_visible = utils.is_box_on_screen(self, self.position, 58, 56).on_screen
-    if not is_visible then
+    self.player_position = go.get_position("/player#player")
+
+    local distance_from_player = vmath.length(self.player_position - self.position)
+
+    if distance_from_player > 500 then
         return
     end
 
     collision.handle(self, self.position, false)
-
-    self.player_position = go.get_position("/player#player")
 
     apply_gravity(self, dt)
 

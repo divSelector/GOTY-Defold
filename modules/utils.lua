@@ -47,11 +47,12 @@ function M.is_table_empty(tbl)
     return next(tbl) == nil
 end
 
+local camera_url = msg.url('main:/camera#camera')
+
 function M.is_box_on_screen(self, position, width, height)
-    local camera_url = msg.url('/camera#camera')
+
     local projection = camera.get_projection(camera_url)
     local view = camera.get_view(camera_url)
-
     local view_projection = projection * view
 
     local half_width = width / 2

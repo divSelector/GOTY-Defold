@@ -144,7 +144,7 @@ function init(self)
 
     collision.init()
     
-    self.spawn_point = 2
+    self.spawn_point = 4
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}

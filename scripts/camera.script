@@ -16,6 +16,9 @@ function init(self)
     self.bg_top = msg.url("/bg#two")
 
     self.look_down_timer = 0
+
+    local x, y, w, h = tilemap.get_bounds("/level#tilemap")
+    self.map = {x=x, y=y, w=w, h=h}
 end
 
 local function lerp(a, b, t)
@@ -32,17 +35,6 @@ local function follow_with_lerp(self, camera_position, player_position, dt)
     end
 end
 
-local function handle_manual_look_down(self, camera_position, camera_status, dt)
-
-    if input.key_state.crouch then
-        self.look_down_timer = self.look_down_timer + dt
-        if self.look_down_timer >= look_down_duration_threshold and camera_status.on_screen then
-            camera_position.y = camera_position.y - look_down_move_speed
-        end
-    else
-        self.look_down_timer = 0 -- Reset timer if crouch is released
-    end
-end
 
 local function handle_background_parallax(self, camera_position)
 
@@ -91,7 +83,6 @@ function update(self, dt)
 
     local camera_status = utils.is_box_on_screen(self, player_position, 18, 56)
 
-
     if (not camera_status.on_screen and not camera_status.above) then
         -- Moving without lerp because if the character is fallen to death, the snapback to spawn point has to be fast.
         -- If the player is at the top of the screen jumping above camera, we want to lerp that like on screen movement.
@@ -101,13 +92,11 @@ function update(self, dt)
         follow_with_lerp(self, camera_position, player_position, dt)
     end
 
-    -- handle_manual_look_down(self, camera_position, camera_status, dt)
-
     -- Prevent going too low
     if player_position.y < self.original_y or camera_position.y < self.original_y then
         camera_position.y = self.original_y
     end
-
+    
     go.set_position(camera_position)
 
     handle_background_parallax(self, camera_position)

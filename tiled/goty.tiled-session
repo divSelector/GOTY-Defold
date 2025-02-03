@@ -10,9 +10,9 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                2,
                 5,
                 3,
+                2,
                 6
             ],
             "scale": 1.5,
