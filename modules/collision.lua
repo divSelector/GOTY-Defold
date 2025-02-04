@@ -656,6 +656,7 @@ function M.check_checkpoint(checkpoint)
     query_result, result_count = M.query_checkpoint_ground(checkpoint.aabb_id)
     if query_result and result_count > 0 then
         msg.post(checkpoint.id, "stop_fall")
+        return true
     end
 end
 

@@ -17,16 +17,26 @@ function update(self, dt)
 
     local distance_from_player = vmath.length(self.player_position - self.position)
 
-    if distance_from_player > 32 then
+    if distance_from_player > 500 then
         return
     end
 
-	collision.check_checkpoint(self)
+	local touching_ground = collision.check_checkpoint(self)
 
 	if self.fall then
 		local pos = self.position
 
-		pos.y = pos.y - 1
+		pos.y = pos.y - 10
+	
+		go.set_position(pos)
+	
+		self.position = pos
+	end
+
+	if touching_ground and not self.fall then
+		local pos = self.position
+
+		pos.y = pos.y + 20
 	
 		go.set_position(pos)
 	
@@ -44,5 +54,6 @@ function on_message(self, message_id, message, sender)
 
 	elseif message_id == hash("stop_fall") then
 		self.fall = false
+		
 	end
 end

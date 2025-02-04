@@ -535,6 +535,12 @@ end
 
 function update(self, dt)
 
+    timer.delay(0.10, false, function()
+        self.loaded = true
+    end)
+
+    if not self.loaded then return end
+
     local pos = go.get_position()
 
     collision.handle(self, pos, true)

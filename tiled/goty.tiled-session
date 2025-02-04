@@ -24,24 +24,27 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                2,
+                6,
                 3,
                 5,
-                6
+                2
             ],
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 4000.333333333333,
-                "y": 479.99999999999994
+                "x": -123.5,
+                "y": 729
             }
         },
         "test.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
             "scale": 1.5,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 1600.3333333333333,
-                "y": 159.99999999999997
+                "x": 423.99999999999994,
+                "y": 640
             }
         },
         "test.tsx": {

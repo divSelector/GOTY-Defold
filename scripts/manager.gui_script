@@ -1,0 +1,61 @@
+local state = require "modules.state"
+
+local fade_time = 0.5
+
+
+local function fade_in(self, callback)
+    gui.animate(self.fade_overlay_node, "color.w", 1, gui.EASING_LINEAR, fade_time, 0, function()
+        if callback then callback() end
+    end)
+end
+
+local function fade_out(self, callback)
+    gui.animate(self.fade_overlay_node, "color.w", 0, gui.EASING_LINEAR, fade_time, 0, function()
+        if callback then callback() end
+    end)
+end
+
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+    msg.post("#gameproxy", "load")
+
+	self.fade_overlay_node = gui.get_node("fade_overlay")
+	gui.set_color(self.fade_overlay_node, vmath.vector4(0, 0, 0, 0))
+end
+
+function on_message(self, message_id, message, sender)
+
+	if message_id == hash("load_level") then
+		-- msg.post("#gameproxy", "unload")
+		fade_in(self, function()
+            msg.post("#gameproxy", "unload")
+        end)
+
+	elseif message_id == hash("proxy_loaded") then
+		print("proxy_loaded", sender)
+		msg.post(sender, "enable")
+		fade_out(self)
+
+	elseif message_id == hash("proxy_unloaded") then
+		print("proxy_unloaded", sender)
+		daabbcc.reset()
+		msg.post("#gameproxy", "load")
+	end
+
+end
+
+
+function on_input(self, action_id, action)
+	
+	if not action.pressed then return end
+
+	if action_id == hash("debug_1") then
+		state.current_level = "one"
+		msg.post(".", "load_level")
+	elseif action_id == hash("debug_2") then
+		state.current_level = "test"
+		msg.post(".", "load_level")
+	end
+
+end

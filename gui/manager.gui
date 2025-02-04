@@ -1,0 +1,27 @@
+script: "/scripts/manager.gui_script"
+nodes {
+  position {
+    x: 313.37933
+    y: 183.17241
+  }
+  scale {
+    x: 3.391388
+    y: 4.212812
+    z: 1.1
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  color {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  type: TYPE_BOX
+  id: "fade_overlay"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

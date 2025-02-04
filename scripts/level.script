@@ -1,5 +1,5 @@
 local collision = require "modules.collision"
-local utils = require "modules.utils"
+local state = require "modules.state"
 
 local tile_size = 16
 
@@ -66,17 +66,6 @@ local function spawn_enemies(self)
         table.insert(self.enemies, enemy)
     end
 end
-
--- local function spawn_enemy(self, position)
---     local enemy = factory.create("#enemy_factory", vmath.vector3(position.x, position.y, 0))
---     table.insert(self.enemies, enemy)
---     return enemy
--- end
-
--- local function despawn_enemy(self, enemy_url)
---     self.enemies[enemy_url] = nil
---     msg.post(enemy_url, "destroy")
--- end
 
 
 local function spawn_checkpoints(self)
@@ -157,13 +146,13 @@ end
 function init(self)
 
     collision.init()
-    
+
     self.spawn_point = 1
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}
-    
-    local resource = sys.load_resource("/resource/tilemaps/one.tmj")
+
+    local resource = sys.load_resource("/resource/tilemaps/" .. state.current_level .. ".tmj")
     if resource then
         self.data = json.decode(resource)
 
