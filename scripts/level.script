@@ -3,6 +3,20 @@ local utils = require "modules.utils"
 
 local tile_size = 16
 
+local function render_tilemap(self)
+    for _, layer in ipairs(self.data.layers) do
+        if layer.type == "tilelayer" then
+            for i, tile_id in ipairs(layer.data) do
+                if tile_id > 0 then
+                    local x = (i - 1) % layer.width + 1
+                    local y = layer.height - math.floor((i - 1) / layer.width)
+                    tilemap.set_tile("/level#tilemap", layer.name, x, y, tile_id)
+                end
+            end
+        end
+    end
+end
+
 local function set_player_spawn_position(self)
     local data = self.player_spawn_positions[self.spawn_point]
     local position = vmath.vector3()
@@ -144,7 +158,7 @@ function init(self)
 
     collision.init()
     
-    self.spawn_point = 4
+    self.spawn_point = 1
 
     local x, y, w, h = tilemap.get_bounds("#tilemap")
     self.map = {x=x, y=y, w=w, h=h}
@@ -153,6 +167,7 @@ function init(self)
     if resource then
         self.data = json.decode(resource)
 
+        render_tilemap(self)
 
         self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
         self.checkpoints = {}
@@ -163,8 +178,6 @@ function init(self)
         self.enemies = {}
         
         spawn_enemies(self)
-
-
 
         self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
         self.platforms = {}

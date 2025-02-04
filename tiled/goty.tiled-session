@@ -8,18 +8,32 @@
             "dynamicWrapping": true,
             "scaleInDock": 1
         },
+        "blank.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3,
+                5,
+                6
+            ],
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 534.3333333333333,
+                "y": 406.66666666666663
+            }
+        },
         "one.tmx": {
             "expandedObjectLayers": [
-                5,
-                3,
                 2,
+                3,
+                5,
                 6
             ],
             "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 4000,
-                "y": 480
+                "x": 4000.333333333333,
+                "y": 479.99999999999994
             }
         },
         "test.tmx": {
@@ -27,7 +41,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1600.3333333333333,
-                "y": 160
+                "y": 159.99999999999997
             }
         },
         "test.tsx": {
@@ -36,8 +50,11 @@
             "scaleInEditor": 4
         }
     },
+    "last.exportedFilePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilemaps",
     "last.externalTilesetPath": "/mnt/hdd/Defold/projects/GOTY/tiled",
     "last.imagePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilesets",
+    "map.lastUsedExportFilter": "Defold Tile Map (*.tilemap)",
+    "map.lastUsedFormat": "tmx",
     "openFiles": [
         "one.tmx",
         "test.tsx",

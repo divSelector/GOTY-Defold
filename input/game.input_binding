@@ -22,6 +22,14 @@ key_trigger {
   input: KEY_Z
   action: "attack"
 }
+key_trigger {
+  input: KEY_1
+  action: "debug_1"
+}
+key_trigger {
+  input: KEY_2
+  action: "debug_2"
+}
 mouse_trigger {
   input: MOUSE_BUTTON_1
   action: "touch"
