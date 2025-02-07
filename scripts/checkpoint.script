@@ -52,6 +52,7 @@ function update(self, dt)
 end
 
 function on_message(self, message_id, message, sender)
+	
 	if message_id == hash("collect") then
 		if self.level_exit then
 			state.current_level = state.levels[state.current_level_index + 1]
