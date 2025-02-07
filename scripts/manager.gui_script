@@ -21,7 +21,7 @@ function init(self)
     msg.post("#gameproxy", "load")
 
 	self.fade_overlay_node = gui.get_node("fade_overlay")
-	gui.set_color(self.fade_overlay_node, vmath.vector4(0, 0, 0, 0))
+	gui.set_color(self.fade_overlay_node, vmath.vector4(0.859,0.835,0.431, 0))
 end
 
 function on_message(self, message_id, message, sender)

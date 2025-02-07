@@ -1,7 +1,9 @@
 local collision = require "modules.collision"
-local utils = require "modules.utils"
+local state = require "modules.state"
+
 
 go.property("spawn_index", 0)
+go.property("level_exit", false)
 
 function init(self)
 	self.aabb_id = collision.add_checkpoint(msg.url("."))
@@ -9,6 +11,10 @@ function init(self)
 
 	self.position = go.get_position()
 	self.fall = true
+
+	if self.level_exit then
+		sprite.play_flipbook(".", "bottle-magenta")
+	end
 end
 
 function update(self, dt)
@@ -47,9 +53,14 @@ end
 
 function on_message(self, message_id, message, sender)
 	if message_id == hash("collect") then
-		msg.post("/level#level", "set_spawn_point", {
-			spawn_point = self.spawn_index
-		})
+		if self.level_exit then
+			state.current_level = state.levels[state.current_level_index + 1]
+			msg.post("main:/main#manager", "load_level")
+		else
+			msg.post("/level#level", "set_spawn_point", {
+				spawn_point = self.spawn_index
+			})
+		end
 
 
 	elseif message_id == hash("stop_fall") then

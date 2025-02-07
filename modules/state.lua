@@ -1,5 +1,13 @@
 local M = {}
 
-M.current_level = "test"
+M.levels = {
+    "test",
+    "one"
+}
+
+M.current_level_index = 1
+
+M.current_level = M.levels[M.current_level_index]
+
 
 return M

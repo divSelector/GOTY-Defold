@@ -70,9 +70,14 @@ end
 
 local function spawn_checkpoints(self)
     for spawn_index, spawn_position in ipairs(self.player_spawn_positions) do
+        
+        local is_last_checkpoint = spawn_index == #self.player_spawn_positions
+
         local checkpoint = factory.create("#checkpoint_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0), nil, {
-            spawn_index = spawn_index
+            spawn_index = spawn_index,
+            level_exit = is_last_checkpoint
         })
+        
         table.insert(self.checkpoints, checkpoint)
     end
 end

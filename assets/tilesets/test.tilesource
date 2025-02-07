@@ -14,6 +14,13 @@ animations {
   fps: 0
 }
 animations {
+  id: "bottle-magenta"
+  start_tile: 130
+  end_tile: 130
+  playback: PLAYBACK_NONE
+  fps: 0
+}
+animations {
   id: "platform"
   start_tile: 3
   end_tile: 3

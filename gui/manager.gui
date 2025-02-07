@@ -1,11 +1,11 @@
 script: "/scripts/manager.gui_script"
 nodes {
   position {
-    x: 313.37933
+    x: 321.78268
     y: 183.17241
   }
   scale {
-    x: 3.391388
+    x: 3.504326
     y: 4.212812
     z: 1.1
   }
@@ -21,6 +21,7 @@ nodes {
   type: TYPE_BOX
   id: "fade_overlay"
   inherit_alpha: true
+  alpha: 0.0
   size_mode: SIZE_MODE_AUTO
 }
 material: "/builtins/materials/gui.material"

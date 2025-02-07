@@ -25,26 +25,26 @@
         "one.tmx": {
             "expandedObjectLayers": [
                 6,
-                3,
                 5,
-                2
+                2,
+                3
             ],
             "scale": 1,
-            "selectedLayer": 4,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": -123.5,
-                "y": 729
+                "x": 4360.5,
+                "y": 691
             }
         },
         "test.tmx": {
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 1.5,
+            "scale": 0.75,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 423.99999999999994,
-                "y": 640
+                "x": 1600.6666666666665,
+                "y": 480
             }
         },
         "test.tsx": {

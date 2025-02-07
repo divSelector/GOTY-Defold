@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="48">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="49">
  <editorsettings>
   <export target="test.tilemap" format="defold"/>
  </editorsettings>
@@ -90,6 +90,9 @@
  </objectgroup>
  <objectgroup color="#fa0036" id="4" name="player_spawn" tintcolor="#000000">
   <object id="22" x="99.6667" y="550.666">
+   <point/>
+  </object>
+  <object id="48" x="436.909" y="775.455">
    <point/>
   </object>
  </objectgroup>
