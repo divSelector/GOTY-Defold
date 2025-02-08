@@ -1,0 +1,49 @@
+script: "/scripts/dialog.gui_script"
+fonts {
+  name: "default"
+  font: "/assets/fonts/default.font"
+}
+nodes {
+  position {
+    x: 124.1931
+    y: 307.58798
+  }
+  scale {
+    x: 0.471228
+    y: 0.643437
+  }
+  size {
+    x: 440.0
+    y: 100.0
+  }
+  color {
+    x: 0.102
+    y: 0.102
+    z: 0.102
+  }
+  type: TYPE_BOX
+  id: "box"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 20.734451
+    y: 338.40536
+    z: 0.1
+  }
+  scale {
+    x: 0.5
+    y: 0.5
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  font: "default"
+  id: "text"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

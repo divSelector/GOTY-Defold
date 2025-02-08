@@ -21,6 +21,12 @@ local actions = {
 	[1] = up_and_down
 }
 
+local block_sprite_anim_strings = {
+	[33] = "question",
+	[34] = "info"
+}
+
 function init(self)
+	sprite.play_flipbook(".", block_sprite_anim_strings[self.tile_index])
 	actions[self.action_index](self)
 end

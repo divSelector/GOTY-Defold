@@ -1,4 +1,5 @@
 local utils = require "modules.utils"
+local state = require "modules.state"
 
 local M = {}
 
@@ -10,10 +11,11 @@ local collision_bits = {
     PASSABLE   = 16 -- (2^4)
 }
 
-local TILES = {
+M.TILES = {
     GROUND = 17,
     SPRING = 88,
     QUESTION = 33,
+    INFO = 34,
     BUSH = { 50, 66, 82 }
 }
 
@@ -21,6 +23,7 @@ local TILE_COLLISION_BITS = {
     GROUND = collision_bits.GROUND,
     SPRING = collision_bits.GROUND,
     QUESTION = collision_bits.GROUND,
+    INFO = collision_bits.GROUND,
     BUSH = collision_bits.PASSABLE
 }
 
@@ -87,17 +90,22 @@ function M.add_tilemap(tilemap_url, layer)
     for row = y, y + h - 1 do
         for col = x, x + w - 1 do
             local tile_index = tilemap.get_tile(tilemap_url, layer, col, row)
-            local tile_type = utils.get_key_by_value(TILES, tile_index)
+            local tile_type = utils.get_key_by_value(M.TILES, tile_index)
 
-            if TILES[tile_type] then
+            if M.TILES[tile_type] then
                 local tile_x = (col - 1) * tile_width + tile_insert_x_offet
                 local tile_y = (row - 1) * tile_height + tile_insert_y_offet
 
                 local aabb_id = daabbcc.insert_aabb(M.group, tile_x, tile_y, tile_width, tile_height,
                     TILE_COLLISION_BITS[tile_type])
 
-                M.tile_data[aabb_id] = { index = tile_index, x = tile_x, y = tile_y, width = tile_width, height =
-                tile_height }
+                M.tile_data[aabb_id] = {
+                    index = tile_index,
+                    x = tile_x,
+                    y = tile_y,
+                    width = tile_width,
+                    height = tile_height
+                }
             end
         end
     end
@@ -307,10 +315,10 @@ end
 local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
     if not tile or not orientation then return end
 
-    if tile.index == TILES.SPRING and not orientation.is_below_tile then
+    if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
         entity.velocity.y = 600
-    elseif is_player and is_tile(tile.index, TILES.BUSH) then
+    elseif is_player and is_tile(tile.index, M.TILES.BUSH) then
         entity.decay_momentum()
     end
 end
@@ -334,13 +342,29 @@ local function handle_ground_contact(entity, entity_pos, tile, orientation, is_p
         end
     end
 
-    if tile.index == TILES.SPRING and not orientation.is_below_tile then
+    if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
         entity.velocity.y = 600
     end
 end
 
 local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
+
+    local tile_x = math.floor((tile.x - M.map.x * tile_width) / tile_width) + 2
+    local tile_y = math.floor((tile.y - M.map.y * tile_height) / tile_height) + 2
+
+    local function bonk(tile_index, action_index)
+        local action_index = action_index or 1
+        tilemap.set_tile("/level#tilemap", "ground", tile_x, tile_y, 0)
+        M.tile_data[tile.aabb_id].index = tile_index
+        factory.create("/level#block_factory", vmath.vector3(tile.x, tile.y, 0), nil, {
+            tile_x = tile_x,
+            tile_y = tile_y,
+            tile_index = tile_index,
+            action_index = action_index
+        })
+    end
+
     if not tile or not orientation then return end
 
     if not orientation.is_below_tile then return end
@@ -350,20 +374,16 @@ local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
 
     entity_pos.y = tile.bottom + tile_bottom_offset
 
-    if tile.index == TILES.QUESTION then
-        local tile_x = math.floor((tile.x - M.map.x * tile_width) / tile_width) + 2
-        local tile_y = math.floor((tile.y - M.map.y * tile_height) / tile_height) + 2
-        tilemap.set_tile("/level#tilemap", "ground", tile_x, tile_y, 0)
-        M.tile_data[tile.aabb_id].index = 33
-        factory.create("/level#block_factory", vmath.vector3(tile.x, tile.y, 0), nil, {
-            tile_x = tile_x,
-            tile_y = tile_y,
-            tile_index = 33,
-            action_index = 1
-        })
-
-
+    if tile.index == M.TILES.QUESTION then
+        bonk(tile.index)
         msg.post("#skins", "randomize_skin")
+
+    elseif tile.index == M.TILES.INFO then
+        bonk(tile.index)
+
+        msg.post("main:/main#dialog", "play_dialog", {
+            dialog = state.info_box_text[tile_x .. "," .. tile_y]
+        })
     end
 end
 
@@ -574,7 +594,7 @@ function M.handle_platform(platform, pos, vel)
     }
 
     process(queries.wall, function(platform, pos, dimensions, orientation)
-        if dimensions.index == TILES.GROUND then
+        if dimensions.index == M.TILES.GROUND then
             msg.post(platform.id, "reverse_direction")
         end
     end)

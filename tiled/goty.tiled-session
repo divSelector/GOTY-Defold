@@ -29,11 +29,11 @@
                 2,
                 3
             ],
-            "scale": 1,
-            "selectedLayer": 5,
+            "scale": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 4360.5,
-                "y": 691
+                "x": 177.75,
+                "y": 816
             }
         },
         "test.tmx": {
@@ -64,7 +64,7 @@
         "test.tmx"
     ],
     "project": "goty.tiled-project",
-    "property.type": "float",
+    "property.type": "string",
     "recentFiles": [
         "test.tmx",
         "test.tsx",

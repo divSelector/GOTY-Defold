@@ -65,6 +65,7 @@
     "cSpell.words": [
         "despawn",
         "knockback",
-        "lerp"
+        "lerp",
+        "tilemap"
     ]
 }

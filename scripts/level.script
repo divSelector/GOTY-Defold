@@ -3,7 +3,13 @@ local state = require "modules.state"
 
 local tile_size = 16
 
-local function render_tilemap(self)
+
+local function process_tilemap(self)
+
+    state.info_box_text = {}
+
+    local info_tiles = {}  -- Store info tiles first
+
     for _, layer in ipairs(self.data.layers) do
         if layer.type == "tilelayer" then
             for i, tile_id in ipairs(layer.data) do
@@ -11,11 +17,38 @@ local function render_tilemap(self)
                     local x = (i - 1) % layer.width + 1
                     local y = layer.height - math.floor((i - 1) / layer.width)
                     tilemap.set_tile("/level#tilemap", layer.name, x, y, tile_id)
+
+                    -- Collect INFO tiles for sorting
+                    if tile_id == collision.TILES.INFO then
+                        table.insert(info_tiles, { x = x, y = y, layer = layer })
+                    end
                 end
             end
         end
     end
+
+    -- Sort INFO tiles by x-coordinate (ascending)
+    table.sort(info_tiles, function(a, b)
+        return a.x < b.x
+    end)
+
+    -- Process INFO tiles in sorted order
+    local info_tile_counter = 0
+    for _, tile in ipairs(info_tiles) do
+        local x, y, layer = tile.x, tile.y, tile.layer
+        info_tile_counter = info_tile_counter + 1
+
+        if layer.properties then
+            for _, property in ipairs(layer.properties) do
+                if property.name == "info-" .. tostring(info_tile_counter) then
+                    state.info_box_text[x .. "," .. y] = property.value
+                end
+            end
+        end
+    end
+
 end
+
 
 local function set_player_spawn_position(self)
     local data = self.player_spawn_positions[self.spawn_point]
@@ -161,7 +194,7 @@ function init(self)
     if resource then
         self.data = json.decode(resource)
 
-        render_tilemap(self)
+        process_tilemap(self)
 
         self.player_spawn_positions = get_spawn_positions(self, "player_spawn")
         self.checkpoints = {}

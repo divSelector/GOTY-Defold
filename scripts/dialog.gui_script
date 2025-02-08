@@ -1,0 +1,114 @@
+local dtypewriter = require "modules.typewriter"
+
+
+-- local initial_dialog_index = 1
+local initial_priority = 2
+
+function init(self)
+	gui.set_render_order(1)
+	local text_node_id = "text"
+	local font_id = "default"
+	local text_area_x = 10
+	local text_area_y = 10
+	local text_area_width = 400
+	local line_count_max = 6
+	local line_offset = 1
+	local messages_url = "#dialog"
+
+	self.text_node = gui.get_node("text")
+	self.box_node = gui.get_node("box")
+
+	self.default_delay_time = 2
+	self.current_delay_time = 0
+	self.dialog_queue = {}
+	self.is_dialog_playing = false
+	self.is_delay_active = false
+	
+	self.initial_dialog = {}
+
+	dtypewriter.init(text_node_id, font_id, text_area_x, text_area_y, text_area_width, line_count_max, line_offset, messages_url)
+
+	dtypewriter.add_color("cold", vmath.vector4(0.443,0.882,0.898,1))
+	dtypewriter.add_color("hot", vmath.vector4(0.898,0.459,0.443,1))
+
+	dtypewriter.set_fade_delay(0.10)
+
+	-- add_to_queue(self, self.initial_dialog[initial_dialog_index], initial_priority)
+	hide_dialog(self)
+end
+
+
+function hide_dialog(self)
+	-- dtypewriter.clear()
+	gui.set_enabled(self.text_node, false)
+	gui.set_enabled(self.box_node, false)
+end
+
+function show_dialog(self)
+	-- dtypewriter.clear()
+	gui.set_enabled(self.text_node, true)
+	gui.set_enabled(self.box_node, true)
+end
+
+function play_dialog(self, text)
+	show_dialog(self)
+	dtypewriter.load(text)
+	dtypewriter.start()
+end
+
+
+
+function process_next_dialog(self)
+	if #self.dialog_queue > 0 and not self.is_dialog_playing and not self.is_delay_active then
+		local next_dialog_data = table.remove(self.dialog_queue, 1)
+		self.current_delay_time = next_dialog_data.delay_time
+		self.is_dialog_playing = true
+		play_dialog(self, next_dialog_data.text)
+	else
+		hide_dialog(self)
+	end
+end
+
+function add_to_queue(self, text, priority)
+	local delay_time = self.default_delay_time * math.max(1, priority)
+
+	table.insert(self.dialog_queue, {text = text, priority = priority, delay_time = delay_time})
+
+	table.sort(self.dialog_queue, function(a, b)
+		return a.priority > b.priority
+	end)
+
+	if not self.is_dialog_playing and not self.is_delay_active then
+		process_next_dialog(self)
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("complete") then
+		self.is_dialog_playing = false
+		self.is_delay_active = true
+
+		timer.delay(self.current_delay_time, false, function()
+			self.is_delay_active = false
+			process_next_dialog(self)
+		end)
+
+	elseif message_id == hash("restart") then
+		show_dialog(self)
+		initial_dialog_index = (initial_dialog_index % #self.initial_dialog) + 1
+		initial_priority = (initial_priority + 1)
+		self.dialog_queue = {}
+		add_to_queue(self, self.initial_dialog[initial_dialog_index], initial_priority)
+
+	elseif message_id == hash("play_dialog") then
+
+		local priority = message.priority or initial_priority
+		add_to_queue(self, message.dialog, priority)
+
+	elseif message_id == hash("start_game") then
+		hide_dialog(self)
+
+	end
+
+end
