@@ -1,6 +1,6 @@
 local M = {}
 
-function M.get_focus()
+function M.init()
     msg.post(".", "acquire_input_focus")
 	M.key_state = {
 		left = false,

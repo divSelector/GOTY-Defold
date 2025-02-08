@@ -80,7 +80,8 @@ local function deaccelerate(self, dt, multiplier)
 end
 
 function init(self)
-    input.get_focus()
+    -- input.get_focus()
+    msg.post(".", "acquire_input_focus")
 
     msg.post("/camera#camera", "acquire_camera_focus")
     msg.post("@render:", "use_camera_projection")
@@ -595,8 +596,6 @@ function on_message(self, message_id, message, sender)
 end
 
 function on_input(self, action_id, action)
-    input.capture(action_id, action)
-
     if action.pressed or action.repeated then
         self.idle_timer = 0
     end

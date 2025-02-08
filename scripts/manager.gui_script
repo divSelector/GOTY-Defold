@@ -1,4 +1,6 @@
 local state = require "modules.state"
+local input = require "modules.input"
+
 
 local fade_time = 0.5
 
@@ -17,7 +19,7 @@ end
 
 
 function init(self)
-	msg.post(".", "acquire_input_focus")
+	input.init()
     msg.post("#gameproxy", "load")
 
 	self.fade_overlay_node = gui.get_node("fade_overlay")
@@ -47,9 +49,10 @@ end
 
 
 function on_input(self, action_id, action)
+
+	input.capture(action_id, action)
 	
 	if not action.pressed then return end
-
 	if action_id == hash("debug_1") then
 		state.current_level = "one"
 		msg.post(".", "load_level")
