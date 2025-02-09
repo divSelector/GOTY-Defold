@@ -2,7 +2,8 @@ local M = {}
 
 M.levels = {
     "test",
-    "one"
+    "one",
+    "two"
 }
 
 M.current_level_index = 1

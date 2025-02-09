@@ -29,28 +29,36 @@
                 2,
                 3
             ],
-            "scale": 2,
+            "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 177.75,
-                "y": 816
+                "x": 587,
+                "y": 406
             }
         },
         "test.tmx": {
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 1.5,
+            "scale": 0.75,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 599,
-                "y": 891.9999999999999
+                "x": 1251.3333333333333,
+                "y": 550.6666666666667
             }
         },
         "test.tsx": {
             "dynamicWrapping": false,
             "scaleInDock": 2,
             "scaleInEditor": 4
+        },
+        "two.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 7783,
+                "y": 697.3333333333333
+            }
         }
     },
     "last.exportedFilePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilemaps",
@@ -66,8 +74,8 @@
     "project": "goty.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "test.tmx",
         "test.tsx",
+        "test.tmx",
         "one.tmx"
     ]
 }
