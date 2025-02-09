@@ -32,15 +32,14 @@ nodes {
     y: 338.40536
     z: 0.1
   }
-  scale {
-    x: 0.5
-    y: 0.5
-  }
   size {
     x: 200.0
     y: 100.0
   }
   type: TYPE_TEXT
+  text: "\n"
+  "\n"
+  ""
   font: "default"
   id: "text"
   inherit_alpha: true

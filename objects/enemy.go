@@ -21,7 +21,7 @@ embedded_components {
   "}\n"
   ""
   position {
-    z: 0.3
+    z: 0.13
   }
 }
 embedded_components {
@@ -57,37 +57,8 @@ embedded_components {
   "}\n"
   ""
   position {
-    z: 0.2
+    z: 0.12
   }
-}
-embedded_components {
-  id: "collisionobject"
-  type: "collisionobject"
-  data: "type: COLLISION_OBJECT_TYPE_KINEMATIC\n"
-  "mass: 0.0\n"
-  "friction: 0.1\n"
-  "restitution: 0.5\n"
-  "group: \"enemy\"\n"
-  "mask: \"ground\"\n"
-  "mask: \"spring\"\n"
-  "mask: \"question_block\"\n"
-  "embedded_collision_shape {\n"
-  "  shapes {\n"
-  "    shape_type: TYPE_BOX\n"
-  "    position {\n"
-  "      x: -0.335973\n"
-  "      y: -2.553393\n"
-  "    }\n"
-  "    rotation {\n"
-  "    }\n"
-  "    index: 0\n"
-  "    count: 3\n"
-  "  }\n"
-  "  data: 9.289027\n"
-  "  data: 22.543476\n"
-  "  data: 10.0\n"
-  "}\n"
-  ""
 }
 embedded_components {
   id: "head"
@@ -104,7 +75,7 @@ embedded_components {
   "}\n"
   ""
   position {
-    z: 0.2
+    z: 0.12
   }
 }
 embedded_components {

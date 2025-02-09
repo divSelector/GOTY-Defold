@@ -75,9 +75,9 @@ local function get_spawn_positions(self, layer_name, snap_to_tile)
                     y = math.floor(y / tile_size) * tile_size + tile_size / 2
                 end
 
-                local custom_properties = {}
+                local custom_properties = nil
 
-                if layer_name == "enemy_spawn" then
+                if layer_name == "enemy_spawn" and object.properties ~= nil then
 
                     custom_properties = {
                         base = nil,
@@ -122,7 +122,9 @@ end
 local function spawn_enemies(self)
     for _, spawn_position in ipairs(self.enemy_spawn_positions) do
         local enemy = factory.create("#enemy_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
-        msg.post(msg.url(nil, enemy, "skins"), "set_skin", { custom_properties = spawn_position.custom_properties })
+        if spawn_position.custom_properties ~= nil then
+            msg.post(msg.url(nil, enemy, "skins"), "set_skin", { custom_properties = spawn_position.custom_properties })    
+        end
         table.insert(self.enemies, enemy)
     end
 end

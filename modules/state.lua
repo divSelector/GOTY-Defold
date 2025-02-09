@@ -6,7 +6,7 @@ M.levels = {
     "two"
 }
 
-M.current_level_index = 1
+M.current_level_index = 2
 
 M.current_level = M.levels[M.current_level_index]
 
