@@ -22,6 +22,7 @@ local actions = {
 }
 
 local block_sprite_anim_strings = {
+	[17] = "ground",
 	[33] = "question",
 	[34] = "info"
 }

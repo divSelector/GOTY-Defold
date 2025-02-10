@@ -1,46 +1,34 @@
 tile_set: "/assets/tilesets/test.tilesource"
 layers {
+  id: "bottom"
+  z: -0.01
+}
+layers {
   id: "ground"
-  z: 1e-04
-  is_visible: 1
-  cell {
-    x: 0
-    y: 59
-    tile: 16
-    h_flip: 0
-    v_flip: 0
-    rotate90: 0
-  }
+  z: 1.0E-4
   cell {
     x: 0
     y: 0
     tile: 16
-    h_flip: 0
-    v_flip: 0
-    rotate90: 0
-  }
-  cell {
-    x: 499
-    y: 59
-    tile: 16
-    h_flip: 0
-    v_flip: 0
-    rotate90: 0
   }
   cell {
     x: 499
     y: 0
     tile: 16
-    h_flip: 0
-    v_flip: 0
-    rotate90: 0
+  }
+  cell {
+    x: 0
+    y: 59
+    tile: 16
+  }
+  cell {
+    x: 499
+    y: 59
+    tile: 16
   }
 }
 layers {
   id: "top"
-  z: 2e-04
-  is_visible: 1
+  z: 0.5
 }
-
 material: "/builtins/materials/tile_map.material"
-blend_mode: BLEND_MODE_ALPHA

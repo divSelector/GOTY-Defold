@@ -87,7 +87,7 @@ function update(self, dt)
     local camera_position = go.get_position()
     local player_position = go.get_position("/player")
 
-    local camera_status = utils.is_box_on_screen(self, player_position, 18, 56)
+    local camera_status = utils.is_box_on_screen(self, player_position, 18, 20)
 
     if (not camera_status.on_screen and not camera_status.above) then
         -- Moving without lerp because if the character is fallen to death, the snapback to spawn point has to be fast.

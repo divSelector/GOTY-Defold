@@ -21,6 +21,12 @@ animations {
   fps: 0
 }
 animations {
+  id: "ground"
+  start_tile: 17
+  end_tile: 17
+  playback: PLAYBACK_NONE
+}
+animations {
   id: "info"
   start_tile: 34
   end_tile: 34

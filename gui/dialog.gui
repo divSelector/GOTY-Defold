@@ -5,7 +5,7 @@ fonts {
 }
 nodes {
   position {
-    x: 124.1931
+    x: 517.9173
     y: 307.58798
   }
   scale {
@@ -28,7 +28,7 @@ nodes {
 }
 nodes {
   position {
-    x: 20.734451
+    x: 414.45862
     y: 338.40536
     z: 0.1
   }
