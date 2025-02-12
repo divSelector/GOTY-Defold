@@ -368,6 +368,7 @@ local function on_exit_crouch(self)
 end
 
 local function apply_gravity(self, dt)
+
     if not self.ground_contact then
         local gravity = gravity_rise
         if self.velocity.y < 0 and input.key_state.action and self.is_prone then
@@ -376,6 +377,12 @@ local function apply_gravity(self, dt)
             gravity = gravity_fall_resisted
         elseif self.velocity.y < 0 then
             gravity = gravity_fall
+        end
+        if self.velocity.y < 0 and input.key_state.right and self.wall_contact_right then
+            decay_momentum(self)
+        end
+        if self.velocity.y < 0 and input.key_state.left and self.wall_contact_left then
+            decay_momentum(self)
         end
         self.velocity.y = self.velocity.y + (-gravity * dt)
         self.velocity.y = utils.clamp(self.velocity.y, y_velocity_max)
@@ -552,6 +559,7 @@ function update(self, dt)
 
 
     local player_velocity = self.velocity or vmath.vector3(0, 0, 0)
+
     self.platform_velocity = self.platform_velocity or vmath.vector3(0, 0, 0)
     local combined_velocity = player_velocity + self.platform_velocity
 

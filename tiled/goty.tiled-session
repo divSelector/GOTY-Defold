@@ -24,10 +24,10 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
+                6,
                 3,
-                5,
                 2,
-                6
+                5
             ],
             "scale": 1.5,
             "selectedLayer": 1,
@@ -38,31 +38,33 @@
         },
         "test.tmx": {
             "expandedObjectLayers": [
-                4,
-                6
+                6,
+                4
             ],
-            "scale": 1,
+            "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 1600.5,
+                "x": 1600.1666666666665,
                 "y": 480
             }
         },
         "test.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 2,
+            "scaleInDock": 3,
             "scaleInEditor": 4
         },
         "two.tmx": {
             "expandedObjectLayers": [
+                3,
                 5,
-                2
+                2,
+                6
             ],
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "scale": 1,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 1731.6666666666665,
-                "y": 530
+                "x": 2975.5,
+                "y": 537
             }
         }
     },
