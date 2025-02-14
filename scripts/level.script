@@ -232,7 +232,7 @@ function init(self)
 
         self.enemy_spawn_positions = get_spawn_positions(self, "enemy_spawn")
         self.enemies = {}
-        
+
         spawn_enemies(self)
 
         self.platform_spawn_positions = get_spawn_positions(self, "moving_platform", true)
@@ -242,12 +242,12 @@ function init(self)
 
         for _, platform in ipairs(self.platforms) do
             local platform_url = msg.url(platform)
-            
+
             ---@diagnostic disable-next-line: assign-type-mismatch
             platform_url.fragment = "platform"
-    
+
             local platform_group_index = go.get(platform_url, "group_index")
-    
+
             msg.post(platform_url, "level_data", {
                 platforms = self.platform_groups[platform_group_index]
             })

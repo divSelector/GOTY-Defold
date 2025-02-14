@@ -326,6 +326,13 @@ end
 local function handle_ground_contact(entity, entity_pos, tile, orientation, is_player)
     if not tile or not orientation then return end
 
+    if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
+        msg.post("/camera#controller", "follow_player_y", { toggle = true })
+        entity.velocity.y = 600
+        entity.can_jump = false
+        return
+    end
+
     if orientation.is_above_tile then
         entity.velocity.y = 0
         entity_pos.y = tile.top + tile_top_offset
@@ -342,10 +349,11 @@ local function handle_ground_contact(entity, entity_pos, tile, orientation, is_p
         end
     end
 
-    if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
-        msg.post("/camera#controller", "follow_player_y", { toggle = true })
-        entity.velocity.y = 600
-    end
+    -- if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
+    --     msg.post("/camera#controller", "follow_player_y", { toggle = true })
+    --     entity.velocity.y = 600
+    --     entity.can_jump = false
+    -- end
 end
 
 local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
