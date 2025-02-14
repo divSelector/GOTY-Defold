@@ -7,6 +7,9 @@ go.property("velocity", vmath.vector3())
 local gravity = 1800
 local anim_playback_rate = 1.25
 
+local attack_delay_time_ground = 0.20
+local attack_delay_time_air = 0.10
+
 function init(self)
 
     self.position = go.get_position()
@@ -129,12 +132,19 @@ local function jump(self, dt)
 end
 
 
-local attack_delay_time = 0.15
+
 
 
 local function attack(self, dt)
     local enemy_position = self.position
     local player_position = self.player_position
+
+    local attack_delay_time
+    if self.ground_contact then
+        attack_delay_time = attack_delay_time_ground
+    else
+        attack_delay_time = attack_delay_time_air
+    end
 
     if math.abs(enemy_position.y - player_position.y) <= 20 then
         self.is_attacking = true

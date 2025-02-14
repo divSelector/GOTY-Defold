@@ -24,10 +24,10 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                6,
-                3,
+                5,
                 2,
-                5
+                3,
+                6
             ],
             "scale": 1.5,
             "selectedLayer": 1,
@@ -38,8 +38,8 @@
         },
         "test.tmx": {
             "expandedObjectLayers": [
-                6,
-                4
+                4,
+                6
             ],
             "scale": 3,
             "selectedLayer": 3,
