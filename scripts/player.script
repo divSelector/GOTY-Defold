@@ -550,6 +550,7 @@ function update(self, dt)
     if not self.loaded then return end
 
     local pos = go.get_position()
+    print(pos.y)
 
     collision.handle(self, pos, true)
 

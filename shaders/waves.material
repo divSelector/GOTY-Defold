@@ -1,7 +1,7 @@
 name: "bg"
 tags: "tile"
 vertex_program: "/shaders/bg.vp"
-fragment_program: "/shaders/bg.fp"
+fragment_program: "/shaders/waves.fp"
 vertex_space: VERTEX_SPACE_LOCAL
 vertex_constants {
   name: "mtx_worldview"

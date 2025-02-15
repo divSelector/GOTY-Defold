@@ -6,6 +6,20 @@ local x_follow_threshold = 6
 local look_down_duration_threshold = 1.0
 local look_down_move_speed = 2
 
+-- original colors
+local bottom_color = vmath.vector4(0.533,0.671,0.459, 0)
+local middle_color = vmath.vector4(0.696, 0.753, 0.445, 0)
+
+
+-- background waves
+local bottom_frequency = 4.0
+local bottom_amplitude = 0.5
+
+local middle_frequency = 4.0
+local middle_amplitude = 0.5
+
+local speed = 0.7
+
 function init(self)
     self.follow_player_x = true
     self.follow_player_y = false
@@ -13,7 +27,8 @@ function init(self)
     self.original_y = go.get_position().y
     
     self.bg_bottom = msg.url("/bg#one")
-    self.bg_top = msg.url("/bg#two")
+    self.bg_middle = msg.url("/bg#two")
+    self.bg_top = msg.url("/bg#three")
 
     self.look_down_timer = 0
 
@@ -35,8 +50,52 @@ local function follow_with_lerp(self, camera_position, player_position, dt)
     end
 end
 
+local function get_sky_color(player_y)
+    local min_height = 535
+    local max_height = 750
 
-local function handle_background_parallax(self, camera_position)
+    local min_green = 0.56
+    local max_green = 0.65
+
+    local green
+    if player_y < min_height then
+        green = max_green
+    elseif player_y > max_height then
+        green = min_green
+    else
+        local t = math.min(1, math.max(0, (player_y - min_height) / (max_height - min_height)))
+        green = max_green * (1 - t) + min_green * t
+    end
+
+    local new_sky_color = vmath.vector4(0.48, green, 0.70, 0)
+
+    return new_sky_color
+end
+
+local function get_star_threshold(player_y)
+
+    local min_height = 815
+    local max_height = 955
+
+    local min_threshold = 0.999
+    local max_threshold = 0.991
+    -- local starThreshold = 0.991
+
+    local star_threshold
+    if player_y < min_height then
+        star_threshold = min_threshold
+    elseif player_y > max_height then
+        star_threshold = max_threshold
+    else
+
+        local t = math.min(1, math.max(0, (player_y - min_height) / (max_height - min_height)))
+        star_threshold = min_threshold * (1 - t) + max_threshold * t
+    end
+
+    return star_threshold
+end
+
+local function handle_background_parallax(self, camera_position, dt)
 
     local bg_pos = go.get_position(self.bg_bottom)
     bg_pos.x = camera_position.x
@@ -60,27 +119,24 @@ local function handle_background_parallax(self, camera_position)
         new_parallax = current_parallax
     end
 
-    local frequency = 4.0
-    local amplitude = 0.5
-
-    local speed = 0.7
-
-    -- local bottom_color = vmath.vector4(0.533,0.671,0.459, 0)
-    -- local middle_color = vmath.vector4(0.431,0.859,0.514,0)
-    -- local top_color = vmath.vector4(0.859,0.835,0.431, 0)
-
-    local bottom_color = vmath.vector4(0.533,0.671,0.459, 0)
-    local middle_color = vmath.vector4(0.696, 0.753, 0.445, 0)
-    local top_color = vmath.vector4(0.859,0.835,0.431, 0)
-
-
-    go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
+    go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, bottom_frequency, bottom_amplitude, speed))
     go.set(self.bg_bottom, "top_color", middle_color)
     go.set(self.bg_bottom, "bottom_color", bottom_color)
 
-    go.set(self.bg_top, "waves", vmath.vector4(new_parallax, frequency, amplitude, speed))
-    go.set(self.bg_top, "top_color", top_color)
-    go.set(self.bg_top, "bottom_color", middle_color)
+    local player_y = go.get_position("/player#player").y
+
+    local sky_color = get_sky_color(player_y)
+    local star_threshold = get_star_threshold(player_y)
+
+    go.set(self.bg_middle, "waves", vmath.vector4(new_parallax, middle_frequency, middle_amplitude, speed))
+    go.set(self.bg_middle, "top_color", sky_color)
+    go.set(self.bg_middle, "bottom_color", middle_color)
+
+    self.time = (self.time or 0) + dt
+
+    go.set(self.bg_top, "horizon", vmath.vector4(new_parallax, self.time, speed, star_threshold))
+    go.set(self.bg_top, "top_color", vmath.vector4(0,0,0,0))
+    go.set(self.bg_top, "bottom_color", sky_color)
 end
 
 function update(self, dt)
@@ -102,10 +158,14 @@ function update(self, dt)
     if player_position.y < self.original_y or camera_position.y < self.original_y then
         camera_position.y = self.original_y
     end
+
+    if camera_position.y > 900 then
+        camera_position.y = 900
+    end
     
     go.set_position(camera_position)
 
-    handle_background_parallax(self, camera_position)
+    handle_background_parallax(self, camera_position, dt)
 
 end
 
