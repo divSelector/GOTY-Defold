@@ -13,7 +13,7 @@ instances {
 }
 instances {
   id: "bg"
-  prototype: "/shaders/bg.go"
+  prototype: "/shaders/background/bg.go"
   position {
     x: 273.88028
     y: 175.01427

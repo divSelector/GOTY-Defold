@@ -7,8 +7,8 @@ local look_down_duration_threshold = 1.0
 local look_down_move_speed = 2
 
 -- original colors
-local bottom_color = vmath.vector4(0.533,0.671,0.459, 0)
-local middle_color = vmath.vector4(0.696, 0.753, 0.445, 0)
+local bottom_color = vmath.vector4(0.533,0.671,0.459, 1)
+local middle_color = vmath.vector4(0.696, 0.753, 0.445, 1)
 
 
 -- background waves
@@ -67,7 +67,7 @@ local function get_sky_color(player_y)
         green = max_green * (1 - t) + min_green * t
     end
 
-    local new_sky_color = vmath.vector4(0.48, green, 0.70, 0)
+    local new_sky_color = vmath.vector4(0.48, green, 0.70, 1)
 
     return new_sky_color
 end
@@ -166,6 +166,16 @@ function update(self, dt)
     go.set_position(camera_position)
 
     handle_background_parallax(self, camera_position, dt)
+
+    -- local brightness_factor = 1.7
+    -- local tilemap_tint_color = vmath.vector4(
+    --     bottom_color.x * brightness_factor, 
+    --     bottom_color.y * brightness_factor, 
+    --     bottom_color.z * brightness_factor, 
+    --     bottom_color.w
+    -- )
+
+    -- go.set("/level#tilemap", "tint", tilemap_tint_color)
 
 end
 

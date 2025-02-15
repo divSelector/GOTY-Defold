@@ -31,4 +31,4 @@ layers {
   id: "top"
   z: 0.5
 }
-material: "/builtins/materials/tile_map.material"
+material: "/shaders/tilemap/tile_map.material"
