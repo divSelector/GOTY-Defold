@@ -21,7 +21,7 @@ void main()
     float scrollOffset = horizonParallax + horizonSpeed;
 
     float horizonCurvature = 0.1;
-    float horizonHeight = 0.3;
+    float horizonHeight = 0.3;  // 0.3
 
     float curve = horizonHeight - horizonCurvature * pow(uv.x - 0.5, 2.0);
 
@@ -38,8 +38,28 @@ void main()
         float star = rand(starPos); // Randomly place stars
 
         if (star > horizonStarThreshold) { // Threshold for star density
-            float twinkle = 0.5 + 0.5 * sin(horizonTime + starPos.x * 10.0); // Twinkling effect
-            color += vec3(1.0) * twinkle; // Bright white stars
+            // float twinkle = 0.5 + 0.5 * sin(horizonTime + starPos.x * 10.0); // Twinkling effect
+            // color += vec3(1.0) * twinkle; // Bright white stars
+
+            // float glow = smoothstep(0.90, 1.0, star); // Controls glow spread
+            // vec3 purpleTint = vec3(0.6, 0.2, 0.8);    // Purple color
+            // color += purpleTint * glow * 0.3;         // Blend purple into sky
+
+            float twinkle = 0.5 + 0.5 * sin(horizonTime * 3.0 + starPos.x * 10.0);
+
+            // Bright white star
+            vec3 starColor = vec3(1.0) * twinkle;
+
+            // Create a purple glow around the star
+            float glow = smoothstep(0.93, 0.98, star); // Controls glow radius
+            vec3 glowColor = vec3(0.4, 0.1, 0.5); // Soft purple color
+
+            // Blend the glow into the surrounding space (not affecting the star itself)
+            color = mix(color, glowColor, glow * 0.6); 
+
+            // Add the bright star on top
+            color += starColor * 0.5;
+
         }
     }
 
