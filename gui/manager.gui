@@ -1,4 +1,8 @@
 script: "/scripts/manager.gui_script"
+fonts {
+  name: "always_on_top"
+  font: "/builtins/fonts/debug/always_on_top.font"
+}
 nodes {
   position {
     x: 321.78268
@@ -23,6 +27,21 @@ nodes {
   inherit_alpha: true
   alpha: 0.0
   size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 44.501114
+    y: 337.96793
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "00:00:00"
+  font: "always_on_top"
+  id: "time"
+  inherit_alpha: true
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
