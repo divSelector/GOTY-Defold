@@ -22,6 +22,10 @@ function init(self)
 	input.init()
 
 	self.timer_node = gui.get_node("time")
+	gui.set_color(self.timer_node, vmath.vector4(0.433,0.571,0.359, 1))
+	self.timer_bg_node = gui.get_node("time_bg")
+	gui.set_color(self.timer_bg_node, vmath.vector4(0.859,0.835,0.431, 1))
+
 
 	self.fade_overlay_node = gui.get_node("fade_overlay")
 	gui.set_color(self.fade_overlay_node, vmath.vector4(0.859,0.835,0.431, 0))
@@ -29,26 +33,39 @@ function init(self)
     msg.post("#gameproxy", "load")
 end
 
+
 function on_message(self, message_id, message, sender)
 
-	if message_id == hash("load_level") then
-		state.timer.is_running = false
-		
-		fade_in(self, function()
+    if message_id == hash("load_level") then
+        state.timer.is_running = false
+
+        if state.current_level == nil then
+            state.victory = true
+        end
+
+        fade_in(self, function()
             msg.post("#gameproxy", "unload")
         end)
 
-	elseif message_id == hash("proxy_loaded") then
-		msg.post(sender, "enable")
-		fade_out(self)
-		state.timer.is_running = true
+    elseif message_id == hash("proxy_unloaded") then
+        daabbcc.reset()
+        
+        if state.victory then
+            print("You are victorious")
+            return
+        end
+        
+        -- Ensure we don't load the next level if victory is set
+        msg.post("#gameproxy", "load")
 
-	elseif message_id == hash("proxy_unloaded") then
-		daabbcc.reset()
-		msg.post("#gameproxy", "load")
-	end
+    elseif message_id == hash("proxy_loaded") then
+        msg.post(sender, "enable")
+        fade_out(self)
+        state.timer.is_running = true
+    end
 
 end
+
 
 function update(self, dt)
 	if state.timer.is_running then
@@ -56,7 +73,7 @@ function update(self, dt)
 		local minutes = math.floor(time / 60)
 		local seconds = math.floor(time % 60)
 		local milliseconds = math.floor((time * 100) % 100)
-		gui.set_text(self.timer_node, string.format("%02d:%02d.%02d", minutes, seconds, milliseconds))
+		gui.set_text(self.timer_node, string.format("%02d:%02d:%02d", minutes, seconds, milliseconds))
 		state.timer.time = time
 	end
 end

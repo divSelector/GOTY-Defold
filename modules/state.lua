@@ -17,4 +17,6 @@ M.timer = {
     is_running = false
 }
 
+M.victory = false
+
 return M

@@ -113,8 +113,6 @@ function init(self)
     self.can_attack = true
     self.attack_hold_time = 0
 
-    -- collision.init()
-
     self.aabb_id = collision.add_player("/player")
 
     -- received from level.script
@@ -129,12 +127,10 @@ function init(self)
 
     self.decay_momentum = function()
         decay_momentum(self, -1)
-    
     end
+
+    self.last_x = self.position.x
 end
-
-
-
 
 
 local function slide(self, dt)
@@ -378,12 +374,17 @@ local function apply_gravity(self, dt)
         elseif self.velocity.y < 0 then
             gravity = gravity_fall
         end
-        if self.velocity.y < 0 and input.key_state.right and self.wall_contact_right then
+
+        -- Handle falling against wall into open air
+        local current_x = self.position.x
+        if self.last_x ~= current_x and self.velocity.y < 0 and input.key_state.right and self.wall_contact_right then
             decay_momentum(self)
         end
-        if self.velocity.y < 0 and input.key_state.left and self.wall_contact_left then
+        if self.last_x ~= current_x and self.velocity.y < 0 and input.key_state.left and self.wall_contact_left then
             decay_momentum(self)
         end
+        self.last_x = current_x
+
         self.velocity.y = self.velocity.y + (-gravity * dt)
         self.velocity.y = utils.clamp(self.velocity.y, y_velocity_max)
     end

@@ -1,6 +1,8 @@
 local collision = require "modules.collision"
 local state = require "modules.state"
 
+local tile_width = 16
+local tile_height = 16
 
 go.property("spawn_index", 0)
 go.property("level_exit", false)
@@ -15,6 +17,30 @@ function init(self)
 	if self.level_exit then
 		sprite.play_flipbook(".", "bottle-magenta")
 	end
+
+	local pos = go.get_position()
+
+    local _, _, w, h = tilemap.get_bounds("/level#tilemap")
+
+    local tile_x = math.floor((pos.x - w * tile_width) / tile_width) + 2
+    local tile_y = math.floor((pos.y - h * tile_height) / tile_height) + 2
+
+    local is_x_odd = tile_x % 2 ~= 0
+    local is_y_odd = tile_y % 2 ~= 0
+
+    local duration_scale
+    if (is_x_odd and not is_y_odd) or (not is_x_odd and is_y_odd) then
+        duration_scale = 1
+    else
+        duration_scale = 2
+    end
+
+	go.animate(".", "scale", go.PLAYBACK_LOOP_PINGPONG, 0.9, go.EASING_OUTBOUNCE, duration_scale, 1)
+
+    -- local delay_jump = math.random() * 2
+    -- timer.delay(delay_jump, false, function()
+    --     go.animate(".", "position.y", go.PLAYBACK_LOOP_PINGPONG, pos.y - 10, go.EASING_OUTBOUNCE, 2)
+    -- end)
 end
 
 function update(self, dt)

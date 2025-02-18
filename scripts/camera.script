@@ -167,16 +167,6 @@ function update(self, dt)
 
     handle_background_parallax(self, camera_position, dt)
 
-    -- local brightness_factor = 1.7
-    -- local tilemap_tint_color = vmath.vector4(
-    --     bottom_color.x * brightness_factor, 
-    --     bottom_color.y * brightness_factor, 
-    --     bottom_color.z * brightness_factor, 
-    --     bottom_color.w
-    -- )
-
-    -- go.set("/level#tilemap", "tint", tilemap_tint_color)
-
 end
 
 

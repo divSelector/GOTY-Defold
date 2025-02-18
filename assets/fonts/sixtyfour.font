@@ -1,0 +1,4 @@
+font: "/assets/fonts/sixtyfour.ttf"
+material: "/builtins/fonts/font.material"
+size: 15
+characters: "1234567890:. "
