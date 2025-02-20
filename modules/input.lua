@@ -59,6 +59,37 @@ M.keybind_order = {
 	"attack"
 }
 
+local SAVE_FILE = sys.get_save_file("goty", "keybinds")
+
+function M.save_keybinds()
+    local save_data = {}
+
+    -- Convert hash keys to strings for saving
+    for action, key_hash in pairs(M.keybinds) do
+        save_data[action] = M.keybind_to_string[key_hash]
+    end
+
+    sys.save(SAVE_FILE, save_data)
+    print("Keybinds saved!")
+end
+
+function M.load_keybinds()
+    local save_data = sys.load(SAVE_FILE)
+
+    -- If save data exists, load it
+    if next(save_data) ~= nil then
+        for action, key_string in pairs(save_data) do
+            local key_hash = hash(key_string)
+            M.keybinds[action] = key_hash
+            M.keybind_to_string[key_hash] = key_string
+        end
+        print("Keybinds loaded!")
+    else
+        print("No saved keybinds found, using defaults.")
+    end
+end
+
+
 M.key_state = {
 	left = false,
 	right = false,
@@ -84,6 +115,7 @@ local unbindable_keys = {
 
 function M.init()
     msg.post(".", "acquire_input_focus")
+	M.load_keybinds()
 end
 
 function M.update_keybind(action, new_key)
@@ -110,6 +142,8 @@ function M.update_keybind(action, new_key)
 
     M.keybinds[action] = new_key
     M.keybind_to_string[new_key] = new_key -- Store readable name
+
+	M.save_keybinds()
 end
 
 function M.handle_key_state(flag_name, action)

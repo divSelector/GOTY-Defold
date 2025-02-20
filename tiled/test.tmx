@@ -101,7 +101,7 @@
   </object>
  </objectgroup>
  <objectgroup color="#000dff" id="6" name="enemy_spawn">
-  <object id="20" x="425" y="847.333">
+  <object id="20" x="1297" y="804.666">
    <properties>
     <property name="accessory" value="shield01"/>
     <property name="base" value="bluepants"/>

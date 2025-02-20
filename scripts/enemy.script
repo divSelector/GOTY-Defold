@@ -8,7 +8,7 @@ local gravity = 1800
 local anim_playback_rate = 1.25
 
 local attack_delay_time_ground = 0.20
-local attack_delay_time_air = 0.10
+local attack_delay_time_air = 0.15
 
 function init(self)
 

@@ -32,8 +32,8 @@
             "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 4000,
-                "y": 480
+                "x": 2874.333333333333,
+                "y": 640
             }
         },
         "test.tmx": {
@@ -55,16 +55,16 @@
         },
         "two.tmx": {
             "expandedObjectLayers": [
-                6,
                 5,
-                2,
-                3
+                6,
+                3,
+                2
             ],
             "scale": 1,
             "selectedLayer": 6,
             "viewCenter": {
                 "x": 7665.5,
-                "y": 614
+                "y": 494
             }
         }
     },
