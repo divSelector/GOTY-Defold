@@ -19,4 +19,6 @@ M.timer = {
 
 M.victory = false
 
+M.is_paused = false
+
 return M

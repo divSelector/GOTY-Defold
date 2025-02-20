@@ -47,6 +47,10 @@ function M.is_table_empty(tbl)
     return next(tbl) == nil
 end
 
+function M.extract_key_from_hash_string(input_string)
+    return input_string:match("%[(.-)%]")
+end
+
 local camera_url = msg.url('game:/camera#camera')
 
 function M.is_box_on_screen(self, position, width, height)
