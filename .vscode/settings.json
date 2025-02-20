@@ -12,7 +12,8 @@
     "Lua.diagnostics.libraryFiles": "Disable",
     "Lua.diagnostics.disable": [
         "lowercase-global",
-        "redefined-local"
+        "redefined-local",
+        "undefined-global"
     ],
     "Lua.workspace.library": [
         "~/.config/Code/User/globalStorage/astronachos.defold",
@@ -64,8 +65,12 @@
     },
     "cSpell.words": [
         "despawn",
+        "imgui",
         "knockback",
         "lerp",
         "tilemap"
+    ],
+    "Lua.diagnostics.globals": [
+        "imgui"
     ]
 }

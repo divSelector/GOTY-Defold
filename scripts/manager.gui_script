@@ -4,6 +4,80 @@ local input = require "modules.input"
 
 local fade_time = 0.5
 
+local is_paused = false
+local show_imgui = false
+
+local LEFT_MOUSE = hash("mouse_button_left")
+local MIDDLE_MOUSE = hash("mouse_button_middle")
+local RIGHT_MOUSE = hash("mouse_button_right")
+local WHEEL_UP = hash("mouse_wheel_up")
+local WHEEL_DOWN = hash("mouse_wheel_down")
+local TEXT = hash("text")
+local KEY_SHIFT = hash("key_shift")
+local KEY_CTRL = hash("key_ctrl")
+local KEY_ALT = hash("key_alt")
+local KEY_SUPER = hash("key_super")
+
+local IMGUI_KEYS = {
+	[hash("key_tab")] = imgui.KEY_TAB,
+	[hash("key_left")] = imgui.KEY_LEFTARROW,
+	[hash("key_right")] = imgui.KEY_RIGHTARROW,
+	[hash("key_up")] = imgui.KEY_UPARROW,
+	[hash("key_down")] = imgui.KEY_DOWNARROW,
+	[hash("key_pageup")] = imgui.KEY_PAGEUP,
+	[hash("key_pagedown")] = imgui.KEY_PAGEDOWN,
+	[hash("key_home")] = imgui.KEY_HOME,
+	[hash("key_end")] = imgui.KEY_END,
+	[hash("key_insert")] = imgui.KEY_INSERT,
+	[hash("key_delete")] = imgui.KEY_DELETE,
+	[hash("key_backspace")] = imgui.KEY_BACKSPACE,
+	[hash("key_space")] = imgui.KEY_SPACE,
+	[hash("key_enter")] = imgui.KEY_ENTER,
+	[hash("key_esc")] = imgui.KEY_ESCAPE,
+	[hash("key_numpad_enter")] = imgui.KEY_KEYPADENTER,
+	[hash("key_a")] = imgui.KEY_A,
+	[hash("key_c")] = imgui.KEY_C,
+	[hash("key_v")] = imgui.KEY_V,
+	[hash("key_x")] = imgui.KEY_X,
+	[hash("key_y")] = imgui.KEY_Y,
+	[hash("key_z")] = imgui.KEY_Z,
+}
+
+local keybinds = {
+    left = hash("key_left"),
+    right = hash("key_right"),
+    crouch = hash("key_down"),
+    action = hash("key_x"),
+    run = hash("key_a"),
+    attack = hash("key_z")
+}
+
+local keybind_to_string = {
+    [hash("key_left")] = "key_left",
+    [hash("key_right")] = "key_right",
+    [hash("key_down")] = "key_down",
+    [hash("key_x")] = "key_x",
+    [hash("key_a")] = "key_a",
+    [hash("key_z")] = "key_z"
+}
+
+local waiting_for_key = nil -- Stores which action is waiting for input
+
+function imgui_keybind_menu()
+    imgui.begin_window("Keybindings", nil, imgui.WINDOWFLAGS_MENUBAR)
+
+    imgui.text("Press a button to change the keybinding:")
+
+    for action, key_hash in pairs(keybinds) do
+        local key_name = keybind_to_string[key_hash] or tostring(key_hash) -- Get readable name
+        if imgui.button(action .. ": " .. key_name) then
+            waiting_for_key = action
+        end
+    end
+
+    imgui.end_window()
+end
+
 
 local function fade_in(self, callback)
     gui.animate(self.fade_overlay_node, "color.w", 1, gui.EASING_LINEAR, fade_time, 0, function()
@@ -68,6 +142,46 @@ end
 
 
 function update(self, dt)
+
+    if show_imgui then
+        local w, h = window.get_size()  -- Get screen size
+        imgui.set_display_size(w, h)
+
+        -- Define window size as a percentage of screen size
+        local win_width = w * 0.6   -- 60% of screen width
+        local win_height = h * 0.6  -- 60% of screen height
+
+        -- Calculate centered position
+        local pos_x = (w - win_width) / 2
+        local pos_y = (h - win_height) / 2
+
+        -- Set position and size before opening window
+        imgui.set_next_window_pos(pos_x, pos_y)
+        imgui.set_next_window_size(win_width, win_height)
+
+        imgui.begin_window("Super Sagonball Z World", nil, imgui.WINDOWFLAGS_MENUBAR)
+
+        -- Scale text dynamically (increase multiplier for larger text)
+        local text_scale = (h / 800) * 1.5  -- Adjusting for larger text
+
+        -- Clamp scale to avoid text becoming too small or too large
+        text_scale = math.max(1.2, math.min(text_scale, 3.0))
+
+        imgui.set_window_font_scale(text_scale)
+        -- imgui.text("This is where my key config shit will go. :)")
+		imgui.text("Press a button to change the keybinding:")
+
+		for action, key in pairs(keybinds) do
+			if imgui.button(action .. ": " .. key) then
+				waiting_for_key = action
+			end
+		end
+
+        imgui.end_window()
+
+    end
+
+
 	if state.timer.is_running then
 		local time = state.timer.time + dt
 		local minutes = math.floor(time / 60)
@@ -80,15 +194,107 @@ end
 
 function on_input(self, action_id, action)
 
-	input.capture(action_id, action)
-	
+	if action_id == LEFT_MOUSE then
+		if action.pressed then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_LEFT, 1)
+		elseif action.released then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_LEFT, 0)
+		end
+	elseif action_id == MIDDLE_MOUSE then
+		if action.pressed then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_MIDDLE, 1)
+		elseif action.released then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_MIDDLE, 0)
+		end
+	elseif action_id == RIGHT_MOUSE then
+		if action.pressed then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_RIGHT, 1)
+		elseif action.released then
+			imgui.set_mouse_button(imgui.MOUSEBUTTON_RIGHT, 0)
+		end
+	elseif action_id == WHEEL_UP then
+		imgui.set_mouse_wheel(action.value)
+	elseif action_id == WHEEL_DOWN then
+		imgui.set_mouse_wheel(-action.value)
+	elseif action_id == TEXT then
+		imgui.add_input_character(action.text)
+	elseif action_id == KEY_SHIFT then
+		if action.pressed or action.released then
+			imgui.set_key_modifier_shift(action.pressed == true)
+		end
+	elseif action_id == KEY_CTRL then
+		if action.pressed or action.released then
+			imgui.set_key_modifier_ctrl(action.pressed == true)
+		end
+	elseif action_id == KEY_ALT then
+		if action.pressed or action.released then
+			imgui.set_key_modifier_alt(action.pressed == true)
+		end
+	elseif action_id == KEY_SUPER then
+		if action.pressed or action.released then
+			imgui.set_key_modifier_super(action.pressed == true)
+		end
+	else
+		if action.pressed or action.released then
+			local key = IMGUI_KEYS[action_id]
+			if key then
+				imgui.set_key_down(key, action.pressed == true)
+			end
+		end
+	end
+
+	if not action_id then
+		local w, h = window.get_size()
+		local x = action.screen_x
+		local y = h - action.screen_y
+		imgui.set_mouse_pos(x, y)
+	end
+
+	-- 
+
+	if is_paused and waiting_for_key and action.pressed then
+		if action.pressed and waiting_for_key then
+			keybinds[waiting_for_key] = action_id -- Store the new hash
+			keybind_to_string[action_id] = waiting_for_key -- Store a readable name (manual mapping required)
+			print(waiting_for_key .. " set to " .. tostring(action_id))
+			waiting_for_key = nil -- Reset selection
+		end
+	else
+		input.capture(action_id, action)
+	end
+
 	if not action.pressed then return end
-	if action_id == hash("debug_1") then
-		state.current_level = "one"
-		msg.post(".", "load_level")
-	elseif action_id == hash("debug_2") then
-		state.current_level = "test"
-		msg.post(".", "load_level")
+
+	-- if action_id == hash("debug_1") then
+	-- 	state.current_level = "one"
+	-- 	msg.post(".", "load_level")
+	-- elseif action_id == hash("debug_2") then
+	-- 	state.current_level = "test"
+	-- 	msg.post(".", "load_level")
+	-- end
+
+	if action_id == hash("key_esc") then
+		local mode
+		print(is_paused)
+		if is_paused then
+			mode = 1
+		else
+			mode = 0
+		end
+		msg.post("main:/main#gameproxy", "set_time_step", {factor = mode, mode = mode})
+		is_paused = not is_paused
+		state.timer.is_running = not state.timer.is_running
+		if is_paused then
+			fade_in(self, function()
+				show_imgui = true
+			end)
+		else
+			show_imgui = false
+			fade_out(self, function()
+				
+				
+			end)
+		end
 	end
 
 end

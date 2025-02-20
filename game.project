@@ -28,3 +28,6 @@ max_gameobject_count = 128
 max_query_result_count = 32
 max_raycast_result_count = 32
 
+[input]
+game_binding = /input/all.input_bindingc
+

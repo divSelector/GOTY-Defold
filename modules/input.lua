@@ -6,6 +6,7 @@ function M.init()
 		left = false,
 		right = false,
 		crouch = false,
+
 		action = false,
 		run = false,
 		attack = false
@@ -15,6 +16,7 @@ end
 function M.handle_key_state(flag_name, action)
 	if action.pressed then
 		M.key_state[flag_name] = true
+		print(flag_name)
 	elseif action.released then
 		M.key_state[flag_name] = false
 	end
