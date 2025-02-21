@@ -20,6 +20,7 @@ M.timer = {
 M.victory = false
 
 M.is_paused = false
+M.pause_allowed = true
 
 M.difficulty_level = 1
 

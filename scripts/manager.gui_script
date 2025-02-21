@@ -4,7 +4,6 @@ local menu = require "modules.menu"
 
 local fade_time = 0.5
 
-
 local function fade_in(self, callback)
     gui.animate(self.fade_overlay_node, "color.w", 1, gui.EASING_LINEAR, fade_time, 0, function()
         if callback then callback() end
@@ -62,6 +61,7 @@ function on_message(self, message_id, message, sender)
         msg.post(sender, "enable")
         fade_out(self)
         state.timer.is_running = true
+		state.pause_allowed = true
     end
 
 end
@@ -78,6 +78,9 @@ local function update_timer(self, dt)
 end
 
 function update(self, dt)
+
+	print(state.current_level)
+	print(state.current_level_index)
 
 	menu.update()
 
@@ -98,7 +101,7 @@ function on_input(self, action_id, action)
 	-- 	msg.post(".", "load_level")
 	-- end
 
-	if action_id == hash("key_esc") then
+	if action_id == hash("key_esc") and state.pause_allowed then
 		local mode
 		if state.is_paused then
 			mode = 1

@@ -13,6 +13,7 @@ function init(self)
 
 	self.position = go.get_position()
 	self.fall = true
+	self.collected = false
 
 	if self.level_exit then
 		sprite.play_flipbook(".", "bottle-magenta")
@@ -80,8 +81,18 @@ end
 function on_message(self, message_id, message, sender)
 	
 	if message_id == hash("collect") then
+
+		if self.collected then
+			return
+		end
+
+		self.collected = true
+		
 		if self.level_exit then
-			state.current_level = state.levels[state.current_level_index + 1]
+			collision.destroy(self.aabb_id)
+			state.pause_allowed = false
+			state.current_level_index = state.current_level_index + 1
+			state.current_level = state.levels[state.current_level_index]
 			msg.post("main:/main#manager", "load_level")
 		else
 			msg.post("/level#level", "set_spawn_point", {
