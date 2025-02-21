@@ -54,6 +54,9 @@ local function menu_style()
 end
 
 local function keybind_config(button_width, button_height)
+    imgui.spacing()
+    imgui.spacing()
+    imgui.spacing()
     imgui.text("Press a button to change the keybinding:")
     imgui.spacing()
     imgui.spacing()
@@ -146,6 +149,9 @@ function M.update()
 
             if imgui.begin_tab_item("Difficulty") then
 
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
                 imgui.text("You can adjust how annoying the dudes will be at any time:")
                 imgui.spacing()
                 imgui.spacing()

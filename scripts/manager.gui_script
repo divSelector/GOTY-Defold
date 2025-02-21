@@ -79,9 +79,6 @@ end
 
 function update(self, dt)
 
-	print(state.current_level)
-	print(state.current_level_index)
-
 	menu.update()
 
 	update_timer(self, dt)
@@ -92,14 +89,6 @@ function on_input(self, action_id, action)
 	input.capture(action_id, action)
 
 	if not action.pressed then return end
-
-	-- if action_id == hash("debug_1") then
-	-- 	state.current_level = "one"
-	-- 	msg.post(".", "load_level")
-	-- elseif action_id == hash("debug_2") then
-	-- 	state.current_level = "test"
-	-- 	msg.post(".", "load_level")
-	-- end
 
 	if action_id == hash("key_esc") and state.pause_allowed then
 		local mode
@@ -118,8 +107,7 @@ function on_input(self, action_id, action)
 		else
 			menu.show_menu = false
 			fade_out(self, function()
-				
-				
+
 			end)
 		end
 	end
