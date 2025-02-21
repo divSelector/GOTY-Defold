@@ -21,4 +21,6 @@ M.victory = false
 
 M.is_paused = false
 
+M.difficulty_level = 1
+
 return M

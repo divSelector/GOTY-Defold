@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="500" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="57">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="500" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="58">
  <editorsettings>
   <export target="one.tilemap" format="defold"/>
  </editorsettings>
@@ -226,7 +226,7 @@
   <object id="42" x="4567.67" y="855">
    <point/>
   </object>
-  <object id="55" x="4969" y="830">
+  <object id="57" x="253.333" y="822.667">
    <point/>
   </object>
  </objectgroup>

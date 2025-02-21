@@ -1,10 +1,8 @@
 local state = require "modules.state"
 local input = require "modules.input"
-local utils = require "modules.utils"
+local menu = require "modules.menu"
 
 local fade_time = 0.5
-local show_imgui = false
-
 
 
 local function fade_in(self, callback)
@@ -68,93 +66,7 @@ function on_message(self, message_id, message, sender)
 
 end
 
-
-function update(self, dt)
-
-    if show_imgui then
-        local w, h = window.get_size()  -- Get screen size
-
-		print(h)
-		if w == 0 or h == 0 then
-			return  -- Don't proceed with rendering if window size is zero
-		end
-
-        imgui.set_display_size(w, h)
-
-        -- Define window size as a percentage of screen size
-        local win_width = w * 0.6   -- 60% of screen width
-        local win_height = h * 0.6  -- 60% of screen height
-
-        -- Calculate centered position
-        local pos_x = (w - win_width) / 2
-        local pos_y = (h - win_height) / 2
-
-        -- Set position and size before opening window
-        imgui.set_next_window_pos(pos_x, pos_y)
-        imgui.set_next_window_size(win_width, win_height)
-
-        imgui.begin_window("Keyboard Config", nil, imgui.WINDOWFLAGS_MENUBAR)
-
-        -- Scale text dynamically (increase multiplier for larger text)
-        local text_scale = (h / 800) * 1.5  -- Adjusting for larger text
-
-        -- Clamp scale to avoid text becoming too small or too large
-        text_scale = math.max(1.2, math.min(text_scale, 3.0))
-
-		local button_width = math.max(80, math.min(w * 0.1, 200))  -- Min 80, Max 200, 10% of screen width
-    	local button_height = math.max(30, math.min(h * 0.05, 100)) -- Min 30, Max 100, 5% of screen height
-
-
-        imgui.set_window_font_scale(text_scale)
-
-		imgui.text("Press a button to change the keybinding:")
-		imgui.spacing()
-		imgui.spacing()
-		imgui.spacing()
-
-		if imgui.begin_table("keybinding_table", 2, imgui.TABLE_FLAGS_RESIZEABLE) then
-
-			-- Setup column widths (fixed sizes)
-			imgui.table_setup_column("Button", imgui.TABLE_COLUMN_FLAGS_WIDTH_FIXED)
-			imgui.table_setup_column("Label", imgui.TABLE_COLUMN_FLAGS_WIDTH_FIXED)
-
-			-- Loop through keybinds and draw buttons/labels in table rows
-			for _, action in ipairs(input.keybind_order) do
-				local key = input.keybinds[action]
-				imgui.table_next_row()  -- Move to the next row
-
-				-- Button column
-				imgui.table_set_column_index(0)  -- Column 1 for buttons
-				local available_width = imgui.get_content_region_avail() -- Get remaining width in the column
-				imgui.spacing() -- Add some spacing before moving
-				imgui.same_line(available_width - button_width * 2) -- Move cursor to the right
-				if imgui.button(action, button_width, button_height) then
-					input.waiting_for_key = action
-				end
-
-			
-				-- Label column
-				imgui.table_set_column_index(1)  -- Column 2 for labels
-				local key_name
-				if input.waiting_for_key == action then
-					key_name = "Waiting for Input"
-				else
-					key_name = utils.extract_key_from_hash_string(tostring(key))
-				end
-				imgui.text(key_name)
-			end
-
-			-- End table
-			imgui.end_table()
-		end
-
-		-- End window
-		imgui.end_window()
-
-
-    end
-
-
+local function update_timer(self, dt)
 	if state.timer.is_running then
 		local time = state.timer.time + dt
 		local minutes = math.floor(time / 60)
@@ -165,11 +77,16 @@ function update(self, dt)
 	end
 end
 
+function update(self, dt)
+
+	menu.update()
+
+	update_timer(self, dt)
+end
+
 function on_input(self, action_id, action)
 
 	input.capture(action_id, action)
-
-
 
 	if not action.pressed then return end
 
@@ -183,7 +100,6 @@ function on_input(self, action_id, action)
 
 	if action_id == hash("key_esc") then
 		local mode
-		print(state.is_paused)
 		if state.is_paused then
 			mode = 1
 		else
@@ -194,10 +110,10 @@ function on_input(self, action_id, action)
 		state.timer.is_running = not state.timer.is_running
 		if state.is_paused then
 			fade_in(self, function()
-				show_imgui = true
+				menu.show_menu = true
 			end)
 		else
-			show_imgui = false
+			menu.show_menu = false
 			fade_out(self, function()
 				
 				

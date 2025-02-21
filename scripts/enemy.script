@@ -1,5 +1,5 @@
 local collision = require "modules.collision"
-local utils = require "modules.utils"
+local state = require "modules.state"
 
 
 go.property("velocity", vmath.vector3())
@@ -7,8 +7,6 @@ go.property("velocity", vmath.vector3())
 local gravity = 1800
 local anim_playback_rate = 1.25
 
-local attack_delay_time_ground = 0.20
-local attack_delay_time_air = 0.15
 
 function init(self)
 
@@ -25,6 +23,22 @@ function init(self)
     self.aabb_id = collision.add_enemy(msg.url('.'))
 
     self.stunned = false
+end
+
+local function get_difficulty_derived_attack_delay_times(difficulty)
+    local ground_delay
+    local air_delay
+    if difficulty == 0 then -- easy
+        ground_delay = 0.25
+        air_delay = 0.35
+    elseif difficulty == 1 then -- normal
+        ground_delay = 0.20
+        air_delay = 0.30
+    elseif difficulty == 2 then -- hard
+        ground_delay = 0.15
+        air_delay = 0.25
+    end
+    return ground_delay, air_delay
 end
 
 
@@ -131,15 +145,12 @@ local function jump(self, dt)
 
 end
 
-
-
-
-
 local function attack(self, dt)
     local enemy_position = self.position
     local player_position = self.player_position
 
     local attack_delay_time
+    attack_delay_time_ground, attack_delay_time_air = get_difficulty_derived_attack_delay_times(state.difficulty_level)
     if self.ground_contact then
         attack_delay_time = attack_delay_time_ground
     else
