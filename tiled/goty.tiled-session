@@ -24,28 +24,28 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                5,
                 6,
+                5,
                 3,
                 2
             ],
-            "scale": 0.75,
-            "selectedLayer": 5,
+            "scale": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 288.6666666666666,
-                "y": 590.6666666666667
+                "x": 3054.5,
+                "y": 460
             }
         },
         "test.tmx": {
             "expandedObjectLayers": [
-                4,
-                6
+                6,
+                4
             ],
             "scale": 1.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 2999.6666666666665,
-                "y": 663.3333333333333
+                "x": 1600.3333333333333,
+                "y": 480
             }
         },
         "test.tsx": {
@@ -55,16 +55,16 @@
         },
         "two.tmx": {
             "expandedObjectLayers": [
-                5,
                 6,
+                5,
                 3,
                 2
             ],
-            "scale": 1,
-            "selectedLayer": 6,
+            "scale": 0.75,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 181.5,
-                "y": 884
+                "x": 3246,
+                "y": 590.6666666666667
             }
         }
     },

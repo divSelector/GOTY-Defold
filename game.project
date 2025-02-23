@@ -15,12 +15,16 @@ input_method = HiddenInputField
 
 [html5]
 scale_mode = stretch
+show_made_with_defold = 0
+wasm_streaming = 1
+heap_size = 64
 
 [project]
 title = GOTY
 custom_resources = /resource
 dependencies#0 = https://github.com/selimanac/defold-daabbcc/archive/refs/tags/v.3.0.0.zip
 dependencies#1 = https://github.com/britzl/extension-imgui/archive/refs/tags/2.3.1.zip
+dependencies#2 = https://github.com/indiesoftby/defold-webgl-memory/archive/main.zip
 
 [daabbcc]
 max_group_count = 3
@@ -30,4 +34,7 @@ max_raycast_result_count = 32
 
 [input]
 game_binding = /input/all.input_bindingc
+
+[physics]
+use_fixed_timestep = 0
 

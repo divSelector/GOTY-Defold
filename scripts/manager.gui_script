@@ -16,8 +16,42 @@ local function fade_out(self, callback)
     end)
 end
 
+local function pause_game(self, force_pause)
+    local should_pause
+
+    if force_pause == nil then
+        should_pause = not state.is_paused
+    else
+        should_pause = force_pause
+    end
+
+    local mode = should_pause and 0 or 1
+    msg.post("main:/main#gameproxy", "set_time_step", { factor = mode, mode = mode })
+    
+    state.is_paused = should_pause
+    state.timer.is_running = not should_pause
+
+    if should_pause then
+        fade_in(self, function()
+            menu.show_menu = true
+        end)
+    else
+        menu.show_menu = false
+        fade_out(self, function() end)
+    end
+end
+
 
 function init(self)
+
+	window.set_listener(function(self, event, data)
+		if event == window.WINDOW_EVENT_FOCUS_LOST then
+			pause_game(self, true)
+		elseif event == window.WINDOW_EVENT_FOCUS_GAINED then
+			pause_game(self, false)
+		end
+	end)
+
 	input.init()
 
 	self.timer_node = gui.get_node("time")
@@ -82,7 +116,14 @@ function update(self, dt)
 	menu.update()
 
 	update_timer(self, dt)
+
+	if webgl_memory then
+		local info = webgl_memory.get_info()
+		print("GPU memory used in total: " .. math.floor(info.memory.total / 1024 / 1024) .. " MB")
+		print("CPU heap size: " .. math.floor(info.memory.wasmheap / 1024 / 1024) .. " MB")
+	end
 end
+
 
 function on_input(self, action_id, action)
 
@@ -91,25 +132,7 @@ function on_input(self, action_id, action)
 	if not action.pressed then return end
 
 	if action_id == hash("key_esc") and state.pause_allowed then
-		local mode
-		if state.is_paused then
-			mode = 1
-		else
-			mode = 0
-		end
-		msg.post("main:/main#gameproxy", "set_time_step", {factor = mode, mode = mode})
-		state.is_paused = not state.is_paused
-		state.timer.is_running = not state.timer.is_running
-		if state.is_paused then
-			fade_in(self, function()
-				menu.show_menu = true
-			end)
-		else
-			menu.show_menu = false
-			fade_out(self, function()
-
-			end)
-		end
+		pause_game(self)
 	end
 
 end

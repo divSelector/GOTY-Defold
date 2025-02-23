@@ -12,7 +12,8 @@ void main()
     float waveParallax = waves.x;
     float waveFrequency = waves.y;
     float waveAmplitude = waves.z;
-    float waveSpeed = waves.w;
+    float waveHeightOffset = waves.w;
+    float waveSpeed = 0.7;
 
     float scrollOffset = waveSpeed * waveParallax;
 
@@ -22,7 +23,7 @@ void main()
     float wave4 = waveAmplitude * cos(waveFrequency * (uv.x + scrollOffset) + 3.14159);
     float wave5 = waveAmplitude * sin(waveFrequency * (uv.x + scrollOffset) + 4.71239);
 
-    float combinedWave = max(wave1, max(wave2, max(wave3, max(wave4, wave5))));
+    float combinedWave = max(wave1, max(wave2, max(wave3, max(wave4, wave5)))) - waveHeightOffset;
 
     vec3 topColor = vec3(top_color.x, top_color.y, top_color.z);
     vec3 bottomColor = vec3(bottom_color.x, bottom_color.y, bottom_color.z);

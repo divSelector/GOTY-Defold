@@ -15,8 +15,10 @@ void main()
 
     float horizonParallax = horizon.x;
     float horizonTime = horizon.y;
-    float horizonSpeed = horizon.z;
-    float horizonStarThreshold = horizon.w;
+    float horizonStarThreshold = horizon.z;
+    
+
+    float horizonSpeed = 0.7;
 
     float scrollOffset = horizonParallax + horizonSpeed;
 
