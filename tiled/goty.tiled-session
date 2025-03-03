@@ -1,5 +1,5 @@
 {
-    "activeFile": "two.tmx",
+    "activeFile": "one.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -24,22 +24,22 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                6,
                 5,
-                3,
-                2
+                2,
+                6,
+                3
             ],
-            "scale": 1,
-            "selectedLayer": 0,
+            "scale": 0.33,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 3054.5,
-                "y": 460
+                "x": 1828.7878787878785,
+                "y": 339.39393939393926
             }
         },
         "test.tmx": {
             "expandedObjectLayers": [
-                6,
-                4
+                4,
+                6
             ],
             "scale": 1.5,
             "selectedLayer": 2,
@@ -55,16 +55,16 @@
         },
         "two.tmx": {
             "expandedObjectLayers": [
-                6,
                 5,
-                3,
-                2
+                2,
+                6,
+                3
             ],
             "scale": 0.75,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 3246,
-                "y": 590.6666666666667
+                "x": 4000.6666666666665,
+                "y": 480
             }
         }
     },
@@ -81,9 +81,9 @@
     "project": "goty.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "one.tmx",
-        "test.tmx",
         "two.tmx",
+        "test.tmx",
+        "one.tmx",
         "test.tsx"
     ]
 }

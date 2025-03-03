@@ -1,0 +1,4 @@
+sound: "/assets/sound/effects/hit2.wav"
+group: "effects"
+gain: 0.8
+speed: 0.8

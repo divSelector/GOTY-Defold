@@ -1,8 +1,11 @@
 local state = require "modules.state"
 local input = require "modules.input"
 local menu = require "modules.menu"
+local audio = require "modules.audio"
+
 
 local fade_time = 0.5
+
 
 local function fade_in(self, callback)
     gui.animate(self.fade_overlay_node, "color.w", 1, gui.EASING_LINEAR, fade_time, 0, function()
@@ -37,6 +40,8 @@ local function pause_game(self, force_pause)
         end)
     else
         menu.show_menu = false
+        print("unpausing")
+        msg.post("game:/player#skins", "set_player_skin") 
         fade_out(self, function() end)
     end
 end
@@ -66,7 +71,6 @@ function init(self)
     msg.post("#gameproxy", "load")
 end
 
-
 function on_message(self, message_id, message, sender)
 
     if message_id == hash("load_level") then
@@ -85,6 +89,15 @@ function on_message(self, message_id, message, sender)
         
         if state.victory then
             print("You are victorious")
+            window.set_listener(nil)
+            audio.play_sound("victory")
+
+            local screen_center = gui.get_position(gui.get_node("screen_center_ref"))
+
+            gui.set_color(self.timer_bg_node, vmath.vector4(0.859,0.835,0.431, 0)) -- make transparent
+            gui.animate(self.fade_overlay_node, "color", vmath.vector4(0.2, 0.274, 0.165, 1), gui.EASING_OUTCUBIC, 3.5) 
+            gui.animate(self.timer_node, "position", screen_center, gui.EASING_OUTCUBIC, 5.5)
+            gui.animate(self.timer_node, "scale", vmath.vector3(4, 4, 0), gui.EASING_OUTCUBIC, 5.5)
             return
         end
         
@@ -96,6 +109,11 @@ function on_message(self, message_id, message, sender)
         fade_out(self)
         state.timer.is_running = true
 		state.pause_allowed = true
+
+
+    elseif message_id == hash("restart_game") then
+        pause_game(self, false)
+        msg.post("#gameproxy", "unload")
     end
 
 end
@@ -116,12 +134,6 @@ function update(self, dt)
 	menu.update()
 
 	update_timer(self, dt)
-
-	if webgl_memory then
-		local info = webgl_memory.get_info()
-		print("GPU memory used in total: " .. math.floor(info.memory.total / 1024 / 1024) .. " MB")
-		print("CPU heap size: " .. math.floor(info.memory.wasmheap / 1024 / 1024) .. " MB")
-	end
 end
 
 

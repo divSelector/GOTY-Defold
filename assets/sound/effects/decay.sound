@@ -1,0 +1,3 @@
+sound: "/assets/sound/effects/decay.wav"
+group: "effects"
+gain: 2.0

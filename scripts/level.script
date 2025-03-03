@@ -123,7 +123,7 @@ local function spawn_enemies(self)
     for _, spawn_position in ipairs(self.enemy_spawn_positions) do
         local enemy = factory.create("#enemy_factory", vmath.vector3(spawn_position.x, spawn_position.y, 0))
         if spawn_position.custom_properties ~= nil then
-            msg.post(msg.url(nil, enemy, "skins"), "set_skin", { custom_properties = spawn_position.custom_properties })    
+            msg.post(msg.url(nil, enemy, "skins"), "set_enemy_skin", { custom_properties = spawn_position.custom_properties })    
         end
         table.insert(self.enemies, enemy)
     end
@@ -254,8 +254,11 @@ function init(self)
         end
 
         self.ball_spawn_positions = get_spawn_positions(self, "ball_spawn", true)
+        state.total_balls = state.total_balls + #self.ball_spawn_positions
         self.balls = {}
         spawn_balls(self)
+
+        msg.post("game:/player#skins", "set_player_skin") 
 
     end
 
@@ -279,5 +282,10 @@ end
 function on_message(self, message_id, message, sender)
     if message_id == hash("set_spawn_point") then
         self.spawn_point = message.spawn_point
+
+    elseif message_id == hash("restart_game") then
+        self.spawn_point = state.spawn_point -- reset in menu.lua
+        set_player_spawn_position(self)
+
     end
 end

@@ -102,6 +102,92 @@ local foul_language_enabled = false
 local difficulty_levels = { "Easy", "Normal", "Hard" }
 local difficulty_levels_foul = { "Bullshit", "Fucking Bullshit", "Holy Fucking God Damn Bullshit" }
 
+-- local bases = {
+--     "player_bluepants",
+--     "player_greenpants",
+--     "player_redpants",
+--     "player_greypants"
+-- }
+-- local bodies = {
+--     "armor01", "armor02", "armor03", "armor04", "armor05", "armor06", "armor07", "armor08",
+--     "robe01", "robe02", "robe03", "robe04", "robe05", "robe06", "robe07", "robe08", "default"
+-- }
+-- local heads = {
+--     "helm01", "helm02", "helm03", "helm04", "helm05", "helm06", "helm07", "helm08",
+--     "hat01", "hat02", "hat03", "hat04", "hat05", "hat06", "hat07", "hat08", "default"
+-- }
+-- local accessories = {
+--     "shield01", "shield02", "shield03", "shield04", "shield05", "shield06", "shield07", "shield08", 
+--     "book01", "book02", "book03", "book04", "book05", "book06", "book07", "book08", "default"
+-- }
+
+local bases = {
+    "blue",
+    "green",
+    "red",
+    "grey"
+}
+
+
+
+local bodies = {
+    "brown leather armor", 
+    "gray plate armor", 
+    "chain mail armor",
+    "gold armor",
+    "red leather armor", 
+    "black/yellow stripe armor", 
+    "black plate armor", 
+    "white plate armor",
+    "brown robe",
+    "aqua robe",
+    "lime robe",
+    "blood robe",
+    "white robe",
+    "olive/red robe",
+    "orange/yellow robe",
+    "black robe",
+    "default"
+}
+local heads = {
+    "brown leather helm",
+    "gray plate helm",
+    "chain mail helm",
+    "gold helm",
+    "red mohawk roman grey helm",
+    "black/yellow cross helm",
+    "purple mohawk black helm",
+    "white horned helm",
+    "brown hat",
+    "aqua hat",
+    "lime hat",
+    "blood hat",
+    "white hat",
+    "olive hat",
+    "orange/yellow hat",
+    "black hat",
+    "default"
+}
+local accessories = {
+    "brown buckler shield",
+    "circle gray metal shield",
+    "v-shaped metal shield",
+    "gold shield",
+    "hyrule shield",
+    "red/yellow tower shield",
+    "circlular orange ^ shield",
+    "tall oval peach shield",
+    "white book",
+    "gray book",
+    "red/white book",
+    "black book",
+    "white/peach/black book",
+    "lime book",
+    "aqua/white book",
+    "dark purple book",
+    "default"
+}
+
 function M.update()
     if M.show_menu then
         local w, h = window.get_size()  -- Get screen size
@@ -141,6 +227,35 @@ function M.update()
         imgui.set_window_font_scale(text_scale)
 
         if imgui.begin_tab_bar("ConfigTabs") then
+
+
+            if imgui.begin_tab_item("Game") then
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+
+                if imgui.button("Restart", button_width, button_height) then
+                    print("Restart")
+                    state.current_level_index = 1
+                    state.spawn_point = 1
+                    state.current_level = state.levels[state.current_level_index]
+                    state.timer.time = 0
+                    state.ball_count = 0
+                    state.total_balls = 0
+                    msg.post("game:/level#level", "restart_game")
+                    msg.post("main:/main#manager", "restart_game")
+                end
+
+                imgui.end_tab_item()
+            end
+
         
             if imgui.begin_tab_item("Keybinds") then
                 keybind_config(button_width, button_height)
@@ -177,6 +292,54 @@ function M.update()
 
                 imgui.end_tab_item()
             end
+
+            if imgui.begin_tab_item("Skins") then
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                imgui.text("You can change your skin:")
+                imgui.spacing()
+                imgui.spacing()
+                imgui.spacing()
+                
+                if imgui.begin_table("character_table", 2, imgui.TABLE_FLAGS_RESIZEABLE) then
+                    imgui.table_setup_column("Label", imgui.TABLE_COLUMN_FLAGS_WIDTH_FIXED)
+                    imgui.table_setup_column("Selection", imgui.TABLE_COLUMN_FLAGS_WIDTH_FIXED)
+                
+                    local function draw_row(label, items, selected_index)
+                        imgui.table_next_row()
+                        imgui.table_set_column_index(0)
+                        local available_width = imgui.get_content_region_avail() -- Get remaining width in the column
+                        imgui.spacing() -- Add some spacing before moving
+                        imgui.same_line(available_width - button_width * 2) -- Move cursor to the rights
+                        imgui.text(string.sub(label, 3))
+                        imgui.table_set_column_index(1)
+                        
+                        local changed, skin = imgui.combo(label, selected_index, items)
+
+                        if changed then
+                            print(changed)
+                            print(skin)
+                            selected_index = skin
+                        end
+
+                        return selected_index
+                    end
+                    
+                    -- using ## causes the label to not appear automatically to the right of the dropdown
+                    -- this is why we cut this off our manual label display above.
+                    state.selected_base = draw_row("##Pants", bases, state.selected_base)
+                    state.selected_body = draw_row("##Body", bodies, state.selected_body)
+                    state.selected_head = draw_row("##Head", heads, state.selected_head)
+                    state.selected_accessory = draw_row("##Accessory", accessories, state.selected_accessory)
+                    
+                    imgui.end_table()
+                end
+                
+    
+                imgui.end_tab_item()
+            end
+
             imgui.end_tab_bar()
         end
 

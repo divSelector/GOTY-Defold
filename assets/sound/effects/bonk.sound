@@ -1,0 +1,4 @@
+sound: "/assets/sound/effects/idk.wav"
+group: "effects"
+gain: 0.9
+speed: 0.8

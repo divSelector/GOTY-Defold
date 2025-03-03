@@ -1,5 +1,6 @@
 local collision = require "modules.collision"
 local state = require "modules.state"
+local audio = require "modules.audio"
 
 local tile_width = 16
 local tile_height = 16
@@ -56,10 +57,10 @@ function update(self, dt)
 
 	local touching_ground = collision.check_checkpoint(self)
 
-	if self.fall then
+	if not touching_ground and self.fall then
 		local pos = self.position
 
-		pos.y = pos.y - 10
+		pos.y = pos.y - 4
 	
 		go.set_position(pos)
 	
@@ -69,7 +70,7 @@ function update(self, dt)
 	if touching_ground and not self.fall then
 		local pos = self.position
 
-		pos.y = pos.y + 20
+		pos.y = pos.y + 2
 	
 		go.set_position(pos)
 	
@@ -82,7 +83,7 @@ function on_message(self, message_id, message, sender)
 	
 	if message_id == hash("collect") then
 
-		if self.collected then
+		if self.collected or self.fall then
 			return
 		end
 
@@ -95,6 +96,7 @@ function on_message(self, message_id, message, sender)
 			state.current_level = state.levels[state.current_level_index]
 			msg.post("main:/main#manager", "load_level")
 		else
+			audio.play_sound("checkpoint")
 			msg.post("/level#level", "set_spawn_point", {
 				spawn_point = self.spawn_index
 			})

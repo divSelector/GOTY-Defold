@@ -1,3 +1,5 @@
+local state = require "modules.state"
+
 -- Base options
 go.property("player_bluepants", resource.atlas("/resource/atlases/player-bluepants.atlas"))
 go.property("player_greenpants", resource.atlas("/resource/atlases/player-greenpants.atlas"))
@@ -111,7 +113,16 @@ function on_message(self, message_id, message, sender)
 
         set_skin(self, base, body, head, accessory)
 
-    elseif message_id == hash("set_skin") then
+    elseif message_id == hash("set_player_skin") then
+        local base = bases[state.selected_base] or self.player_redpants
+        local body = bodies[state.selected_body] or self.default
+        local head = heads[state.selected_head] or self.default
+        local accessory = accessories[state.selected_accessory] or self.default
+
+        set_skin(self, self[base], self[body], self[head], self[accessory])
+        
+
+    elseif message_id == hash("set_enemy_skin") then
         local base = "player_" .. message.custom_properties.base or self.player_redpants
         local body = message.custom_properties.body or self.default
         local head = message.custom_properties.head or self.default

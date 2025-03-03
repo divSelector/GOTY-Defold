@@ -1,6 +1,7 @@
 local input = require "modules.input"
 local utils = require "modules.utils"
 local collision = require "modules.collision"
+local audio = require "modules.audio"
 
 go.property("velocity", vmath.vector3())
 
@@ -49,10 +50,17 @@ local function decay_momentum(self, additional_decay)
 
     local additional_decay = additional_decay or 0
 
-    self.momentum = self.momentum - (momentum_decay + additional_decay)
+    local total_decay = momentum_decay + additional_decay
+    
+    if total_decay > 1.5 and self.momentum ~= 0 then
+        audio.play_sound("decay")
+    end
+
+    self.momentum = self.momentum - total_decay
     if self.momentum < 0 then
         self.momentum = 0
     end
+
 end
 
 local function deaccelerate(self, dt, multiplier)
@@ -80,7 +88,6 @@ local function deaccelerate(self, dt, multiplier)
 end
 
 function init(self)
-    -- input.get_focus()
     msg.post(".", "acquire_input_focus")
 
     msg.post("/camera#camera", "acquire_camera_focus")
@@ -130,6 +137,8 @@ function init(self)
     end
 
     self.last_x = self.position.x
+
+    self.was_airborne = true
 end
 
 
@@ -148,6 +157,7 @@ local function slide(self, dt)
         if self.slide_timer <= 0 then
             self.velocity.x = 0
             decay_momentum(self)
+            audio.stop_sound("slide")
         end
     end
 
@@ -169,6 +179,9 @@ local function slide(self, dt)
 
             if self.slide_timer <= 0 and self.slide_cooldown_timer <= 0 then
                 -- Start sliding
+                if self.momentum ~= 0 then
+                    audio.play_sound("slide")
+                end
                 self.slide_timer =  slide_duration_min + ((self.momentum / max_momentum) * (slide_duration_max - slide_duration_min))
                 self.slide_cooldown_timer = slide_cooldown_duration
                 local slide_speed = slide_speed_min + ((self.momentum / max_momentum) * (slide_speed_max - slide_speed_min))
@@ -227,6 +240,8 @@ local function jump(self, dt)
             jump_height_min + self.jump_streak_increment + 
             ((self.momentum / max_momentum) * (jump_height_max + self.jump_streak_increment - jump_height_min))
 
+        audio.play_sound("jump")
+
         self.ground_contact = false
         self.can_jump = false -- Prevent double jumps
         self.is_jumping = true
@@ -250,6 +265,7 @@ local function jump(self, dt)
 
     -- Interrupt the jump if the button is released
     if not input.key_state.action then
+        audio.stop_sound("jump")
         self.is_jumping = false
     end
 
@@ -257,10 +273,19 @@ local function jump(self, dt)
         self.can_jump = true
         self.is_jumping = false
     end
+
+    if self.ground_contact and not self.was_on_ground then
+        audio.play_sound("land")
+    end
+    
+    -- Track previous ground state
+    self.was_on_ground = self.ground_contact
+
 end
 
 local function fire(self)
     -- Fire attack logic
+    audio.play_sound("fire")
     local direction = self.sprite_flipped and -1 or 1
     local offset_x = 10 * direction
     local offset_y = input.key_state.crouch and -8 or 5

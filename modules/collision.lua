@@ -1,5 +1,7 @@
 local utils = require "modules.utils"
 local state = require "modules.state"
+local audio = require "modules.audio"
+
 
 local M = {}
 
@@ -318,6 +320,8 @@ local function handle_overlap(entity, entity_pos, tile, orientation, is_player)
     if tile.index == M.TILES.SPRING and not orientation.is_below_tile then
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
         entity.velocity.y = 600
+        entity.can_jump = false
+        audio.play_sound("spring")
     elseif is_player and is_tile(tile.index, M.TILES.BUSH) then
         entity.decay_momentum()
     end
@@ -330,6 +334,7 @@ local function handle_ground_contact(entity, entity_pos, tile, orientation, is_p
         msg.post("/camera#controller", "follow_player_y", { toggle = true })
         entity.velocity.y = 600
         entity.can_jump = false
+        audio.play_sound("spring")
         return
     end
 
@@ -356,14 +361,18 @@ local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
     local tile_x = math.floor((tile.x - M.map.x * tile_width) / tile_width) + 2
     local tile_y = math.floor((tile.y - M.map.y * tile_height) / tile_height) + 2
 
+    local did_sound_play = false
+
     local function bonk(tile_index, action_index)
+        audio.play_sound("bonk")
+        did_sound_plau = true
         local action_index = action_index or 1
         tilemap.set_tile("/level#tilemap", "ground", tile_x, tile_y, 0)
-        M.tile_data[tile.aabb_id].index = tile_index
+        M.tile_data[tile.aabb_id].index = 17
         factory.create("/level#block_factory", vmath.vector3(tile.x, tile.y, 0), nil, {
             tile_x = tile_x,
             tile_y = tile_y,
-            tile_index = tile_index,
+            tile_index = 17,
             action_index = action_index
         })
     end
@@ -387,6 +396,10 @@ local function handle_ceiling_contact(entity, entity_pos, tile, orientation)
         msg.post("main:/main#dialog", "play_dialog", {
             dialog = state.info_box_text[tile_x .. "," .. tile_y]
         })
+    end
+
+    if not did_sound_play then
+        audio.play_sound("bonk-inert")
     end
 end
 
@@ -702,6 +715,7 @@ function M.check_projectile_entity(projectile, from_player, projectile_velocity)
         msg.post(entity_url, "damage", {
             projectile_velocity = projectile_velocity
         })
+        audio.play_sound("hit-person")
     end
 end
 

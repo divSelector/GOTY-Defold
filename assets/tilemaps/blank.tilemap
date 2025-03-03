@@ -24,7 +24,7 @@ layers {
   cell {
     x: 499
     y: 59
-    tile: 16
+    tile: 29
   }
 }
 layers {

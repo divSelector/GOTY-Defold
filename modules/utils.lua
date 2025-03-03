@@ -42,6 +42,15 @@ function M.get_key_by_value(tbl, value)
     return nil
 end
 
+function M.get_index_by_value(tbl, str)
+    for index, value in ipairs(tbl) do
+        if value == str then
+            return index
+        end
+    end
+    return nil  -- Return nil if the string is not found
+end
+
 
 function M.is_table_empty(tbl)
     return next(tbl) == nil

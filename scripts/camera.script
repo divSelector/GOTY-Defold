@@ -95,74 +95,59 @@ local function get_star_threshold(player_y)
     return star_threshold
 end
 
+
 local function handle_background_parallax(self, camera_position, dt)
+    -- Cache player values to minimize expensive go.get() calls
+    local player = go.get_position("/player#player")
+    local velocity_x = go.get("/player#player", "velocity").x
 
+    -- Cache background position and set only when necessary
     local bg_pos = go.get_position(self.bg_bottom)
-    bg_pos.x = camera_position.x
-
-    go.set_position(bg_pos, self.bg_bottom)
-
-    local velocity = go.get("/player#player", "velocity")
-
-    local target_direction = utils.sign(velocity.x)
-
-    local current_parallax = go.get(self.bg_bottom, "waves").x
-    
-    local transition_speed = 0.01
-
-    local new_parallax
-    if target_direction == 1 then
-        new_parallax = current_parallax + transition_speed
-    elseif target_direction == -1 then
-        new_parallax = current_parallax - transition_speed
-    elseif target_direction == 0 then
-        new_parallax = current_parallax
+    if bg_pos.x ~= camera_position.x then
+        bg_pos.x = camera_position.x
+        go.set_position(bg_pos, self.bg_bottom)
     end
 
+    -- Parallax calculation
+    local transition_speed = 0.01
+    local target_direction = utils.sign(velocity_x)
+    local current_parallax = go.get(self.bg_bottom, "waves").x
+    local new_parallax = current_parallax + transition_speed * target_direction
+
+    -- Track time
     self.time = (self.time or 0) + dt
 
-    print(camera_position.y)
-
     if self.is_first_draw then
-        -- We have to draw everything once on the first draw to prevent there from being a black space
-        -- Now we can conditionally draw below based on camera height and player position
         self.is_first_draw = false
+        local sky_color = get_sky_color(player.y)
+        local star_threshold = get_star_threshold(player.y)
+
         go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, bottom_frequency, bottom_amplitude, 0))
         go.set(self.bg_bottom, "top_color", middle_color)
         go.set(self.bg_bottom, "bottom_color", bottom_color)
-        local player_y = go.get_position("/player#player").y
-        local sky_color = get_sky_color(player_y)
+
         go.set(self.bg_middle, "waves", vmath.vector4(new_parallax, middle_frequency, middle_amplitude, 0.23))
         go.set(self.bg_middle, "top_color", sky_color)
         go.set(self.bg_middle, "bottom_color", middle_color)
-        local star_threshold = get_star_threshold(player_y)
+
         go.set(self.bg_top, "horizon", vmath.vector4(new_parallax, self.time, star_threshold, 0))
         go.set(self.bg_top, "top_color", vmath.vector4(0,0,0,0))
         go.set(self.bg_top, "bottom_color", sky_color)
+
         return
     end
 
-    if camera_position.y <= 230 then
-        go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, bottom_frequency, bottom_amplitude, 0))
-        go.set(self.bg_bottom, "top_color", middle_color)
-        go.set(self.bg_bottom, "bottom_color", bottom_color)
-        return
-    end 
 
-    local player_y = go.get_position("/player#player").y
+    go.set(self.bg_bottom, "waves", vmath.vector4(new_parallax, bottom_frequency, bottom_amplitude, 0))
 
-    if camera_position.y >= 230 or player_y >= 615 then
-
-        local sky_color = get_sky_color(player_y)
+    if camera_position.y >= 250 then
+        local sky_color = get_sky_color(player.y)
+        local star_threshold = get_star_threshold(player.y)
 
         go.set(self.bg_middle, "waves", vmath.vector4(new_parallax, middle_frequency, middle_amplitude, 0.23))
         go.set(self.bg_middle, "top_color", sky_color)
-        go.set(self.bg_middle, "bottom_color", middle_color)
-
-        local star_threshold = get_star_threshold(player_y)
 
         go.set(self.bg_top, "horizon", vmath.vector4(new_parallax, self.time, star_threshold, 0))
-        go.set(self.bg_top, "top_color", vmath.vector4(0,0,0,0))
         go.set(self.bg_top, "bottom_color", sky_color)
     end
 end
