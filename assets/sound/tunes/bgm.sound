@@ -1,0 +1,5 @@
+sound: "/assets/sound/tunes/stellar.ogg"
+looping: 1
+group: "tunes"
+gain: 0.3
+speed: 1.5

@@ -7,6 +7,10 @@ fonts {
   name: "sixtyfour"
   font: "/assets/fonts/sixtyfour.font"
 }
+textures {
+  name: "sprites"
+  texture: "/assets/atlases/sprites.atlas"
+}
 nodes {
   position {
     x: 307.91373
@@ -91,6 +95,60 @@ nodes {
   id: "screen_center_ref"
   inherit_alpha: true
   alpha: 0.0
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 125.329216
+    y: 334.52136
+  }
+  scale {
+    x: 0.302253
+    y: 0.162937
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  color {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  type: TYPE_BOX
+  id: "ball_bg"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 130.54216
+    y: 334.1548
+  }
+  scale {
+    x: 0.473603
+    y: 0.855515
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "0/0\n"
+  ""
+  font: "sixtyfour"
+  id: "ball_count"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 102.4876
+    y: 334.22488
+  }
+  type: TYPE_BOX
+  texture: "sprites/ball-4"
+  id: "ball_img"
+  inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
 material: "/builtins/materials/gui.material"

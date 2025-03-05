@@ -49,6 +49,8 @@ end
 
 function init(self)
 
+    audio.play_sound("bgm")
+
 	window.set_listener(function(self, event, data)
 		if event == window.WINDOW_EVENT_FOCUS_LOST then
 			pause_game(self, true)
@@ -60,9 +62,14 @@ function init(self)
 	input.init()
 
 	self.timer_node = gui.get_node("time")
+	self.ball_count_node = gui.get_node("ball_count")
 	gui.set_color(self.timer_node, vmath.vector4(0.433,0.571,0.359, 1))
+	gui.set_color(self.ball_count_node, vmath.vector4(0.433,0.571,0.359, 1))
+
 	self.timer_bg_node = gui.get_node("time_bg")
+    self.ball_bg_node = gui.get_node("ball_bg")
 	gui.set_color(self.timer_bg_node, vmath.vector4(0.859,0.835,0.431, 1))
+    gui.set_color(self.ball_bg_node, vmath.vector4(0.859,0.835,0.431, 1))
 
 
 	self.fade_overlay_node = gui.get_node("fade_overlay")
@@ -90,11 +97,13 @@ function on_message(self, message_id, message, sender)
         if state.victory then
             print("You are victorious")
             window.set_listener(nil)
+            audio.stop_sound("bgm")
             audio.play_sound("victory")
 
             local screen_center = gui.get_position(gui.get_node("screen_center_ref"))
 
             gui.set_color(self.timer_bg_node, vmath.vector4(0.859,0.835,0.431, 0)) -- make transparent
+            gui.set_color(self.ball_bg_node, vmath.vector4(0.859,0.835,0.431, 0))
             gui.animate(self.fade_overlay_node, "color", vmath.vector4(0.2, 0.274, 0.165, 1), gui.EASING_OUTCUBIC, 3.5) 
             gui.animate(self.timer_node, "position", screen_center, gui.EASING_OUTCUBIC, 5.5)
             gui.animate(self.timer_node, "scale", vmath.vector3(4, 4, 0), gui.EASING_OUTCUBIC, 5.5)
@@ -134,6 +143,9 @@ function update(self, dt)
 	menu.update()
 
 	update_timer(self, dt)
+
+    gui.set_text(self.ball_count_node, state.ball_count .. "/" .. state.total_balls)
+
 end
 
 

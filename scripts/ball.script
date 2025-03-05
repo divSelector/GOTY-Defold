@@ -59,9 +59,9 @@ function update(self, dt)
         if not self.destructing then
             self.destructing = true
             audio.play_sound("checkpoint")
+            state.ball_count = state.ball_count + 1
             collision.destroy(self.aabb_id)
             timer.delay(3, false, function()
-                state.ball_count = state.ball_count + 1
                 print(state.ball_count)
                 go.delete()
             end)

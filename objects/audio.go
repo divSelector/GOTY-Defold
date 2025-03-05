@@ -46,3 +46,7 @@ components {
   id: "checkpoint"
   component: "/assets/sound/effects/checkpoint.sound"
 }
+components {
+  id: "bgm"
+  component: "/assets/sound/tunes/bgm.sound"
+}

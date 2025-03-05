@@ -2,6 +2,7 @@ local input = require "modules.input"
 local utils = require "modules.utils"
 local collision = require "modules.collision"
 local audio = require "modules.audio"
+local state = require "modules.state"
 
 go.property("velocity", vmath.vector3())
 
