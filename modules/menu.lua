@@ -100,7 +100,7 @@ end
 
 local foul_language_enabled = false
 local difficulty_levels = { "Easy", "Normal", "Hard" }
-local difficulty_levels_foul = { "Bullshit", "Fucking Bullshit", "Holy Fucking God Damn Bullshit" }
+local difficulty_levels_foul = { "200% Nerfed for Babies", "Fucking Bullshit", "Holy Fucking God Damn Bullshit" }
 
 -- local bases = {
 --     "player_bluepants",

@@ -11,6 +11,10 @@ textures {
   name: "sprites"
   texture: "/assets/atlases/sprites.atlas"
 }
+textures {
+  name: "player-redpants"
+  texture: "/resource/atlases/player-redpants.atlas"
+}
 nodes {
   position {
     x: 307.91373
@@ -61,6 +65,17 @@ nodes {
 }
 nodes {
   position {
+    x: 97.02749
+    y: 333.4884
+  }
+  type: TYPE_PARTICLEFX
+  id: "victory_particlefx"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+  particlefx: "victory"
+}
+nodes {
+  position {
     x: 51.18457
     y: 334.19385
   }
@@ -81,7 +96,7 @@ nodes {
 nodes {
   position {
     x: 318.94653
-    y: 188.05812
+    y: 76.49546
   }
   scale {
     x: 0.085148
@@ -99,11 +114,11 @@ nodes {
 }
 nodes {
   position {
-    x: 125.329216
+    x: 112.121574
     y: 334.52136
   }
   scale {
-    x: 0.302253
+    x: 0.251544
     y: 0.162937
   }
   size {
@@ -122,7 +137,7 @@ nodes {
 }
 nodes {
   position {
-    x: 130.54216
+    x: 118.80203
     y: 334.1548
   }
   scale {
@@ -142,7 +157,7 @@ nodes {
 }
 nodes {
   position {
-    x: 102.4876
+    x: 96.41973
     y: 334.22488
   }
   type: TYPE_BOX
@@ -151,5 +166,25 @@ nodes {
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
 }
+nodes {
+  position {
+    x: 492.10114
+    y: 157.47717
+  }
+  scale {
+    x: 2.0
+    y: 2.0
+  }
+  type: TYPE_BOX
+  texture: "player-redpants/run"
+  id: "player"
+  inherit_alpha: true
+  alpha: 0.0
+  size_mode: SIZE_MODE_AUTO
+}
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
+particlefxs {
+  name: "victory"
+  particlefx: "/particlefx/victory.particlefx"
+}

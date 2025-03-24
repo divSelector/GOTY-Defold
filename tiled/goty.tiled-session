@@ -1,11 +1,74 @@
 {
-    "activeFile": "one.tmx",
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "/mnt/hdd/Defold/assets/buch_outside_maps/orthogonal-outside.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "/home/nr/tiled/examples/orthogonal-outside.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 286,
+                "y": 270.5
+            }
+        },
+        "/home/nr/tiled/examples/orthogonal-outside.tmx#outdoor": {
+            "scaleInDock": 1
+        },
+        "/mnt/hdd/Defold/assets/buch_outside_maps/orthogonal-outside.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 262,
+                "y": 231.33333333333337
+            }
+        },
+        "/mnt/hdd/Defold/assets/buch_outside_maps/orthogonal-outside.tmx#outdoor": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 3
+        },
+        "/mnt/hdd/Defold/assets/dungeon_tiles/dungeon_tiles.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 3
+        },
+        "/mnt/hdd/Defold/assets/dungeon_tiles/outside.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 4
+        },
+        "/mnt/hdd/Defold/assets/dungeon_tiles/untitled.tmx": {
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 183,
+                "y": 640
+            }
+        },
         "/mnt/hdd/Defold/projects/GOTY/tilesets/test.tsx": {
             "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx": {
+            "scale": 2,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 346,
+                "y": 88
+            }
+        },
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx#Hints": {
+            "scaleInDock": 2
+        },
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx#NewHouseTileset": {
+            "scaleInDock": 0.75
+        },
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx#shadows": {
+            "scaleInDock": 1
+        },
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx#tutorial": {
             "scaleInDock": 1
         },
         "blank.tmx": {
@@ -24,28 +87,29 @@
         },
         "one.tmx": {
             "expandedObjectLayers": [
-                6,
                 2,
-                5,
-                3
+                3,
+                6,
+                5
             ],
-            "scale": 0.33,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1480.3030303030303,
-                "y": 339.39393939393926
+                "x": 4000.333333333333,
+                "y": 479.99999999999994
             }
         },
         "test.tmx": {
             "expandedObjectLayers": [
                 6,
-                4
+                4,
+                8
             ],
             "scale": 1,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1350.5,
-                "y": 680
+                "x": 1600.5,
+                "y": 480
             }
         },
         "test.tsx": {
@@ -55,35 +119,48 @@
         },
         "two.tmx": {
             "expandedObjectLayers": [
-                6,
                 2,
-                5,
-                3
+                3,
+                6,
+                5
             ],
-            "scale": 1.5,
+            "scale": 0.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 4450.333333333333,
-                "y": 520.6666666666666
+                "x": 6729,
+                "y": 816
             }
         }
     },
     "last.exportedFilePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilemaps",
     "last.externalTilesetPath": "/mnt/hdd/Defold/projects/GOTY/tiled",
-    "last.imagePath": "/mnt/hdd/Defold/projects/GOTY/assets/tilesets",
+    "last.imagePath": "/mnt/hdd/Defold/assets",
+    "lastUsedTilesetExportFilter": "Tiled tileset files (*.tsx *.xml)",
+    "map.height": 50,
     "map.lastUsedExportFilter": "Defold Tile Map (*.tilemap)",
     "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 50,
     "openFiles": [
-        "one.tmx",
-        "test.tmx",
-        "two.tmx"
+        "/mnt/hdd/Defold/assets/buch_outside_maps/orthogonal-outside.tmx"
     ],
     "project": "goty.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "two.tmx",
-        "test.tmx",
+        "/mnt/hdd/Defold/assets/buch_outside_maps/orthogonal-outside.tmx",
+        "/mnt/hdd/Defold/assets/dungeon_tiles/outside.tsx",
+        "/mnt/hdd/Defold/assets/dungeon_tiles/untitled.tmx",
+        "/mnt/hdd/Defold/assets/dungeon_tiles/dungeon_tiles.tsx",
+        "/mnt/hdd/cpp/Blackguard/Assets/level4.tmx",
         "one.tmx",
+        "test.tmx",
+        "two.tmx",
         "test.tsx"
-    ]
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
 }

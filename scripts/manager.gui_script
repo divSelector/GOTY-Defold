@@ -6,6 +6,38 @@ local audio = require "modules.audio"
 
 local fade_time = 0.5
 
+local easing_functions = {
+    gui.EASING_LINEAR,
+    gui.EASING_INSINE,
+    gui.EASING_OUTSINE,
+    gui.EASING_INOUTSINE,
+    gui.EASING_INQUAD,
+    gui.EASING_OUTQUAD,
+    gui.EASING_INOUTQUAD,
+    gui.EASING_INCUBIC,
+    gui.EASING_OUTCUBIC,
+    gui.EASING_INOUTCUBIC,
+    gui.EASING_INBACK,
+    gui.EASING_OUTBACK,
+    gui.EASING_INOUTBACK,
+    gui.EASING_INELASTIC,
+    gui.EASING_OUTELASTIC,
+    gui.EASING_INOUTELASTIC,
+    gui.EASING_INBOUNCE,
+    gui.EASING_OUTBOUNCE,
+    gui.EASING_INOUTBOUNCE
+}
+
+local function get_random_easing()
+    return easing_functions[math.random(1, #easing_functions)]
+end
+
+local function get_random_playback()
+    local random_value = math.random()  -- Get a value between 0 and 1
+    local biased_value = random_value * random_value  -- Square to favor higher and lower numbers
+    return biased_value * (1.5 - 0.25) + 0.25  -- Scale to the range [0.25, 1.5]
+end
+
 
 local function fade_in(self, callback)
     gui.animate(self.fade_overlay_node, "color.w", 1, gui.EASING_LINEAR, fade_time, 0, function()
@@ -62,6 +94,7 @@ function init(self)
 	input.init()
 
 	self.timer_node = gui.get_node("time")
+    self.original_timer_position = gui.get_position(self.timer_node)
 	self.ball_count_node = gui.get_node("ball_count")
 	gui.set_color(self.timer_node, vmath.vector4(0.433,0.571,0.359, 1))
 	gui.set_color(self.ball_count_node, vmath.vector4(0.433,0.571,0.359, 1))
@@ -93,7 +126,7 @@ function on_message(self, message_id, message, sender)
 
     elseif message_id == hash("proxy_unloaded") then
         daabbcc.reset()
-        
+
         if state.victory then
             print("You are victorious")
             window.set_listener(nil)
@@ -104,9 +137,51 @@ function on_message(self, message_id, message, sender)
 
             gui.set_color(self.timer_bg_node, vmath.vector4(0.859,0.835,0.431, 0)) -- make transparent
             gui.set_color(self.ball_bg_node, vmath.vector4(0.859,0.835,0.431, 0))
-            gui.animate(self.fade_overlay_node, "color", vmath.vector4(0.2, 0.274, 0.165, 1), gui.EASING_OUTCUBIC, 3.5) 
+            -- gui.animate(self.fade_overlay_node, "color", vmath.vector4(0.2, 0.274, 0.165, 1), gui.EASING_OUTCUBIC, 3.5) 
+            gui.animate(self.fade_overlay_node, "color", vmath.vector4(0.10196, 0.10196, 0.10196, 1), gui.EASING_OUTCUBIC, 3.5) 
             gui.animate(self.timer_node, "position", screen_center, gui.EASING_OUTCUBIC, 5.5)
-            gui.animate(self.timer_node, "scale", vmath.vector3(4, 4, 0), gui.EASING_OUTCUBIC, 5.5)
+            gui.animate(self.timer_node, "scale", vmath.vector3(3, 3, 0), gui.EASING_OUTCUBIC, 5.5)
+
+            local victory_message
+            if state.ball_count == state.total_balls then
+                gui.play_particlefx(gui.get_node("victory_particlefx"))
+                victory_message = "<line>a winner is you"
+            else
+                victory_message = "balls<line>or gtfo"
+            end
+
+            local player_node = gui.get_node("player")
+            gui.set_color(player_node, vmath.vector4(1, 1, 1, 1))
+            gui.play_flipbook(player_node, "run", nil, { playback_rate = 1.75 })
+            local player_pos = gui.get_position(player_node)
+            local start_x = player_pos.x - 400
+            local end_x = start_x + 400
+            local duration = 3.0
+            local delay = 0
+            -- local easing = gui.EASING_OUTELASTIC
+            local moving_to_end = false  -- Track direction
+            
+            local function animate()
+                local easing = get_random_easing()
+                gui.play_flipbook(player_node, "run", nil, { playback_rate = get_random_playback() })
+                local target_x = moving_to_end and end_x or start_x
+                local scale_x = moving_to_end and -2 or 2
+                gui.set_scale(player_node, vmath.vector3(scale_x, 2, 1))
+                moving_to_end = not moving_to_end  -- Toggle direction
+                gui.animate(player_node, "position.x", target_x, easing, duration, delay, animate)
+            end
+
+
+
+            timer.delay(3.5, false, function()
+                msg.post("main:/main#dialog", "play_dialog", {
+                    dialog = victory_message,
+                    priority = 100
+                })
+                animate()
+            end)
+
+
             return
         end
         
@@ -155,8 +230,10 @@ function on_input(self, action_id, action)
 
 	if not action.pressed then return end
 
-	if action_id == hash("key_esc") and state.pause_allowed then
+	if action_id == hash("key_tab") and state.pause_allowed then
 		pause_game(self)
+    elseif action_id == hash("key_tab") and state.victory then
+        -- restart?
 	end
 
 end

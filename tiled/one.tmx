@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="500" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="62">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="500" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="69">
  <editorsettings>
   <export target="one.tilemap" format="defold"/>
  </editorsettings>
@@ -9,7 +9,7 @@
  <tileset firstgid="1" source="test.tsx"/>
  <layer id="1" name="ground" width="500" height="60">
   <properties>
-   <property name="info-1" value="Ballsack"/>
+   <property name="info-1" value="diedlonely, stellar&lt;line&gt;on soundcloud"/>
   </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,
@@ -179,22 +179,58 @@
   </object>
  </objectgroup>
  <objectgroup color="#6131ff" id="6" name="enemy_spawn">
-  <object id="31" x="2045.33" y="532">
+  <object id="62" x="2045.5" y="519.5">
+   <properties>
+    <property name="accessory" value="shield05"/>
+    <property name="base" value="greypants"/>
+    <property name="body" value="armor05"/>
+    <property name="head" value="helm05"/>
+   </properties>
    <point/>
   </object>
-  <object id="38" x="3689.17" y="748.833">
+  <object id="63" x="2661.33" y="697.333">
+   <properties>
+    <property name="accessory" value="book02"/>
+    <property name="base" value="greenpants"/>
+    <property name="body" value="robe02"/>
+    <property name="head" value="hat02"/>
+   </properties>
    <point/>
   </object>
-  <object id="39" x="2663.5" y="696">
+  <object id="65" x="3469.67" y="750.667">
+   <properties>
+    <property name="accessory" value="shield08"/>
+    <property name="base" value="greenpants"/>
+    <property name="body" value="armor08"/>
+    <property name="head" value="helm08"/>
+   </properties>
    <point/>
   </object>
-  <object id="43" x="3463.67" y="738.333">
+  <object id="66" x="4150" y="626.667">
+   <properties>
+    <property name="accessory" value="book03"/>
+    <property name="base" value="greenpants"/>
+    <property name="body" value="robe03"/>
+    <property name="head" value="hat03"/>
+   </properties>
    <point/>
   </object>
-  <object id="44" x="4153.34" y="647.5">
+  <object id="67" x="4656.67" y="640">
+   <properties>
+    <property name="accessory" value="book08"/>
+    <property name="base" value="redpants"/>
+    <property name="body" value="robe08"/>
+    <property name="head" value="hat08"/>
+   </properties>
    <point/>
   </object>
-  <object id="56" x="4655" y="648">
+  <object id="68" x="3679" y="743">
+   <properties>
+    <property name="accessory" value="shield06"/>
+    <property name="base" value="greypants"/>
+    <property name="body" value="armor06"/>
+    <property name="head" value="helm06"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>

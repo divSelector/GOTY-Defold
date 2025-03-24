@@ -29,8 +29,8 @@ local function get_difficulty_derived_attack_delay_times(difficulty)
     local ground_delay
     local air_delay
     if difficulty == 0 then -- easy
-        ground_delay = 0.20
-        air_delay = 0.25
+        ground_delay = 0.80
+        air_delay = 1.00
     elseif difficulty == 1 then -- normal
         ground_delay = 0.15
         air_delay = 0.20
